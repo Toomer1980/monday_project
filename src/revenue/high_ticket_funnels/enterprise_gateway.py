@@ -1,40 +1,29 @@
 ﻿import os
 import logging
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Request, HTTPException
 from pydantic import BaseModel
 
-app = FastAPI(title="Oracle Systems LLC Enterprise Gateway", version="3.0.0")
+app = FastAPI(title="Oracle Systems LLC Automated Revenue Engine", version="4.0.0")
 logging.basicConfig(level=logging.INFO)
 
-class InvoiceRequest(BaseModel):
-    client_name: str
-    tier: str
-    monthly_commitment: float
+class RevenueLedger(BaseModel):
+    client_id: str
+    gross_amount: float
+    currency: str = "USD"
 
-@app.get("/health")
-def health_check():
+@app.post("/api/v1/billing/reconcile")
+async def reconcile_revenue(ledger: RevenueLedger):
+    tax_reserve = ledger.gross_amount * 0.22 # Automated tax allocation
+    net_revenue = ledger.gross_amount - tax_reserve
+    logging.info(f"Reconciled Revenue:  | Tax Reserve (22%):  | Net: ")
     return {
-        "status": "market_leader",
-        "entity": "Oracle Systems LLC",
+        "status": "reconciled",
         "ein": "82-4737196",
-        "revenue_target": 1000000.00
-    }
-
-@app.post("/api/v1/revenue/contract")
-def generate_enterprise_contract(req: InvoiceRequest):
-    if req.monthly_commitment < 10000:
-        raise HTTPException(status_code=400, detail="Minimum enterprise tier is $10,000/mo.")
-    
-    contract_id = f"ORACLE-ENT-{os.urandom(3).hex().upper()}"
-    logging.info(f"Secured high-ticket contract for {req.client_name}: /mo")
-    return {
-        "success": True,
-        "contract_id": contract_id,
-        "client": req.client_name,
-        "billed_monthly": req.monthly_commitment,
-        "status": "active_revenue_stream"
+        "gross": ledger.gross_amount,
+        "tax_reserve": tax_reserve,
+        "net_operational": net_revenue
     }
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8001)
