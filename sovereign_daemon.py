@@ -15,7 +15,7 @@ app = Flask("SovereignGateway")
 
 def build_snapshot():
     vmem = psutil.virtual_memory()
-    root_p = "C:\\" if os.name == "nt" else "/"
+    root_p = "C:\' if os.name == "nt" else "/"
     disk = psutil.disk_usage(root_p)
     logs = []
     if os.path.exists(LOG_PATH):
@@ -154,11 +154,11 @@ th,td{padding:8px 10px;text-align:left;border-bottom:1px solid #1f2937;font-size
 </style></head><body>
 <div class="header"><span>M.O.N.D.A.Y. SOVEREIGNCORE // DUAL-CLOUD & REVENUE MATRIX</span><span>SSE: LIVE | WATCHDOG: ARMED</span></div>
 <div class="bar">
-<button onclick="post(\"/api/task/submit\",{task_name:\"Compute-Job\"})">+ Dispatch Job</button>
-<button style="background:#059669" onclick="post(\"/api/plugins/audit\",{})">Run 4 Audits</button>
+<button onclick="post('/api/task/submit',{task_name:'Compute-Job'})">+ Dispatch Job</button>
+<button style="background:#059669" onclick="post('/api/plugins/audit',{})">Run 4 Audits</button>
 <button style="background:#ec4899" onclick="pay()">Simulate/Run Stripe Checkout ($15)</button>
-<button style="background:#d97706" onclick="post(\"/api/tasks/purge\",{})">Purge Queue</button>
-<button style="background:#7c3aed" onclick="post(\"/api/tasks/export-csv\",{})">Export CSV</button>
+<button style="background:#d97706" onclick="post('/api/tasks/purge',{})">Purge Queue</button>
+<button style="background:#7c3aed" onclick="post('/api/tasks/export-csv',{})">Export CSV</button>
 <span id="msg" style="margin-left:auto;color:#38bdf8;font-size:12px;">Ready</span>
 </div>
 <div class="grid">
@@ -188,7 +188,7 @@ es.onmessage = e => {
   document.getElementById("rev").innerText = "$" + d.revenue.total_usd + " (" + d.revenue.transactions + " tx)";
   document.getElementById("pills").innerHTML = d.vault_keys.map(k => `<span class="pill">${k}</span>`).join("");
   document.getElementById("tb").innerHTML = d.tasks.map(t => `<tr><td>${t.id}</td><td style="color:#38bdf8;font-weight:bold;">${t.task_name}</td><td>${t.status}</td><td>${t.duration_sec!==null?t.duration_sec+"s":"-"}</td><td>${t.queued_at.slice(11,19)}</td></tr>`).join("");
-  document.getElementById("lb").innerText = d.logs.join("\n");
+  document.getElementById("lb").innerText = d.logs.join("\\n");
 };
 async function post(u, b){
   const r = await fetch(u, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(b)});

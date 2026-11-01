@@ -2,6 +2,7 @@ import os, sys, csv
 BASE_DIR = r"C:\Users\toome\Desktop\SovereignCore" if os.name == "nt" and os.path.exists(r"C:\Users\toome\Desktop\SovereignCore") else os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(os.path.join(BASE_DIR, "modules"))
 import db
+
 def generate_csv_report():
     rdir = os.path.join(BASE_DIR, "data", "reports")
     os.makedirs(rdir, exist_ok=True)
