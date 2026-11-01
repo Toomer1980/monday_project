@@ -1,0 +1,1 @@
+$ErrorActionPreference = "Stop"; Write-Host "Core building..." -ForegroundColor Green
