@@ -6,4 +6,4 @@ RUN pip install --no-cache-dir -r requirements.txt gunicorn
 COPY . .
 RUN mkdir -p /app/data /app/logs /app/config /app/modules
 EXPOSE 8000
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "1", "--threads", "4", "sovereign_daemon:app"]
+CMD [\"gunicorn\", \"--bind\", \"0.0.0.0:8000\", \"--workers\", \"1\", \"--threads\", \"4\", \"sovereign_daemon:app\"]
