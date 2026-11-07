@@ -139,7 +139,7 @@ def api_dl():
 
 @app.route("/store")
 def web_store():
-     h = [
+    h = [
         "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Oracle Store</title>",
         "<style>body{background:#060911;color:#fff;font-family:sans-serif;margin:0}",
         ".nav{display:flex;justify-content:space-between;padding:16px 32px;background:#111827}",
