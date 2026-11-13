@@ -36,3 +36,5 @@ cloudflared.exe
 *.db
 storage/backups/
 CURRENT_TUNNEL_URL.txt
+
+*.bak

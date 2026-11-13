@@ -1,3 +1,14 @@
+import os, json
+if os.path.exists(".env"):
+    for _line in open(".env", encoding="utf-8"):
+        if "=" in _line and not _line.strip().startswith("#"):
+            _k, _v = _line.strip().split("=", 1)
+            os.environ[_k.strip()] = _v.strip()
+if os.path.exists(".stripe_env.json"):
+    for _k, _v in json.load(open(".stripe_env.json", encoding="utf-8")).items():
+        if isinstance(_v, str) and _v.startswith(("sk_", "rk_")):
+            os.environ["STRIPE_SECRET_KEY"] = _v.strip()
+
 import os, sys, json, time, logging, threading
 import psutil, stripe
 from flask import Flask, request, jsonify, Response, send_file
