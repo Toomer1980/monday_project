@@ -1,0 +1,21 @@
+meta {
+  name: Grab Order
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/drones/grab-order
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{droneToken}}
+}
+
+body:json {
+  {
+    "orderId": "REPLACE_WITH_ORDER_ID"
+  }
+}

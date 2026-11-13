@@ -1,0 +1,27 @@
+meta {
+  name: Update Order Origin
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{baseUrl}}/admin/orders/:orderId/origin
+  body: json
+  auth: bearer
+}
+
+params:path {
+  orderId: REPLACE_WITH_ORDER_ID
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
+
+body:json {
+  {
+    "lat": 40.7614,
+    "lng": -73.9776,
+    "address": "Rockefeller Center, 45 Rockefeller Plaza, New York, NY 10111"
+  }
+}

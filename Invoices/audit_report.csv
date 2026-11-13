@@ -1,0 +1,8 @@
+tx_id,timestamp,type,payload,hex_stamp
+TX-CFE49789-81D2,2026-06-14 19:59:23,hardware_allocation,"{'target_val': 35000.0, 'gateway': 'KeyBank 9006'}",
+TX-BA47AD3A-529C,2026-06-14 20:02:08,hardware_allocation,"{'target_val': 35000.0, 'gateway': 'KeyBank 9006'}",
+TX-B203C799-D582,2026-06-15 03:22:14,hardware_allocation,"{'target_val': 35000.0, 'gateway': 'KeyBank 9006'}",
+TX-14797D58-199C,2026-06-15 05:31:50,hardware_allocation,"{'target_val': 35000.0, 'gateway': 'KeyBank 9006'}",
+TX-5520E321-CC1A,2026-06-17 08:20:28,hardware_allocation,"{'target_val': 35000.0, 'gateway': 'KeyBank 9006'}",
+TX-4FCE1778-2A6F,2026-06-17 09:17:24,hardware_allocation,"{'target_val': 35000.0, 'gateway': 'KeyBank 9006'}",
+TX-B416E6EC-310B,2026-06-17 17:33:10,EXECUTE_TX,"{'amount': 10000.0, 'destination': '17Vh5XWnheF5HrPvJzK5LsFvSzRkhcURGL', 'force_new_sig': True}",

@@ -1,0 +1,21 @@
+meta {
+  name: Mark Broken (Creates Handoff)
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/drones/mark-broken
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{droneToken}}
+}
+
+body:json {
+  {
+    "reason": "Critical battery failure - immediate landing required"
+  }
+}

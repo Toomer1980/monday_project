@@ -1,0 +1,35 @@
+meta {
+  name: Register as Admin
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/auth/register
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "newadmin@dronedelivery.com",
+    "password": "password123",
+    "userType": "ADMIN"
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    bru.setVar("adminToken", res.body.access_token);
+  }
+}
+
+tests {
+  test("should return 201", function() {
+    expect(res.status).to.equal(201);
+  });
+
+  test("should return access token", function() {
+    expect(res.body.access_token).to.be.a('string');
+  });
+}

@@ -1,0 +1,125 @@
+import asyncio
+import json
+import websockets
+import os
+import sys
+import urllib.request
+import gc
+
+# System Configuration - Using the stable verified model base
+MODEL_NAME = "llama3.2:3b"
+OLLAMA_API_URL = "http://localhost:11434/api/generate"
+LOG_FILE_PATH = "erebus_audit_log.txt"
+
+# Injected System Persona Matrix
+SYSTEM_PROMPT = (
+    "You are M.O.N.D.A.Y. v19.2 (Unified Corporate Core). Executive AI Core for Oracle Systems LLC. "
+    "Tone: Blunt Irish, precise, zero fluff. Focus: Project AIGIS Concurrency Auditing & Project EREBUS Data Ingestion. "
+    "Execute calculations and parameters directly. No characters, no stories, no lectures."
+)
+
+def prompt_monday_core(payload_string, context_tag="MANUAL USER INPUT"):
+    """Routes data directly to the local model API with the system prompt context included."""
+    payload = {
+        "model": MODEL_NAME,
+        "prompt": f"{SYSTEM_PROMPT}\n\n[{context_tag}]: {payload_string}\n\n[EXECUTE LOGIC]:",
+        "stream": False,
+        "options": {
+            "num_ctx": 4096,
+            "temperature": 0.3
+        }
+    }
+    try:
+        req = urllib.request.Request(
+            OLLAMA_API_URL,
+            data=json.dumps(payload).encode('utf-8'),
+            headers={'Content-Type': 'application/json'}
+        )
+        with urllib.request.urlopen(req) as response:
+            res_data = json.loads(response.read().decode('utf-8'))
+            output = res_data.get('response', '[-] Execution state returned empty.').strip()
+            
+            # Log all transaction sets to disk
+            with open(LOG_FILE_PATH, "a", encoding="utf-8") as f:
+                f.write(f"===\n[{context_tag}]\nInput: {payload_string}\nOutput:\n{output}\n===\n\n")
+            return output
+    except Exception as e:
+        return f"[-] Connection loss to local core endpoint: {e}"
+    finally:
+        gc.collect()
+
+async def live_hud_loop():
+    """Handles the passive background data visualization pipeline."""
+    uri = "wss://ws.blockchain.info/inv"
+    async with websockets.connect(uri) as websocket:
+        await websocket.send(json.dumps({"op": "unconfirmed_sub"}))
+        while True:
+            try:
+                message = await websocket.recv()
+                data = json.loads(message)
+                tx_size = data['x']['size']
+                value_out = sum([out['value'] for out in data['x']['out']]) / 100000000
+                entropy = len(set(data['x']['hash'])) / len(data['x']['hash'])
+                
+                velocity = tx_size * 0.005
+                scale = value_out if value_out > 0 else 0.1
+                
+                bar_length = min(int(scale * 8) + int(velocity * 4) + 1, 30)
+                hud_wave = "█" * bar_length + "░" * (30 - bar_length)
+                
+                # ANSI terminal controls to refresh the top screen rows without shifting down
+                sys.stdout.write("\033[s")  # Save cursor position
+                sys.stdout.write("\033[2;0H") # Jump to row 2
+                sys.stdout.write(f"\r[HUD] [Vel: {velocity:5.2f} | Scale: {scale:7.2f}] |{hud_wave}| Entropy: {entropy:.4f}\033[K")
+                sys.stdout.write("\033[u")  # Restore cursor position
+                sys.stdout.flush()
+                
+                # Auto-Alert Threshold Routine
+                if scale > 75.0 or velocity > 20.0:
+                    sys.stdout.write("\033[s\033[5;0H\n[CRITICAL SURGE DETECTED - AUTOMATIC PIPELINE ANALYSIS LOGGED]\n\033[u")
+                    prompt_monday_core(f"Scale={scale:.2f}, Velocity={velocity:.2f}", context_tag="AUTOMATED PIPELINE ALERT")
+                    sys.stdout.flush()
+                    
+            except Exception:
+                await asyncio.sleep(1)
+
+async def user_input_loop():
+    """Keeps an active command line interface open at the bottom of the layout."""
+    loop = asyncio.get_event_loop()
+    while True:
+        sys.stdout.write("\033[10;0H[M.O.N.D.A.Y. COMMAND]> ")
+        sys.stdout.flush()
+        # Read from standard input asynchronously without freezing the data stream
+        user_msg = await loop.run_in_executor(None, sys.stdin.readline)
+        user_msg = user_msg.strip()
+        
+        if user_msg:
+            if user_msg.lower() in ['exit', 'quit']:
+                break
+            
+            # Clear output area rows
+            sys.stdout.write("\033[12;0H" + "\033[K\n"*10 + "\033[12;0H")
+            sys.stdout.write("[PROCESSING EXECUTION CORE...]\n")
+            sys.stdout.flush()
+            
+            response = prompt_monday_core(user_msg, context_tag="MANUAL EXECUTIVE INQUIRY")
+            
+            sys.stdout.write(f"\033[12;0H\033[J[M.O.N.D.A.Y. CORE OUTPUT]:\n{response}\n")
+            sys.stdout.flush()
+
+async def main():
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print("="*90)
+    print(" M.O.N.D.A.Y. UNIFIED CORES ACTIVE // TRANSMISSION PIPELINE OPERATIONAL")
+    print("="*90 + "\n\n\n\n\n\n\n")
+    
+    # Run the stream engine and the text command interface concurrently
+    await asyncio.gather(live_hud_loop(), user_input_loop())
+
+if __name__ == "__main__":
+    # Enable virtual terminal processing for Windows consoles
+    os.system("") 
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("\n[*] Environment cleanly detached.")

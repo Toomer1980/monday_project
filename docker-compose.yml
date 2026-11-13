@@ -1,0 +1,26 @@
+﻿version: '3.8'
+
+services:
+  swarm_api:
+    build: .
+    container_name: monday_swarm_api
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    command: python swarm_api.py
+
+  prophet_engine:
+    build: .
+    container_name: monday_prophet_engine
+    ports:
+      - "8765:8765"
+    restart: unless-stopped
+    command: python prophet_pipeline.py
+
+  divination_core:
+    build: .
+    container_name: monday_divination_core
+    restart: unless-stopped
+    command: python divination_core.py
+    depends_on:
+      - prophet_engine

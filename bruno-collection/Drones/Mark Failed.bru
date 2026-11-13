@@ -1,0 +1,22 @@
+meta {
+  name: Mark Failed
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/drones/mark-failed
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{droneToken}}
+}
+
+body:json {
+  {
+    "orderId": "REPLACE_WITH_ORDER_ID",
+    "reason": "Severe weather conditions - high winds unsafe for flight"
+  }
+}

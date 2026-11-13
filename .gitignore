@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿__pycache__/
 *.py[cod]
 *$py.class
@@ -7,3 +8,31 @@ logs/
 data/shards/*.zip
 config/secrets/
 security/keys/
+=======
+﻿friday_env/
+__pycache__/
+*.pyc
+.env
+node_modules/
+.vscode/
+.idea/
+.git/
+>>>>>>> 209b4c83 (Automated Deployment: Full SovereignCore structure)
+
+friday_env/
+*.log
+*.db-shm
+*.db-wal
+cloudflared.exe
+.env
+
+friday_env/
+*.log
+*.db-shm
+*.db-wal
+cloudflared.exe
+.env
+.stripe_env.json
+*.db
+storage/backups/
+CURRENT_TUNNEL_URL.txt

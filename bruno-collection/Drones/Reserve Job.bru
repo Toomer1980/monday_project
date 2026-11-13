@@ -1,0 +1,15 @@
+meta {
+  name: Reserve Job
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/drones/reserve-job
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{droneToken}}
+}

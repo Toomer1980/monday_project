@@ -1,0 +1,15 @@
+{
+    "status": "SLEEPING",
+    "last_cycle": "2026-05-28T06:41:39.938989",
+    "next_wake": "2026-05-28T07:41:39.938989",
+    "node_telemetry": {
+        "online": false,
+        "error": "<urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>"
+    },
+    "spatial_vectors": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+    ]
+}

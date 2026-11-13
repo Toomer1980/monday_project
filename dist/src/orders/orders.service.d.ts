@@ -1,0 +1,100 @@
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateOrderDto } from './dto/create-order.dto';
+export declare class OrdersService {
+    private prisma;
+    constructor(prisma: PrismaService);
+    create(userId: string, createOrderDto: CreateOrderDto): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        status: import("@prisma/client").$Enums.OrderStatus;
+        orderNumber: string;
+        originLat: number;
+        originLng: number;
+        originAddress: string;
+        destinationLat: number;
+        destinationLng: number;
+        destinationAddress: string;
+        pickedUpAt: Date | null;
+        deliveredAt: Date | null;
+        failedAt: Date | null;
+        failureReason: string | null;
+        customerId: string;
+        assignedDroneId: string | null;
+    }>;
+    findByUser(userId: string): Promise<({
+        assignedDrone: {
+            id: string;
+            status: import("@prisma/client").$Enums.DroneStatus;
+            currentLat: number | null;
+            currentLng: number | null;
+        } | null;
+    } & {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        status: import("@prisma/client").$Enums.OrderStatus;
+        orderNumber: string;
+        originLat: number;
+        originLng: number;
+        originAddress: string;
+        destinationLat: number;
+        destinationLng: number;
+        destinationAddress: string;
+        pickedUpAt: Date | null;
+        deliveredAt: Date | null;
+        failedAt: Date | null;
+        failureReason: string | null;
+        customerId: string;
+        assignedDroneId: string | null;
+    })[]>;
+    findOne(orderId: string, userId: string): Promise<{
+        currentDroneLat: number | null | undefined;
+        currentDroneLng: number | null | undefined;
+        estimatedTimeMinutes: number | null;
+        assignedDrone: {
+            id: string;
+            status: import("@prisma/client").$Enums.DroneStatus;
+            currentLat: number | null;
+            currentLng: number | null;
+        } | null;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        status: import("@prisma/client").$Enums.OrderStatus;
+        orderNumber: string;
+        originLat: number;
+        originLng: number;
+        originAddress: string;
+        destinationLat: number;
+        destinationLng: number;
+        destinationAddress: string;
+        pickedUpAt: Date | null;
+        deliveredAt: Date | null;
+        failedAt: Date | null;
+        failureReason: string | null;
+        customerId: string;
+        assignedDroneId: string | null;
+    }>;
+    withdraw(orderId: string, userId: string): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        status: import("@prisma/client").$Enums.OrderStatus;
+        orderNumber: string;
+        originLat: number;
+        originLng: number;
+        originAddress: string;
+        destinationLat: number;
+        destinationLng: number;
+        destinationAddress: string;
+        pickedUpAt: Date | null;
+        deliveredAt: Date | null;
+        failedAt: Date | null;
+        failureReason: string | null;
+        customerId: string;
+        assignedDroneId: string | null;
+    }>;
+    private calculateETA;
+    private toRad;
+}

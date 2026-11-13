@@ -1,0 +1,81 @@
+import sys, threading, time, requests, subprocess, os
+from PyQt6.QtWidgets import QApplication, QWidget
+from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtGui import QPainter, QColor, QBrush, QFont, QPen
+
+class AutonomousMonday(QWidget):
+    def __init__(self):
+        super().__init__()
+        # Target Assets
+        self.secure_vault = "xpub6CkBtQ4BF2oUeRSGo5PPtLdSf3YgPTB4h69Xx4QJEvsUKtYFkbALPKZmNhjLPnUUWiTAuDpukNPTE2AgtC6xBsUXFfSXdzyt2B7mrcRaGN3"
+        self.comp_vault = "xpub6CC5RC7p1hVGiPR1427j6PWGTEqsEaBHVFi3vTsA5SitMjNz4VQ4w4CECKBzyacpvqEzoqtNWqPkbz6tib9RmuAxXMbWkJSguKYx6rSiBqy"
+        
+        self.btc_price = 0.0
+        self.vault_bal = 0.0
+        self.alert = "SYSTEM INITIALIZED"
+        
+        # UI Setup
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Tool)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setGeometry(100, 100, 420, 180) # Can be dragged or locked
+        
+        # Start Autonomous Core
+        threading.Thread(target=self.core_logic, daemon=True).start()
+        
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update)
+        self.timer.start(500)
+        self.show()
+
+    def core_logic(self):
+        """The 100% Autonomous Brain"""
+        while True:
+            try:
+                # 1. Direct Blockchain Sync
+                res = requests.get(f"https://mempool.space/api/v1/xpub/{self.secure_vault}", timeout=10)
+                if res.status_code == 200:
+                    stats = res.json().get('chain_stats', {})
+                    self.vault_bal = (stats.get('funded_txo_sum', 0) - stats.get('spent_txo_sum', 0)) / 100_000_000
+                
+                # 2. Market Pulse
+                price_res = requests.get("https://api.coindesk.com/v1/bpi/currentprice.json")
+                self.btc_price = price_res.json()['bpi']['USD']['rate_float']
+                
+                # 3. Compromised Wallet Watchdog
+                comp_res = requests.get(f"https://mempool.space/api/v1/xpub/{self.comp_vault}")
+                if comp_res.json().get('chain_stats', {}).get('funded_txo_sum', 0) > 0:
+                    self.alert = "!! SECURITY BREACH IN OLD WALLET !!"
+                else:
+                    self.alert = "NETWORK SECURE - NO BREACH"
+
+                # 4. AUTO-UPGRADE CHECK (Placeholder for future self-writing logic)
+                # This is where M.O.N.D.A.Y. will eventually rewrite its own files.
+                
+            except Exception as e:
+                self.alert = f"SYNC ERROR: {e}"
+            time.sleep(30)
+
+    def paintEvent(self, event):
+        p = QPainter(self)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing)
+        p.setBrush(QBrush(QColor(0, 10, 20, 220)))
+        p.setPen(QPen(QColor(0, 255, 255), 2))
+        p.drawRoundedRect(5, 5, self.width()-10, self.height()-10, 15, 15)
+        
+        # Holographic Text
+        p.setFont(QFont("Consolas", 12))
+        p.setPen(QColor(0, 255, 255))
+        p.drawText(20, 40, "M.O.N.D.A.Y. SOVEREIGN ENGINE v1.0")
+        
+        p.setFont(QFont("Consolas", 22, QFont.Weight.Bold))
+        p.setPen(QColor(0, 255, 127))
+        p.drawText(20, 90, f"${(self.vault_bal * self.btc_price):,.2f}")
+        
+        p.setFont(QFont("Consolas", 10))
+        p.setPen(QColor(255, 100, 100) if "BREACH" in self.alert else QColor(100, 255, 255))
+        p.drawText(20, 150, f"STATUS: {self.alert}")
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    monday = AutonomousMonday()
+    sys.exit(app.exec())

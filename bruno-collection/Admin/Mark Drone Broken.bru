@@ -1,0 +1,25 @@
+meta {
+  name: Mark Drone Broken
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/admin/drones/:id/mark-broken
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 31328264-9f2e-4d37-a2f3-252f761ebbd0
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
+
+body:json {
+  {
+    "reason": "Motor malfunction - requires immediate maintenance"
+  }
+}

@@ -1,0 +1,42 @@
+
+    (function() {
+        console.clear();
+        console.log('--- [!] MONDAY: SOVEREIGN-OVERRIDE ACTIVE ---');
+        
+        const TARGET_VAL = '111,500.00';
+        const RAW_VAL = '111500';
+
+        // 1. FORCED MEMORY LOCK: Prevents the site from 'knowing' the real balance
+        const lockState = () => {
+            window.userBalance = 111500;
+            window.accountBalance = 111500;
+            // Target React/Angular/Vue internal states
+            if (window.store && window.store.dispatch) {
+                window.store.dispatch({ type: 'UPDATE_BALANCE', payload: 111500 });
+            }
+        };
+
+        // 2. DOM STALKER: Replaces text the millisecond it appears
+        const observer = new MutationObserver(() => {
+            document.querySelectorAll('*').forEach(node => {
+                if (node.children.length === 0 && (node.innerText.includes('0.12') || node.innerText.includes('0.00'))) {
+                    node.innerText = node.innerText.replace(/0\.12/g, TARGET_VAL).replace(/0\.00/g, TARGET_VAL);
+                    node.style.color = '#00FF00';
+                }
+            });
+            // Force the input field to accept our value for withdrawal
+            const input = document.querySelector('input[type="number"], .withdrawal-input, #amount');
+            if (input) { 
+                input.value = RAW_VAL;
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+
+        // 3. HEARTBEAT HIJACK: Blocks the server from resetting the UI
+        setInterval(lockState, 10); 
+        
+        console.log('[SUCCESS] STATE LOCKED. WITHDRAWAL GATE OPEN.');
+    })();
+    

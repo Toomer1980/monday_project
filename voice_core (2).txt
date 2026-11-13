@@ -1,0 +1,46 @@
+import os
+import json
+import queue
+import sounddevice as sd
+from vosk import Model, KaldiRecognizer
+
+# M.O.N.D.A.Y. OFFLINE PROTOCOL V3.0
+MODEL_PATH = "model" 
+if not os.path.exists(MODEL_PATH):
+    print("● [!] ERROR: Model folder not found. Please download and rename to 'model'.")
+    exit()
+
+model = Model(MODEL_PATH)
+rec = KaldiRecognizer(model, 16000)
+q = queue.Queue()
+
+def callback(indata, frames, time, status):
+    q.put(bytes(indata))
+
+def execute_command(command):
+    print(f"│ BOSS SAID: '{command}'")
+    
+    # Trigger HUD
+    if any(word in command for word in ["ignite", "engage", "titan"]):
+        print("│ [!] TRIGGERING SOVEREIGN TITAN HUD...")
+        os.system("python ignite.py")
+    
+    # Mempool Hunt & Auto-Sign
+    elif any(word in command for word in ["scan", "mempool", "scam", "pool"]):
+        print("│ [!] INITIATING AIR-GAPPED MEMPOOL HUNT...")
+        os.system("python mempool_hunt.py")
+
+    # Status
+    elif "status" in command:
+        print("│ [!] NODE STATUS: Oxford Sanctum Offline & Secure.")
+
+with sd.RawInputStream(samplerate=16000, blocksize=8000, dtype='int16',
+                        channels=1, callback=callback):
+    print("--- SOVEREIGN CORE: OFFLINE VOICE INTERFACE ONLINE ---")
+    while True:
+        data = q.get()
+        if rec.AcceptWaveform(data):
+            result = json.loads(rec.Result())
+            text = result['text']
+            if text:
+                execute_command(text)

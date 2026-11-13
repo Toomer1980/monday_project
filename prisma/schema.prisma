@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  ENDUSER
+  DRONE
+}
+
+enum OrderStatus {
+  PENDING
+  ASSIGNED
+  PICKED_UP
+  IN_TRANSIT
+  DELIVERED
+  FAILED
+  CANCELLED
+  PENDING_HANDOFF
+}
+
+enum DroneStatus {
+  AVAILABLE
+  BUSY
+  BROKEN
+  MAINTENANCE
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  password  String
+  role      UserRole
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders Order[] @relation("CustomerOrders")
+  drone  Drone?
+
+  @@map("users")
+}
+
+model Drone {
+  id             String      @id @default(uuid())
+  userId         String      @unique
+  user           User        @relation(fields: [userId], references: [id])
+  serialNumber   String      @unique @default(uuid())
+  status         DroneStatus @default(AVAILABLE)
+
+  currentLat     Float?
+  currentLng     Float?
+  batteryLevel   Float       @default(100.0)
+
+  currentOrderId String?     @unique
+  currentOrder   Order?      @relation("DroneCurrentOrder", fields: [currentOrderId], references: [id])
+
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  orders            Order[]         @relation("OrderAssignedDrone")
+  locationHistory   LocationHistory[]
+  handoffsFrom      OrderHandoff[]  @relation("HandoffFromDrone")
+
+  @@map("drones")
+}
+
+model Order {
+  id                 String      @id @default(uuid())
+  orderNumber        String      @unique
+
+  customerId         String
+  customer           User        @relation("CustomerOrders", fields: [customerId], references: [id])
+
+  originLat          Float
+  originLng          Float
+  originAddress      String
+
+  destinationLat     Float
+  destinationLng     Float
+  destinationAddress String
+
+  status             OrderStatus @default(PENDING)
+
+  assignedDroneId    String?
+  assignedDrone      Drone?      @relation("OrderAssignedDrone", fields: [assignedDroneId], references: [id])
+
+  currentDrone       Drone?      @relation("DroneCurrentOrder")
+
+  pickedUpAt         DateTime?
+  deliveredAt        DateTime?
+  failedAt           DateTime?
+  failureReason      String?
+
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  handoffs           OrderHandoff[]
+
+  @@index([customerId])
+  @@index([status])
+  @@index([assignedDroneId])
+  @@map("orders")
+}
+
+model OrderHandoff {
+  id              String    @id @default(uuid())
+
+  orderId         String
+  order           Order     @relation(fields: [orderId], references: [id])
+
+  fromDroneId     String
+  fromDrone       Drone     @relation("HandoffFromDrone", fields: [fromDroneId], references: [id])
+
+  handoffLat      Float
+  handoffLng      Float
+  reason          String
+
+  completed       Boolean   @default(false)
+
+  createdAt       DateTime  @default(now())
+  completedAt     DateTime?
+
+  @@index([orderId])
+  @@map("order_handoffs")
+}
+
+model LocationHistory {
+  id         String   @id @default(uuid())
+
+  droneId    String
+  drone      Drone    @relation(fields: [droneId], references: [id])
+
+  lat        Float
+  lng        Float
+
+  timestamp  DateTime @default(now())
+
+  @@index([droneId, timestamp])
+  @@map("location_history")
+}

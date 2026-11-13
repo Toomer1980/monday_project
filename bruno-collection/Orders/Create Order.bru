@@ -1,0 +1,26 @@
+meta {
+  name: Create Order
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/orders
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{enduserToken}}
+}
+
+body:json {
+  {
+    "originLat": 40.758,
+    "originLng": -73.9855,
+    "originAddress": "Times Square, 1560 Broadway, New York, NY 10036",
+    "destinationLat": 40.7829,
+    "destinationLng": -73.9654,
+    "destinationAddress": "Central Park, New York, NY 10024"
+  }
+}

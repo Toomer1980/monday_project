@@ -1,0 +1,19 @@
+meta {
+  name: Mark Drone Fixed
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/admin/drones/:id/mark-fixed
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: 61b62d39-c679-48bf-93fd-ffc3a49df783
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}

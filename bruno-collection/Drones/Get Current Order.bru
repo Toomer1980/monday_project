@@ -1,0 +1,15 @@
+meta {
+  name: Get Current Order
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/drones/current-order
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{droneToken}}
+}

@@ -1,0 +1,27 @@
+meta {
+  name: Update Order Destination
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{baseUrl}}/admin/orders/:orderId/destination
+  body: json
+  auth: bearer
+}
+
+params:path {
+  orderId: REPLACE_WITH_ORDER_ID
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
+
+body:json {
+  {
+    "lat": 40.7580,
+    "lng": -73.9855,
+    "address": "Bryant Park, New York, NY 10018"
+  }
+}

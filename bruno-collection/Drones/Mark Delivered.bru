@@ -1,0 +1,21 @@
+meta {
+  name: Mark Delivered
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/drones/mark-delivered
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{droneToken}}
+}
+
+body:json {
+  {
+    "orderId": "REPLACE_WITH_ORDER_ID"
+  }
+}

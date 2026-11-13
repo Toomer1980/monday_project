@@ -1,0 +1,15 @@
+meta {
+  name: Get All Drones
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/admin/drones
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}

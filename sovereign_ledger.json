@@ -1,0 +1,412 @@
+[
+    {
+        "tx_id": "TX-CFE49789-81D2",
+        "timestamp": "2026-06-14 19:59:23",
+        "type": "hardware_allocation",
+        "payload": {
+            "target_val": 35000.0,
+            "gateway": "KeyBank 9006"
+        }
+    },
+    {
+        "tx_id": "TX-72ACA3A9-B903",
+        "timestamp": "2026-06-14 19:59:39",
+        "type": "gateway_routing",
+        "payload": {
+            "simulation_path": "verified",
+            "status": "active"
+        }
+    },
+    {
+        "tx_id": "TX-A05E04FB-58D0",
+        "timestamp": "2026-06-14 20:00:37",
+        "type": "framework_status",
+        "payload": {
+            "module": "monday_sovereign.py",
+            "lock": true
+        }
+    },
+    {
+        "tx_id": "TX-E70BC6B2-6504",
+        "timestamp": "2026-06-14 20:00:49",
+        "type": "assistant_sync",
+        "payload": {
+            "cross_platform": "voice_core.py"
+        }
+    },
+    {
+        "tx_id": "TX-EF2BA391-DED0",
+        "timestamp": "2026-06-14 20:01:04",
+        "type": "engine_scaling",
+        "payload": {
+            "ledger_state": "standby",
+            "matrix": "high_velocity"
+        }
+    },
+    {
+        "tx_id": "TX-B8318E0A-689D",
+        "timestamp": "2026-06-14 20:01:25",
+        "type": "project_erebus",
+        "payload": {
+            "tracking_layer": "initialized",
+            "source": "dark_pool"
+        }
+    },
+    {
+        "tx_id": "TX-F338EE48-F67E",
+        "timestamp": "2026-06-14 20:01:50",
+        "type": "framework_status",
+        "payload": {
+            "module": "monday_sovereign.py",
+            "lock": true
+        }
+    },
+    {
+        "tx_id": "TX-BA47AD3A-529C",
+        "timestamp": "2026-06-14 20:02:08",
+        "type": "hardware_allocation",
+        "payload": {
+            "target_val": 35000.0,
+            "gateway": "KeyBank 9006"
+        }
+    },
+    {
+        "tx_id": "TX-B203C799-D582",
+        "timestamp": "2026-06-15 03:22:14",
+        "type": "hardware_allocation",
+        "payload": {
+            "target_val": 35000.0,
+            "gateway": "KeyBank 9006"
+        }
+    },
+    {
+        "tx_id": "TX-43353628-C65B",
+        "timestamp": "2026-06-15 03:22:44",
+        "type": "assistant_sync",
+        "payload": {
+            "cross_platform": "voice_core.py"
+        }
+    },
+    {
+        "tx_id": "TX-9AC455C7-177F",
+        "timestamp": "2026-06-15 03:22:58",
+        "type": "framework_status",
+        "payload": {
+            "module": "monday_sovereign.py",
+            "lock": true
+        }
+    },
+    {
+        "tx_id": "TX-73552C71-42EC",
+        "timestamp": "2026-06-15 03:23:05",
+        "type": "project_erebus",
+        "payload": {
+            "tracking_layer": "initialized",
+            "source": "dark_pool"
+        }
+    },
+    {
+        "tx_id": "TX-D1D0C851-BA6F",
+        "timestamp": "2026-06-15 03:23:14",
+        "type": "gateway_routing",
+        "payload": {
+            "simulation_path": "verified",
+            "status": "active"
+        }
+    },
+    {
+        "tx_id": "TX-71A0FDA6-CED1",
+        "timestamp": "2026-06-15 03:23:25",
+        "type": "engine_scaling",
+        "payload": {
+            "ledger_state": "standby",
+            "matrix": "high_velocity"
+        }
+    },
+    {
+        "tx_id": "TX-7B725D6A-EF8F",
+        "timestamp": "2026-06-15 03:25:04",
+        "type": "framework_status",
+        "payload": {
+            "module": "monday_sovereign.py",
+            "lock": true
+        }
+    },
+    {
+        "tx_id": "TX-18BD0B6E-F4D6",
+        "timestamp": "2026-06-15 03:25:56",
+        "type": "engine_scaling",
+        "payload": {
+            "ledger_state": "standby",
+            "matrix": "high_velocity"
+        }
+    },
+    {
+        "tx_id": "TX-26423E29-33F8",
+        "timestamp": "2026-06-15 03:26:24",
+        "type": "project_erebus",
+        "payload": {
+            "tracking_layer": "initialized",
+            "source": "dark_pool"
+        }
+    },
+    {
+        "tx_id": "TX-AE98EF2F-E1E4",
+        "timestamp": "2026-06-15 03:42:07",
+        "type": "project_erebus",
+        "payload": {
+            "tracking_layer": "initialized",
+            "source": "dark_pool"
+        }
+    },
+    {
+        "tx_id": "TX-DE70EE6E-B1D3",
+        "timestamp": "2026-06-15 03:42:20",
+        "type": "engine_scaling",
+        "payload": {
+            "ledger_state": "standby",
+            "matrix": "high_velocity"
+        }
+    },
+    {
+        "tx_id": "TX-D33E8278-0B6F",
+        "timestamp": "2026-06-15 03:42:32",
+        "type": "engine_scaling",
+        "payload": {
+            "ledger_state": "standby",
+            "matrix": "high_velocity"
+        }
+    },
+    {
+        "tx_id": "TX-C7EE09A7-B378",
+        "timestamp": "2026-06-15 03:42:53",
+        "type": "gateway_routing",
+        "payload": {
+            "simulation_path": "verified",
+            "status": "active"
+        }
+    },
+    {
+        "tx_id": "TX-B8FCDB44-DE8C",
+        "timestamp": "2026-06-15 03:43:08",
+        "type": "assistant_sync",
+        "payload": {
+            "cross_platform": "voice_core.py"
+        }
+    },
+    {
+        "tx_id": "TX-7626CACB-564E",
+        "timestamp": "2026-06-15 03:43:13",
+        "type": "framework_status",
+        "payload": {
+            "module": "monday_sovereign.py",
+            "lock": true
+        }
+    },
+    {
+        "tx_id": "TX-5AE381F1-CFEE",
+        "timestamp": "2026-06-15 03:43:17",
+        "type": "engine_scaling",
+        "payload": {
+            "ledger_state": "standby",
+            "matrix": "high_velocity"
+        }
+    },
+    {
+        "tx_id": "TX-CB2E7E6B-D6AF",
+        "timestamp": "2026-06-15 03:43:31",
+        "type": "project_erebus",
+        "payload": {
+            "tracking_layer": "initialized",
+            "source": "dark_pool"
+        }
+    },
+    {
+        "tx_id": "TX-9AA3A565-3439",
+        "timestamp": "2026-06-15 03:43:50",
+        "type": "project_erebus",
+        "payload": {
+            "tracking_layer": "initialized",
+            "source": "dark_pool"
+        }
+    },
+    {
+        "tx_id": "TX-3DF6B59C-A6FD",
+        "timestamp": "2026-06-15 03:45:11",
+        "type": "framework_status",
+        "payload": {
+            "module": "monday_sovereign.py",
+            "lock": true
+        }
+    },
+    {
+        "tx_id": "TX-06A39115-5A3C",
+        "timestamp": "2026-06-15 05:30:48",
+        "type": "project_erebus",
+        "payload": {
+            "tracking_layer": "initialized",
+            "source": "dark_pool"
+        }
+    },
+    {
+        "tx_id": "TX-3C492FC1-E27F",
+        "timestamp": "2026-06-15 05:31:31",
+        "type": "engine_scaling",
+        "payload": {
+            "ledger_state": "standby",
+            "matrix": "high_velocity"
+        }
+    },
+    {
+        "tx_id": "TX-14797D58-199C",
+        "timestamp": "2026-06-15 05:31:50",
+        "type": "hardware_allocation",
+        "payload": {
+            "target_val": 35000.0,
+            "gateway": "KeyBank 9006"
+        }
+    },
+    {
+        "tx_id": "TX-BF04F5DC-7652",
+        "timestamp": "2026-06-15 05:32:24",
+        "type": "gateway_routing",
+        "payload": {
+            "simulation_path": "verified",
+            "status": "active"
+        }
+    },
+    {
+        "tx_id": "TX-600AE97C-49E4",
+        "timestamp": "2026-06-15 05:32:37",
+        "type": "engine_scaling",
+        "payload": {
+            "ledger_state": "standby",
+            "matrix": "high_velocity"
+        }
+    },
+    {
+        "tx_id": "TX-5520E321-CC1A",
+        "timestamp": "2026-06-17 08:20:28",
+        "type": "hardware_allocation",
+        "payload": {
+            "target_val": 35000.0,
+            "gateway": "KeyBank 9006"
+        }
+    },
+    {
+        "tx_id": "TX-189FEE30-61D8",
+        "timestamp": "2026-06-17 08:20:37",
+        "type": "gateway_routing",
+        "payload": {
+            "simulation_path": "verified",
+            "status": "active"
+        }
+    },
+    {
+        "tx_id": "TX-37CB0ABA-90E6",
+        "timestamp": "2026-06-17 08:20:50",
+        "type": "framework_status",
+        "payload": {
+            "module": "monday_sovereign.py",
+            "lock": true
+        }
+    },
+    {
+        "tx_id": "TX-9AD655A9-F3C3",
+        "timestamp": "2026-06-17 08:20:59",
+        "type": "assistant_sync",
+        "payload": {
+            "cross_platform": "voice_core.py"
+        }
+    },
+    {
+        "tx_id": "TX-74F3AE6F-CD3D",
+        "timestamp": "2026-06-17 08:21:22",
+        "type": "engine_scaling",
+        "payload": {
+            "ledger_state": "standby",
+            "matrix": "high_velocity"
+        }
+    },
+    {
+        "tx_id": "TX-E9332097-B9A4",
+        "timestamp": "2026-06-17 08:21:30",
+        "type": "project_erebus",
+        "payload": {
+            "tracking_layer": "initialized",
+            "source": "dark_pool"
+        }
+    },
+    {
+        "tx_id": "TX-54CACF81-97EC",
+        "timestamp": "2026-06-17 09:17:11",
+        "type": "project_erebus",
+        "payload": {
+            "tracking_layer": "initialized",
+            "source": "dark_pool"
+        }
+    },
+    {
+        "tx_id": "TX-1743E97C-AFB4",
+        "timestamp": "2026-06-17 09:17:14",
+        "type": "engine_scaling",
+        "payload": {
+            "ledger_state": "standby",
+            "matrix": "high_velocity"
+        }
+    },
+    {
+        "tx_id": "TX-20357539-4A71",
+        "timestamp": "2026-06-17 09:17:18",
+        "type": "assistant_sync",
+        "payload": {
+            "cross_platform": "voice_core.py"
+        }
+    },
+    {
+        "tx_id": "TX-3CA58899-BBAD",
+        "timestamp": "2026-06-17 09:17:20",
+        "type": "framework_status",
+        "payload": {
+            "module": "monday_sovereign.py",
+            "lock": true
+        }
+    },
+    {
+        "tx_id": "TX-4FCE1778-2A6F",
+        "timestamp": "2026-06-17 09:17:24",
+        "type": "hardware_allocation",
+        "payload": {
+            "target_val": 35000.0,
+            "gateway": "KeyBank 9006"
+        }
+    },
+    {
+        "tx_id": "TX-5F080953-3AA7",
+        "timestamp": "2026-06-17 09:17:37",
+        "type": "gateway_routing",
+        "payload": {
+            "simulation_path": "verified",
+            "status": "active"
+        }
+    },
+    {
+        "tx_id": "TX-9DA6A96F-290E",
+        "timestamp": "2026-06-17 13:49:09",
+        "type": "engine_scaling",
+        "payload": {
+            "ledger_state": "standby",
+            "matrix": "high_velocity"
+        }
+    },
+    {
+        "tx_id": "TX-B416E6EC-310B",
+        "timestamp": "2026-06-17 17:33:10",
+        "type": "EXECUTE_TX",
+        "payload": {
+            "amount": 10000.0,
+            "destination": "17Vh5XWnheF5HrPvJzK5LsFvSzRkhcURGL",
+            "force_new_sig": true
+        }
+    }
+]
