@@ -137,6 +137,20 @@ def api_dl():
     zp = revenue_engine.build_customer_bundle(info)
     return send_file(zp, as_attachment=True, download_name=f"Oracle_{info['license_key']}.zip")
 
+
+@app.route("/api/webhook/stripe", methods=["POST"])
+def api_stripe_webhook():
+    payload = request.get_json(silent=True) or {}
+    ev_type = payload.get("type", "")
+    if ev_type == "checkout.session.completed":
+        obj = payload.get("data", {}).get("object", {})
+        try:
+            info = revenue_engine.process_successful_checkout(obj)
+            return jsonify({"status": "RECORDED", "info": str(info)}), 200
+        except Exception as e:
+            return jsonify({"status": "LOGGED", "detail": str(e)}), 200
+    return jsonify({"status": "IGNORED", "event": ev_type}), 200
+
 @app.route("/store")
 def web_store():
     h = [
