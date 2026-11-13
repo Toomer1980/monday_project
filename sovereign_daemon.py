@@ -1,11 +1,10 @@
 import os, json, stripe
 if os.path.exists(".stripe_env.json"):
     for _k, _v in json.load(open(".stripe_env.json", encoding="utf-8")).items():
-        if isinstance(_v, str) and _v.startswith(("sk_", "rk_")):
+        if isinstance(_v, str) and (_v.startswith("sk_") or _v.startswith("rk_")):
             os.environ["STRIPE_SECRET_KEY"] = _v.strip()
             stripe.api_key = _v.strip()
 
-import os, stripe
 import os, sys, json, time, logging, threading
 import psutil, stripe
 from flask import Flask, request, jsonify, Response, send_file
@@ -25,6 +24,7 @@ app = Flask("SovereignGateway")
 logging.getLogger("werkzeug").setLevel(logging.ERROR)
 
 def is_real_key(k):
+    return bool(k and k.startswith(("sk_", "rk_")) and "YOUR_" not in k)
 
 def get_readiness():
     sk = vault.get_secret("STRIPE_SECRET_KEY") or ""
@@ -126,16 +126,15 @@ def api_checkout():
         try:
             stripe.api_key = sk
             s = stripe.checkout.Session.create(
-                payment_method_types=["card"], customer_email=em, mode="payment",
+                customer_email=em, mode="payment",
                 line_items=[{"price_data": {"currency": "usd", "unit_amount": pr["price_cents"], "product_data": {"name": pr["name"]}}, "quantity": 1}],
                 metadata={"sku": sku, "email": em},
                 success_url=f"{bu}/portal?session_id={{CHECKOUT_SESSION_ID}}",
                 cancel_url=f"{bu}/store"
             )
             return jsonify({"status": "REDIRECT", "checkout_url": s.url}), 200
-        except Exception as _stripe_err:
-            print("[!] Stripe Session Error:", _stripe_err)
-            pass
+        except Exception as e:
+            print("[!] Stripe Error:", e)
     ev = {"id": f"ord_{int(time.time())}", "amount_total": pr["price_cents"], "customer_details": {"email": em}, "metadata": {"sku": sku, "email": em}}
     info = revenue_engine.process_successful_checkout(ev)
     tok = info.get("download_token", "")
