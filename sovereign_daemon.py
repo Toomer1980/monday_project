@@ -24,7 +24,7 @@ app = Flask("SovereignGateway")
 logging.getLogger("werkzeug").setLevel(logging.ERROR)
 
 def is_real_key(k):
-    return bool(k and k.startswith(("sk_", "rk_")) and "YOUR_" not in k)
+    return bool(k and (k.startswith('sk_') or k.startswith('rk_')))
 
 def get_readiness():
     sk = vault.get_secret("STRIPE_SECRET_KEY") or ""
