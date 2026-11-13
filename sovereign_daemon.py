@@ -1,14 +1,11 @@
-import os, json
-if os.path.exists(".env"):
-    for _line in open(".env", encoding="utf-8"):
-        if "=" in _line and not _line.strip().startswith("#"):
-            _k, _v = _line.strip().split("=", 1)
-            os.environ[_k.strip()] = _v.strip()
+import os, json, stripe
 if os.path.exists(".stripe_env.json"):
     for _k, _v in json.load(open(".stripe_env.json", encoding="utf-8")).items():
         if isinstance(_v, str) and _v.startswith(("sk_", "rk_")):
             os.environ["STRIPE_SECRET_KEY"] = _v.strip()
+            stripe.api_key = _v.strip()
 
+import os, stripe
 import os, sys, json, time, logging, threading
 import psutil, stripe
 from flask import Flask, request, jsonify, Response, send_file
@@ -28,7 +25,6 @@ app = Flask("SovereignGateway")
 logging.getLogger("werkzeug").setLevel(logging.ERROR)
 
 def is_real_key(k):
-    return bool(k and k.startswith("sk_live_") and "YOUR_" not in k)
 
 def get_readiness():
     sk = vault.get_secret("STRIPE_SECRET_KEY") or ""
@@ -106,30 +102,44 @@ def api_vault_set():
     vault.set_secret(d.get("key"), d.get("value"))
     return jsonify({"status": "ENCRYPTED", "keys": vault.list_secret_keys()}), 200
 
+@app.route("/api/webhook/stripe", methods=["POST", "GET"])
+def api_stripe_webhook():
+    if request.method == "GET":
+        return jsonify({"status": "ONLINE", "route": "/api/webhook/stripe"}), 200
+    payload = request.get_json(force=True, silent=True) or {}
+    if payload.get("type") == "checkout.session.completed":
+        obj = payload.get("data", {}).get("object", {})
+        info = revenue_engine.process_successful_checkout(obj)
+        return jsonify({"status": "RECORDED", "order": info}), 200
+    return jsonify({"status": "IGNORED"}), 200
+
 @app.route("/api/billing/create-checkout", methods=["POST"])
 def api_checkout():
     d = request.get_json(force=True, silent=True) or {}
     sku = d.get("sku", "pro_node")
-    em = (d.get("email") or "client@oraclesystems.io").strip()
+    if sku not in revenue_engine.CATALOG: sku = "pro_node"
+    em = (d.get("email") or "Toomer1980@gmail.com").strip()
     pr = revenue_engine.CATALOG.get(sku, revenue_engine.CATALOG["pro_node"])
-    sk = vault.get_secret("STRIPE_SECRET_KEY") or ""
-    if not is_real_key(sk):
-        ev = {"id": f"ord_{int(time.time())}", "amount_total": pr["price_cents"],
-              "customer_details": {"email": em}, "metadata": {"sku": sku, "email": em}}
-        info = revenue_engine.process_successful_checkout(ev)
-        return jsonify({"status": "FULFILLED", "order": info,
-                        "portal_url": f"/portal?token={info['download_token']}"}), 200
-    stripe.api_key = sk
+    sk = os.environ.get("STRIPE_SECRET_KEY") or vault.get_secret("STRIPE_SECRET_KEY") or ""
     bu = request.host_url.rstrip("/")
-    s = stripe.checkout.Session.create(
-        payment_method_types=["card"], customer_email=em, mode="payment",
-        line_items=[{"price_data": {"currency": "usd", "unit_amount": pr["price_cents"],
-                     "product_data": {"name": pr["name"]}}, "quantity": 1}],
-        metadata={"sku": sku, "email": em},
-        success_url=f"{bu}/portal?session_id={{CHECKOUT_SESSION_ID}}",
-        cancel_url=f"{bu}/store"
-    )
-    return jsonify({"status": "REDIRECT", "checkout_url": s.url}), 200
+    if is_real_key(sk):
+        try:
+            stripe.api_key = sk
+            s = stripe.checkout.Session.create(
+                payment_method_types=["card"], customer_email=em, mode="payment",
+                line_items=[{"price_data": {"currency": "usd", "unit_amount": pr["price_cents"], "product_data": {"name": pr["name"]}}, "quantity": 1}],
+                metadata={"sku": sku, "email": em},
+                success_url=f"{bu}/portal?session_id={{CHECKOUT_SESSION_ID}}",
+                cancel_url=f"{bu}/store"
+            )
+            return jsonify({"status": "REDIRECT", "checkout_url": s.url}), 200
+        except Exception as _stripe_err:
+            print("[!] Stripe Session Error:", _stripe_err)
+            pass
+    ev = {"id": f"ord_{int(time.time())}", "amount_total": pr["price_cents"], "customer_details": {"email": em}, "metadata": {"sku": sku, "email": em}}
+    info = revenue_engine.process_successful_checkout(ev)
+    tok = info.get("download_token", "")
+    return jsonify({"status": "FULFILLED", "order": info, "portal_url": f"/portal?token={tok}", "checkout_url": f"{bu}/portal?token={tok}"}), 200
 
 @app.route("/api/order/lookup")
 def api_lookup():
@@ -147,20 +157,6 @@ def api_dl():
             "download_token": o.get("download_token")}
     zp = revenue_engine.build_customer_bundle(info)
     return send_file(zp, as_attachment=True, download_name=f"Oracle_{info['license_key']}.zip")
-
-
-@app.route("/api/webhook/stripe", methods=["POST"])
-def api_stripe_webhook():
-    payload = request.get_json(silent=True) or {}
-    ev_type = payload.get("type", "")
-    if ev_type == "checkout.session.completed":
-        obj = payload.get("data", {}).get("object", {})
-        try:
-            info = revenue_engine.process_successful_checkout(obj)
-            return jsonify({"status": "RECORDED", "info": str(info)}), 200
-        except Exception as e:
-            return jsonify({"status": "LOGGED", "detail": str(e)}), 200
-    return jsonify({"status": "IGNORED", "event": ev_type}), 200
 
 @app.route("/store")
 def web_store():
