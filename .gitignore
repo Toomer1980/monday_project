@@ -38,3 +38,7 @@ storage/backups/
 CURRENT_TUNNEL_URL.txt
 
 *.bak
+
+Content_Vault_52Weeks/
+static/*.zip
+LATEST_STRIPE_URL.txt
