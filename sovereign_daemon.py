@@ -144,8 +144,7 @@ def api_checkout():
             )
             return jsonify({"status": "REDIRECT", "checkout_url": s.url}), 200
         except Exception as e2:
-            print("[!] Stripe Checkout Error:", e1, "| Fallback:", e2)
-            return jsonify({"status": "ERROR", "error": str(e2)}), 500
+            return jsonify({"status": "ERROR", "error": str(e2), "primary": str(e1)}), 500
 
 @app.route("/api/order/lookup")
 def api_lookup():

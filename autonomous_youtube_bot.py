@@ -6,7 +6,7 @@ vault = root + "/Content_Vault_52Weeks"
 ledger_file = root + "/uploaded_videos_ledger.json"
 profile_dir = root + "/Edge_Autopilot_Profile"
 url_file = root + "/CURRENT_STORE_URL.txt"
-channel_id = "UCa-c8zShp_fB8o36nG2zolA"
+channel_id = "UC_UH7CHyWHxIdzsDGm9R4nw"
 os.chdir(root)
 os.makedirs(profile_dir, exist_ok=True)
 
@@ -16,9 +16,11 @@ mp4_files = sorted(glob.glob(vault + "/Week_*.mp4"))
 pending = [f for f in mp4_files if os.path.basename(f) not in uploaded]
 max_per_run = int(sys.argv[1]) if len(sys.argv) > 1 else 5
 batch = pending[:max_per_run]
-print(f"[+] Storefront: {store_url}")
-print(f"[+] Vault: {len(mp4_files)} total | {len(pending)} pending | Publishing {len(batch)} now...")
+print(f"[+] Channel ID      : {channel_id}")
+print(f"[+] Live Storefront : {store_url}")
+print(f"[+] Upload Batch    : {len(batch)} of {len(pending)} pending videos")
 if not batch:
+    print("[+] All rendered videos are published!")
     sys.exit(0)
 
 with sync_playwright() as p:
@@ -30,16 +32,8 @@ with sync_playwright() as p:
         no_viewport=True
     )
     page = context.pages[0] if context.pages else context.new_page()
-    page.goto(f"https://studio.youtube.com/channel/{channel_id}/videos/upload?d=ud", timeout=60000)
-    time.sleep(4)
-
-    if "accounts.google.com" in page.url or "signin" in page.url.lower():
-        print("[!] SIGN IN ONCE inside the open Edge window (do not press Ctrl+C). Waiting up to 5 minutes...")
-        for _ in range(150):
-            if "studio.youtube.com" in page.url and "signin" not in page.url.lower():
-                print("[+] YouTube Studio session authenticated and saved permanently!")
-                break
-            time.sleep(2)
+    page.goto(f"https://studio.youtube.com/channel/{channel_id}", wait_until="domcontentloaded", timeout=60000)
+    time.sleep(5)
 
     for mp4_path in batch:
         fn = os.path.basename(mp4_path)
@@ -64,10 +58,19 @@ with sync_playwright() as p:
         ])
 
         print(f"[*] Uploading {fn} -> {yt_title}")
-        page.goto(f"https://studio.youtube.com/channel/{channel_id}/videos/upload?d=ud", timeout=60000)
-        time.sleep(5)
+        page.goto(f"https://studio.youtube.com/channel/{channel_id}/videos/upload?d=ud", wait_until="domcontentloaded", timeout=60000)
+        time.sleep(4)
+        if page.locator("input[type='file']").count() == 0:
+            try: page.locator("#upload-icon").click(timeout=5000)
+            except Exception:
+                try: page.get_by_role("button", name="Upload videos").click(timeout=5000)
+                except Exception: pass
+            time.sleep(2)
+
+        page.locator("input[type='file']").first.wait_for(state="attached", timeout=20000)
         page.locator("input[type='file']").first.set_input_files(mp4_path)
-        time.sleep(8)
+        page.locator("#textbox").first.wait_for(state="visible", timeout=30000)
+        time.sleep(3)
 
         boxes = page.locator("#textbox")
         boxes.nth(0).click()
@@ -84,7 +87,7 @@ with sync_playwright() as p:
 
         if os.path.exists(thumb_path):
             try:
-                page.locator("input#file-loader").set_input_files(thumb_path, timeout=6000)
+                page.locator("input#file-loader").set_input_files(thumb_path, timeout=5000)
                 print(f"    [+] Custom 1080p thumbnail attached: {os.path.basename(thumb_path)}")
                 time.sleep(2)
             except Exception: pass
@@ -104,13 +107,13 @@ with sync_playwright() as p:
         time.sleep(2)
 
         try:
-            page.locator("#done-button").click(timeout=10000)
-            print(f"[+] PUBLISHED LIVE: {fn}")
-            uploaded[fn] = {"title": yt_title, "published_at": time.strftime("%Y-%m-%d %H:%M:%S"), "store_url": store_url}
+            page.locator("#done-button").click(timeout=15000)
+            print(f"[+] PUBLISHED LIVE TO YOUTUBE: {fn}")
+            uploaded[fn] = {"title": yt_title, "channel_id": channel_id, "published_at": time.strftime("%Y-%m-%d %H:%M:%S"), "store_url": store_url}
             json.dump(uploaded, open(ledger_file, "w", encoding="utf-8"), indent=2)
-            time.sleep(10)
+            time.sleep(12)
         except Exception as e:
             print(f"[!] Publish step note on {fn}: {e}")
 
-    print("[+] Autonomous upload batch complete!")
+    print("[+] Autonomous 5-video batch complete!")
     context.close()
