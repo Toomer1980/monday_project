@@ -1,6 +1,8 @@
+import os as _os_path_mod
+_BASE_DIR = _os_path_mod.path.dirname(_os_path_mod.path.abspath(__file__)).replace("\\", "/")
 import os, sys, json, math, wave, struct, random, time, subprocess, urllib.request
 
-ROOT = "C:/Users/toome/Desktop/SovereignCore"
+ROOT = _BASE_DIR
 AUDIO_CACHE = ROOT + "/static/audio_fx"
 VCFG_PATH = ROOT + "/VOICE_CONFIG.json"
 NO_WIN = 0x08000000

@@ -1,7 +1,9 @@
-﻿import os, json, math, hashlib, urllib.request, urllib.parse
+import os as _os_path_mod
+_BASE_DIR = _os_path_mod.path.dirname(_os_path_mod.path.abspath(__file__)).replace("\\", "/")
+import os, json, math, hashlib, urllib.request, urllib.parse
 from PIL import Image, ImageOps, ImageFilter, ImageEnhance, ImageDraw, ImageStat
 
-ROOT = "C:/Users/toome/Desktop/SovereignCore"
+ROOT = _BASE_DIR
 ART_DIR = ROOT + "/static/card_art"
 UA = "OracleSystemsTarot3D/1.0 (mailto:Toomer1980@gmail.com)"
 os.makedirs(ART_DIR, exist_ok=True)

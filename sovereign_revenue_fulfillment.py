@@ -1,8 +1,10 @@
-﻿import os, json, time, sqlite3, smtplib, threading, hashlib
+import os as _os_path_mod
+_BASE_DIR = _os_path_mod.path.dirname(_os_path_mod.path.abspath(__file__)).replace("\\", "/")
+import os, json, time, sqlite3, smtplib, threading, hashlib
 from datetime import datetime
 from email.message import EmailMessage
 
-ROOT = "C:/Users/toome/Desktop/SovereignCore"
+ROOT = _BASE_DIR
 LEADS_DB = ROOT + "/data/leads.db"
 ORDERS_DB = ROOT + "/data/fulfillment_queue.db"
 EVO_DB = ROOT + "/data/evolution_memory.db"

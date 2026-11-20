@@ -1,3 +1,5 @@
+import os as _os_path_mod
+_BASE_DIR = _os_path_mod.path.dirname(_os_path_mod.path.abspath(__file__)).replace("\\", "/")
 import os, json, stripe
 if os.path.exists(".stripe_env.json"):
     for _k, _v in json.load(open(".stripe_env.json", encoding="utf-8")).items():
@@ -9,7 +11,7 @@ import os, sys, json, time, logging, threading
 import psutil, stripe
 from flask import Flask, request, jsonify, Response, send_file
 
-BASE = "C:/Users/toome/Desktop/SovereignCore"
+BASE = _BASE_DIR
 if os.name != "nt" or not os.path.exists(BASE):
     BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(BASE, "modules"))
@@ -124,7 +126,7 @@ def api_checkout_live_stripe():
     if sku not in revenue_engine.CATALOG: sku = "pro_node"
     em = (d.get("email") or "Toomer1980@gmail.com").strip()
     pr = revenue_engine.CATALOG.get(sku, revenue_engine.CATALOG["pro_node"])
-    sk_live = json.load(open("C:/Users/toome/Desktop/SovereignCore/.stripe_env.json", encoding="utf-8")).get("STRIPE_SECRET_KEY", "").strip()
+    sk_live = (os.environ.get("STRIPE_SECRET_KEY") or (json.load(open(_BASE_DIR + "/.stripe_env.json", encoding="utf-8")).get("STRIPE_SECRET_KEY", "") if os.path.exists(_BASE_DIR + "/.stripe_env.json") else "")).strip()
     bu = request.host_url.rstrip("/")
     stripe.api_key = sk_live
     try:
@@ -154,7 +156,7 @@ def api_checkout_live_stripe():
 @app.route("/personalize")
 @app.route("/oracle-3d")
 def oracle_3d_sanctuary():
-    return open("C:/Users/toome/Desktop/SovereignCore/templates/oracle_3d_stage.html", "r", encoding="utf-8").read()
+    return open((_BASE_DIR + "/templates/oracle_3d_stage.html"), "r", encoding="utf-8").read()
 
 @app.route("/api/personalize/reading", methods=["POST"])
 def api_personalize_reading():
@@ -168,7 +170,7 @@ def api_personalize_reading():
     portrait_url = ""
     photo = request.files.get("photo")
     if photo and photo.filename:
-        pdir = "C:/Users/toome/Desktop/SovereignCore/static/portraits"
+        pdir = (_BASE_DIR + "/static/portraits")
         os.makedirs(pdir, exist_ok=True)
         pfile = f"{pdir}/p_{rid}.png"
         im = Image.open(photo.stream).convert("RGB")
@@ -198,7 +200,7 @@ def api_personalize_reading():
             clean = "".join(ch if (32 <= ord(ch) < 127) else " " for ch in ai_txt)
             if len(clean) > 120: scenario = " ".join(clean.split())
     except Exception: pass
-    audio_file = f"C:/Users/toome/Desktop/SovereignCore/static/portraits/r_{rid}.mp3"
+    audio_file = f(_BASE_DIR + "/static/portraits/r_{rid}.mp3")
     audio_url = ""
     if oracle_audio_master.synthesize_human_voice(scenario, audio_file):
         audio_url = f"/static/portraits/r_{rid}.mp3"
@@ -217,8 +219,8 @@ def api_evolution_telemetry():
 
 @app.route("/api/voice/config", methods=["GET", "POST"])
 def api_voice_config():
-    p = "C:/Users/toome/Desktop/SovereignCore/VOICE_CONFIG.json"
-    cfg = json.load(open(p, "r", encoding="utf-8")) if os.path.exists(p) else {"mode": "neural", "custom_sample": "C:/Users/toome/Desktop/SovereignCore/voice_samples/thomas_voice.wav"}
+    p = (_BASE_DIR + "/VOICE_CONFIG.json")
+    cfg = json.load(open(p, "r", encoding="utf-8")) if os.path.exists(p) else {"mode": "neural", "custom_sample": (_BASE_DIR + "/voice_samples/thomas_voice.wav")}
     if request.method == "POST":
         d = request.get_json(force=True, silent=True) or {}
         if d.get("mode") in ("neural", "custom"):
@@ -232,7 +234,7 @@ def api_voice_upload_sample():
     import subprocess as _sp
     f = request.files.get("voice")
     if not f: return jsonify({"error": "no audio"}), 400
-    vdir = "C:/Users/toome/Desktop/SovereignCore/voice_samples"
+    vdir = (_BASE_DIR + "/voice_samples")
     os.makedirs(vdir, exist_ok=True)
     raw_p = vdir + "/raw_upload.bin"
     wav_p = vdir + "/thomas_voice.wav"
@@ -356,8 +358,8 @@ def api_lookup():
     import sqlite3 as _sq
     sid = (request.args.get("session_id") or "").strip()
     tok = (request.args.get("token") or "").strip()
-    cache_p = "C:/Users/toome/Desktop/SovereignCore/data/verified_sessions.json"
-    os.makedirs("C:/Users/toome/Desktop/SovereignCore/data", exist_ok=True)
+    cache_p = (_BASE_DIR + "/data/verified_sessions.json")
+    os.makedirs((_BASE_DIR + "/data"), exist_ok=True)
     cache = json.load(open(cache_p, "r", encoding="utf-8")) if os.path.exists(cache_p) else {}
 
     # 1. Check token or license key locally first
@@ -376,7 +378,7 @@ def api_lookup():
     # 3. Direct live Stripe API verification (webhook-independent instant fulfillment)
     if sid.startswith("cs_"):
         try:
-            sk_live = json.load(open("C:/Users/toome/Desktop/SovereignCore/.stripe_env.json", encoding="utf-8")).get("STRIPE_SECRET_KEY", "").strip()
+            sk_live = (os.environ.get("STRIPE_SECRET_KEY") or (json.load(open(_BASE_DIR + "/.stripe_env.json", encoding="utf-8")).get("STRIPE_SECRET_KEY", "") if os.path.exists(_BASE_DIR + "/.stripe_env.json") else "")).strip()
             stripe.api_key = sk_live
             sess = stripe.checkout.Session.retrieve(sid)
             pstat = getattr(sess, "payment_status", "") or (sess.get("payment_status") if isinstance(sess, dict) else "")
@@ -408,7 +410,7 @@ def api_lookup():
 def api_deliverable_status():
     import sqlite3 as _sq
     sid = (request.args.get("session_id") or "").strip()
-    odb = "C:/Users/toome/Desktop/SovereignCore/data/fulfillment_queue.db"
+    odb = (_BASE_DIR + "/data/fulfillment_queue.db")
     if sid and os.path.exists(odb):
         c = _sq.connect(odb, timeout=20.0)
         row = c.execute("SELECT status, download_url, sku FROM orders WHERE session_id=?", (sid,)).fetchone()

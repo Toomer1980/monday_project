@@ -1,7 +1,9 @@
+import os as _os_path_mod
+_BASE_DIR = _os_path_mod.path.dirname(_os_path_mod.path.abspath(__file__)).replace("\\", "/")
 import os, sys, json, math, time, glob, sqlite3, py_compile, subprocess, urllib.request
 from datetime import datetime
 
-ROOT = "C:/Users/toome/Desktop/SovereignCore"
+ROOT = _BASE_DIR
 DB_PATH = ROOT + "/data/evolution_memory.db"
 FED_PATH = ROOT + "/compute_federation.json"
 PROMPT_OUT = ROOT + "/ACTIVE_EVOLVED_PROMPT.txt"
