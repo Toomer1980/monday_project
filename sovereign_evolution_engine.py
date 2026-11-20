@@ -10,7 +10,7 @@ os.chdir(ROOT)
 os.makedirs(ROOT + "/data", exist_ok=True)
 
 def init_db():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=30.0)
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("""CREATE TABLE IF NOT EXISTS genomes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -63,7 +63,7 @@ def factorial_compound_score(generation, impressions, conversions, revenue_usd):
 
 def self_heal_codebase():
     repaired = []
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=30.0)
     for fn in CORE_FILES:
         fp = ROOT + "/" + fn
         if not os.path.exists(fp): continue
@@ -80,7 +80,7 @@ def self_heal_codebase():
 def query_federated_llm(prompt, max_tokens=260):
     cfg = json.load(open(FED_PATH, "r", encoding="utf-8")) if os.path.exists(FED_PATH) else {"nodes": []}
     nodes = sorted([n for n in cfg.get("nodes", []) if n.get("enabled")], key=lambda x: x.get("priority", 99))
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=30.0)
     for node in nodes:
         nid = node["id"]
         ntype = node["type"]
@@ -128,7 +128,7 @@ def run_evolution_cycle():
             total_tx = int(st.get("transactions", 0))
     except Exception: pass
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=30.0)
     rows = conn.execute("SELECT id, generation, category, content, impressions, conversions, revenue_usd FROM genomes WHERE active=1").fetchall()
     best_by_cat = {}
     max_gen = 1
@@ -141,9 +141,13 @@ def run_evolution_cycle():
         if cat not in best_by_cat or score > best_by_cat[cat][0]:
             best_by_cat[cat] = (score, content)
 
+    conn.commit(); conn.close()
+    conn.commit(); conn.close()
     # Mutate a new next-generation hook using our fastest federated compute node
     top_hook = best_by_cat.get("hook", (1.0, "Trust the timing of this reading."))[1]
     mutated, used_node = query_federated_llm(f"Upgrade and tighten this 2-sentence tarot video opening hook so it feels deeply personal, cinematic, and high-retention: {top_hook}", max_tokens=90)
+    conn = sqlite3.connect(DB_PATH, timeout=30.0)
+    conn = sqlite3.connect(DB_PATH, timeout=30.0)
     if mutated and len(mutated) > 45 and len(mutated) < 320:
         next_gen = max_gen + 1
         init_fit = factorial_compound_score(next_gen, 1, total_tx, total_rev)
@@ -164,7 +168,7 @@ def run_evolution_cycle():
 
 def get_telemetry():
     init_db()
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=30.0)
     gen = conn.execute("SELECT COALESCE(MAX(generation), 1), COUNT(*), COALESCE(MAX(fitness_score), 1.0) FROM genomes").fetchone()
     heals = conn.execute("SELECT COUNT(*) FROM heal_events").fetchone()[0]
     bench = conn.execute("SELECT node_id, status, latency_ms, ts FROM compute_benchmarks ORDER BY id DESC LIMIT 5").fetchall()
