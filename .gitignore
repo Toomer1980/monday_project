@@ -66,3 +66,8 @@ deploy_bundle/*.key
 data/pronode_crm.db
 reports/crm/
 reports/outreach/
+config/backup_master.dpapi
+*.dpapi
+*.enc
+install_phase*.ps1
+reports/youtube_52week_manifest.*
