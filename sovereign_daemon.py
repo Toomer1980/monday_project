@@ -266,11 +266,6 @@ def api_stripe_fulfill_hook():
         if sid: _srf.enqueue_paid_order(sid, meta.get("sku", "pro_node"), em, amt, meta)
     return jsonify({"received": True}), 200
 
-@app.route("/api/order/lookup")
-def api_lookup():
-    o = db.get_order_by_token((request.args.get("token") or "").strip())
-    return (jsonify({"status": "FOUND", "order": o}), 200) if o else (jsonify({}), 404)
-
 @app.route("/api/download/secure-asset")
 def api_dl():
     o = db.get_order_by_token((request.args.get("token") or "").strip())
@@ -311,27 +306,6 @@ def web_store():
     h.append("body:JSON.stringify({sku:s,email:document.getElementById('em').value})});")
     h.append("const j=await r.json();if(j.checkout_url)location.href=j.checkout_url;")
     h.append("else if(j.portal_url)location.href=j.portal_url;}</script></body></html>")
-    return Response("".join(h), mimetype="text/html")
-
-@app.route("/portal")
-def web_portal():
-    h = [
-        "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>License Portal</title>",
-        "<style>body{background:#060911;color:#fff;font-family:sans-serif;padding:40px}",
-        ".box{max-width:600px;margin:0 auto;background:#111827;border:1px solid #10b981;padding:28px;border-radius:8px}",
-        "input{background:#090d16;color:#fff;border:1px solid #38bdf8;padding:10px;width:68%}",
-        "button,.btn{background:#059669;color:#fff;padding:10px 16px;border:none;border-radius:6px;text-decoration:none;display:inline-block;margin-top:12px;font-weight:bold}</style></head><body>",
-        "<div class='box'><h2>Oracle Systems // Customer Fulfillment Portal</h2>",
-        "<input id='t' placeholder='Token or License Key'/> <button onclick='lk()'>Verify</button>",
-        "<div id='out' style='margin-top:18px;font-family:monospace;line-height:1.8'></div>",
-        "<p><a href='/store' style='color:#38bdf8'>&larr; Storefront</a> | <a href='/dashboard' style='color:#38bdf8'>Executive Matrix</a></p></div>",
-        "<script>async function lk(){const v=document.getElementById('t').value.trim();",
-        "const r=await fetch('/api/order/lookup?token='+encodeURIComponent(v));",
-        "if(r.status!==200){document.getElementById('out').innerText='Not found';return;}",
-        "const o=(await r.json()).order;",
-        "document.getElementById('out').innerHTML=`<b style='color:#34d399'>VERIFIED LICENSE</b><br>Product: ${o.product_name}<br>Key: <b style='color:#facc15'>${o.license_key}</b><br>Amount: $${(o.amount_cents/100).toFixed(2)}<br><a class='btn' href='/api/download/secure-asset?token=${o.download_token}'>Download Digital Bundle (.ZIP)</a>`;}",
-        "const q=new URLSearchParams(location.search).get('token');if(q){document.getElementById('t').value=q;lk();}</script></body></html>"
-    ]
     return Response("".join(h), mimetype="text/html")
 
 @app.route("/")
@@ -375,6 +349,122 @@ def web_dashboard():
         "async function ord(s){const j=await post('/api/billing/create-checkout',{sku:s,email:'Toomer1980@gmail.com'});if(j.order)document.getElementById('msg').innerText=j.order.license_key;}</script></body></html>"
     ]
     return Response("".join(h), mimetype="text/html")
+
+
+@app.route("/api/order/lookup", methods=["GET"])
+def api_lookup():
+    import sqlite3 as _sq
+    sid = (request.args.get("session_id") or "").strip()
+    tok = (request.args.get("token") or "").strip()
+    cache_p = "C:/Users/toome/Desktop/SovereignCore/data/verified_sessions.json"
+    os.makedirs("C:/Users/toome/Desktop/SovereignCore/data", exist_ok=True)
+    cache = json.load(open(cache_p, "r", encoding="utf-8")) if os.path.exists(cache_p) else {}
+
+    # 1. Check token or license key locally first
+    if tok:
+        o = db.get_order_by_token(tok)
+        if o: return jsonify({"status": "FOUND", "order": o}), 200
+        for _k, _v in cache.items():
+            if _v.get("download_token") == tok or _v.get("license_key") == tok:
+                return jsonify({"status": "FOUND", "order": _v}), 200
+        if tok.startswith("cs_"): sid = tok
+
+    # 2. Check cached verified Stripe session_id
+    if sid and sid in cache:
+        return jsonify({"status": "FOUND", "order": cache[sid]}), 200
+
+    # 3. Direct live Stripe API verification (webhook-independent instant fulfillment)
+    if sid.startswith("cs_"):
+        try:
+            sk_live = json.load(open("C:/Users/toome/Desktop/SovereignCore/.stripe_env.json", encoding="utf-8")).get("STRIPE_SECRET_KEY", "").strip()
+            stripe.api_key = sk_live
+            sess = stripe.checkout.Session.retrieve(sid)
+            pstat = getattr(sess, "payment_status", "") or (sess.get("payment_status") if isinstance(sess, dict) else "")
+            sstat = getattr(sess, "status", "") or (sess.get("status") if isinstance(sess, dict) else "")
+            if pstat in ("paid", "no_payment_required") or sstat == "complete":
+                meta = dict(sess.metadata) if getattr(sess, "metadata", None) else {}
+                amt_cents = int(getattr(sess, "amount_total", 0) or 4900)
+                cd = getattr(sess, "customer_details", None)
+                em = (getattr(cd, "email", None) if cd else None) or getattr(sess, "customer_email", None) or meta.get("email") or "Toomer1980@gmail.com"
+                sku = meta.get("sku") or ("personal_3d_video" if amt_cents == 4900 else "pro_node")
+                ev = {"id": sid, "amount_total": amt_cents, "customer_details": {"email": em}, "metadata": {"sku": sku, "email": em}}
+                info = revenue_engine.process_successful_checkout(ev)
+                if isinstance(info, dict):
+                    info["session_id"] = sid
+                    info["sku"] = sku
+                    info["amount_cents"] = amt_cents
+                    cache[sid] = info
+                    json.dump(cache, open(cache_p, "w", encoding="utf-8"), indent=2)
+                    try:
+                        import sovereign_revenue_fulfillment as _srf
+                        _srf.enqueue_paid_order(sid, sku, em, amt_cents / 100.0, meta)
+                    except Exception: pass
+                    return jsonify({"status": "FOUND", "order": info}), 200
+        except Exception as e:
+            return jsonify({"status": "ERROR", "error": str(e)}), 500
+    return jsonify({"status": "NOT_FOUND"}), 404
+
+@app.route("/api/order/deliverable-status", methods=["GET"])
+def api_deliverable_status():
+    import sqlite3 as _sq
+    sid = (request.args.get("session_id") or "").strip()
+    odb = "C:/Users/toome/Desktop/SovereignCore/data/fulfillment_queue.db"
+    if sid and os.path.exists(odb):
+        c = _sq.connect(odb, timeout=20.0)
+        row = c.execute("SELECT status, download_url, sku FROM orders WHERE session_id=?", (sid,)).fetchone()
+        c.close()
+        if row:
+            return jsonify({"status": row[0], "download_url": row[1], "sku": row[2]}), 200
+    return jsonify({"status": "NONE", "download_url": ""}), 200
+
+@app.route("/portal")
+def portal_page():
+    return """<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Oracle Systems // License Portal</title>
+<style>body{background:#040610;color:#f8fafc;font-family:"Segoe UI",system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
+.box{width:540px;background:#090f20;border:1px solid #1e3a5f;border-radius:14px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.7)}
+h2{margin:0 0 18px;color:#fff;font-size:22px}.row{display:flex;gap:8px}
+input{flex:1;background:#0f172a;border:1px solid #38bdf8;color:#fff;padding:11px 13px;border-radius:8px;font-size:14px}
+button,.btn{background:#10b981;color:#fff;border:none;padding:11px 18px;border-radius:8px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block;font-size:14px}
+.btn-gold{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#0b0f19;margin-top:10px}
+.meta{margin-top:18px;font-family:Consolas,monospace;line-height:1.7;font-size:14px}.ok{color:#10b981;font-weight:700}.key{color:#fbbf24;font-weight:700}
+.links{margin-top:18px;font-size:13px}.links a{color:#38bdf8;margin-right:12px}</style></head><body><div class="box">
+<h2>Oracle Systems // Customer Fulfillment Portal</h2>
+<div class="row"><input id="q" placeholder="Token, License Key, or Stripe Session ID"><button onclick="lookup()">Verify</button></div>
+<div id="out" class="meta">Checking order...</div>
+<div class="links"><a href="/store">&larr; Storefront</a><a href="/personalize">3D Sanctuary</a><a href="/dashboard">Executive Matrix</a></div>
+</div><script>
+const qs=new URLSearchParams(location.search), initSid=qs.get("session_id")||"", initTok=qs.get("token")||"";
+document.getElementById("q").value=initTok||initSid;
+async function pollVideo(sid){
+  const el=document.getElementById("vid-slot"); if(!el||!sid) return;
+  const r=await(await fetch("/api/order/deliverable-status?session_id="+encodeURIComponent(sid))).json();
+  if(r.status==="COMPLETED"&&r.download_url&&r.download_url.endsWith(".mp4")){
+    el.innerHTML='<a class="btn btn-gold" href="'+r.download_url+'" download>Download Custom 3D Reading (.MP4)</a>';
+  } else if(r.sku==="personal_3d_video"||r.status==="PENDING"){
+    el.innerHTML='<div style="color:#38bdf8;margin-top:10px">Rendering your custom 3D Reading MP4... auto-refreshing.</div>';
+    setTimeout(()=>pollVideo(sid),5000);
+  }
+}
+async function lookup(){
+  const val=document.getElementById("q").value.trim(), out=document.getElementById("out");
+  if(!val){out.textContent="Enter your token or session ID.";return;}
+  out.textContent="Verifying payment with Oracle Systems & Stripe...";
+  const param=val.startsWith("cs_")?"session_id="+encodeURIComponent(val):"token="+encodeURIComponent(val);
+  const res=await fetch("/api/order/lookup?"+param); const d=await res.json();
+  if(res.ok&&d.order){
+    const o=d.order, amt=((o.amount_cents||4900)/100).toFixed(2);
+    out.innerHTML='<div class="ok">VERIFIED LIVE LICENSE</div>'+
+      '<div>Product: '+(o.product_name||o.sku)+'</div>'+
+      '<div>License Key: <span class="key">'+o.license_key+'</span></div>'+
+      '<div>Download Token: '+o.download_token+'</div>'+
+      '<div>Amount Paid: $'+amt+'</div>'+
+      '<div style="margin-top:14px"><a class="btn" href="/api/download/secure-asset?token='+encodeURIComponent(o.download_token)+'">Download Digital Bundle (.ZIP)</a></div>'+
+      '<div id="vid-slot"></div>';
+    if(o.session_id&&o.session_id.startsWith("cs_")) pollVideo(o.session_id);
+  } else { out.textContent=d.error||"Not found"; }
+}
+if(initSid||initTok) lookup(); else document.getElementById("out").textContent="Enter a token or license key above.";
+</script></body></html>"""
 
 if __name__ == "__main__":
     p = int(os.environ.get("PORT", 8000))
