@@ -46,3 +46,5 @@ LATEST_STRIPE_URL.txt
 Content_Vault_Shorts/
 Edge_Autopilot_Profile/
 uploaded_videos_ledger.json
+config/api_key.token
+static/deliverables/

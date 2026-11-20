@@ -271,15 +271,37 @@ def api_stripe_fulfill_hook():
 
 @app.route("/api/download/secure-asset")
 def api_dl():
-    o = db.get_order_by_token(t) or sovereign_order_verifier.lookup_cached(t)
-    if not o: return jsonify({"error": "Invalid token"}), 403
-    info = {"session_id": o["session_id"], "email": o["customer_email"],
-            "amount_cents": o["amount_cents"], "sku": o.get("product_sku") or "pro_node",
+    import logging, traceback
+    t = (request.args.get("token") or "").strip()
+    if not t:
+        return jsonify({"error": "Missing token"}), 400
+    o = None
+    try:
+        o = db.get_order_by_token(t)
+    except Exception as e:
+        logging.error(f"[api_dl] db lookup failed: {e}")
+    if not o:
+        try:
+            o = sovereign_order_verifier.lookup_cached(t)
+        except Exception as e:
+            logging.error(f"[api_dl] verifier lookup failed: {e}")
+    if not o:
+        return jsonify({"error": "Invalid token"}), 403
+    try:
+        info = {
+            "session_id": o.get("session_id") or "",
+            "email": o.get("customer_email") or "",
+            "amount_cents": o.get("amount_cents") or 0,
+            "sku": o.get("product_sku") or "pro_node",
             "product_name": o.get("product_name") or "Oracle Bundle",
             "license_key": o.get("license_key") or "ORCL-PRO",
-            "download_token": o.get("download_token")}
-    zp = revenue_engine.build_customer_bundle(info)
-    return send_file(zp, as_attachment=True, download_name=f"Oracle_{info['license_key']}.zip")
+            "download_token": o.get("download_token") or t,
+        }
+        zp = revenue_engine.build_customer_bundle(info)
+        return send_file(zp, as_attachment=True, download_name=f"Oracle_{info['license_key']}.zip")
+    except Exception as e:
+        logging.error(f"[api_dl] bundle build failed: {e} | {traceback.format_exc()}")
+        return jsonify({"error": f"Bundle generation failed: {str(e)}"}), 500
 
 @app.route("/store")
 def web_store():
@@ -331,7 +353,7 @@ def web_dashboard():
         "<div class='bar'><button onclick=\"post('/api/task/submit',{task_name:'Job'})\">+ Job</button>",
         "<button style='background:#059669' onclick=\"post('/api/plugins/audit',{})\">Run Audits</button>",
         "<button style='background:#ec4899' onclick=\"ord('guide_52wk')\">+ $29 Order</button>",
-        "<button style='background:#10b981' onclick=\"ord('pro_node')\">+ $99 Order</button>",
+        "<button style='background:#10b981' onclick=\"ord('pro_node')\">+ $49,999 Order</button>",
         "<button style='background:#6366f1' onclick=\"ord('enterprise_swarm')\">+ $1,500 Order</button>",
         "<button style='background:#7c3aed' onclick=\"post('/api/tasks/export-csv',{})\">Export CSV</button>",
         "<span id='msg' style='margin-left:auto;color:#34d399'>LIVE</span></div>",

@@ -11,7 +11,7 @@ channel_id = "UC_UH7CHyWHxIdzsDGm9R4nw"
 os.chdir(root)
 os.makedirs(profile_dir, exist_ok=True)
 
-store_url = open(url_file, "r", encoding="utf-8").read().strip() if os.path.exists(url_file) else "https://cents-extended-jewellery-samba.trycloudflare.com/store"
+store_url = open(url_file, "r", encoding="utf-8").read().strip() if os.path.exists(url_file) else "https://buy.stripe.com/28E9AT6LT0Ex79e7UxcQU03"
 uploaded = json.load(open(ledger_file, "r", encoding="utf-8")) if os.path.exists(ledger_file) else {}
 
 def make_clean_meta(wnum, slug_title, is_short=False):
