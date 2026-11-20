@@ -27,7 +27,7 @@ def is_real_key(k):
     return bool(k and (k.startswith('sk_') or k.startswith('rk_')))
 
 def get_readiness():
-    sk = vault.get_secret("STRIPE_SECRET_KEY") or ""
+    sk = json.load(open('C:/Users/toome/Desktop/SovereignCore/.stripe_env.json'))['STRIPE_SECRET_KEY'] or ""
     su = vault.get_secret("SMTP_USER") or ""
     sp = vault.get_secret("SMTP_PASS") or ""
     return {
@@ -120,25 +120,20 @@ def api_checkout():
     if sku not in revenue_engine.CATALOG: sku = "pro_node"
     em = (d.get("email") or "Toomer1980@gmail.com").strip()
     pr = revenue_engine.CATALOG.get(sku, revenue_engine.CATALOG["pro_node"])
-    sk = os.environ.get("STRIPE_SECRET_KEY") or vault.get_secret("STRIPE_SECRET_KEY") or ""
+    sk = json.load(open("C:/Users/toome/Desktop/SovereignCore/.stripe_env.json", encoding="utf-8")).get("STRIPE_SECRET_KEY", "").strip()
     bu = request.host_url.rstrip("/")
-    if is_real_key(sk):
-        try:
-            stripe.api_key = sk
-            s = stripe.checkout.Session.create(
-                customer_email=em, mode="payment",
-                line_items=[{"price_data": {"currency": "usd", "unit_amount": pr["price_cents"], "product_data": {"name": pr["name"]}}, "quantity": 1}],
-                metadata={"sku": sku, "email": em},
-                success_url=f"{bu}/portal?session_id={{CHECKOUT_SESSION_ID}}",
-                cancel_url=f"{bu}/store"
-            )
-            return jsonify({"status": "REDIRECT", "checkout_url": s.url}), 200
-        except Exception as e:
-            print("[!] Stripe Error:", e)
-    ev = {"id": f"ord_{int(time.time())}", "amount_total": pr["price_cents"], "customer_details": {"email": em}, "metadata": {"sku": sku, "email": em}}
-    info = revenue_engine.process_successful_checkout(ev)
-    tok = info.get("download_token", "")
-    return jsonify({"status": "FULFILLED", "order": info, "portal_url": f"/portal?token={tok}", "checkout_url": f"{bu}/portal?token={tok}"}), 200
+    stripe.api_key = sk
+    try:
+        s = stripe.checkout.Session.create(
+            customer_email=em, mode="payment",
+            line_items=[{"price_data": {"currency": "usd", "unit_amount": pr["price_cents"], "product_data": {"name": pr["name"]}}, "quantity": 1}],
+            metadata={"sku": sku, "email": em},
+            success_url=f"{bu}/portal?session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url=f"{bu}/store"
+        )
+        return jsonify({"status": "REDIRECT", "checkout_url": s.url}), 200
+    except Exception as e:
+        return jsonify({"status": "ERROR", "error": str(e)}), 500
 
 @app.route("/api/order/lookup")
 def api_lookup():
