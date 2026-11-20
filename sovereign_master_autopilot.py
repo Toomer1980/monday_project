@@ -133,6 +133,10 @@ while True:
             log(f"[EVOLUTION] Gen {_eres.get('generation')} | Node: {_eres.get('compute_node')} | Healed: {_eres.get('healed_files')}")
         except Exception as _ee:
             log(f"[EVOLUTION] Cycle note: {_ee}")
+        try:
+            import sovereign_revenue_fulfillment as _srf
+            _srf.process_pending_orders()
+        except Exception: pass
         replenish_content_if_low()
         backup_and_sync()
         last_backup = now

@@ -131,7 +131,7 @@ def api_checkout_live_stripe():
         s = stripe.checkout.Session.create(
             customer_email=em, mode="payment",
             line_items=[{"price_data": {"currency": "usd", "unit_amount": pr["price_cents"], "product_data": {"name": pr["name"], "tax_code": "txcd_10000000"}}, "quantity": 1}],
-            metadata={"sku": sku, "email": em},
+            metadata={"sku": sku, "email": em, "name": str(d.get("name",""))[:60], "focus": str(d.get("focus",""))[:200], "portrait_url": str(d.get("portrait_url",""))[:200], "aura_hex": str(d.get("aura_hex","#38bdf8"))[:16]},
             success_url=f"{bu}/portal?session_id={{CHECKOUT_SESSION_ID}}",
             cancel_url=f"{bu}/store"
         )
@@ -142,7 +142,7 @@ def api_checkout_live_stripe():
                 customer_email=em, mode="payment",
                 managed_payments={"enabled": False},
                 line_items=[{"price_data": {"currency": "usd", "unit_amount": pr["price_cents"], "product_data": {"name": pr["name"]}}, "quantity": 1}],
-                metadata={"sku": sku, "email": em},
+                metadata={"sku": sku, "email": em, "name": str(d.get("name",""))[:60], "focus": str(d.get("focus",""))[:200], "portrait_url": str(d.get("portrait_url",""))[:200], "aura_hex": str(d.get("aura_hex","#38bdf8"))[:16]},
                 success_url=f"{bu}/portal?session_id={{CHECKOUT_SESSION_ID}}",
                 cancel_url=f"{bu}/store"
             )
@@ -239,6 +239,32 @@ def api_voice_upload_sample():
     f.save(raw_p)
     _sp.run(["ffmpeg", "-y", "-i", raw_p, "-ac", "1", "-ar", "24000", wav_p], stdout=_sp.DEVNULL, stderr=_sp.DEVNULL, creationflags=0x08000000)
     return jsonify({"status": "SAVED", "path": wav_p}), 200
+
+
+@app.route("/api/leads/capture", methods=["POST"])
+def api_leads_capture():
+    import sovereign_revenue_fulfillment as _srf
+    x = request.get_json(force=True, silent=True) or {}
+    if x.get("email"): _srf.capture_lead(x["email"], x.get("name",""), x.get("focus",""), x.get("portrait_url",""), x.get("aura_hex","#38bdf8"))
+    return jsonify({"status": "CAPTURED"}), 200
+
+@app.route("/api/revenue/dashboard", methods=["GET"])
+def api_revenue_dashboard():
+    import sovereign_revenue_fulfillment as _srf, sovereign_evolution_engine as _evo
+    return jsonify({"revenue_fulfillment": _srf.get_dashboard(), "evolution": _evo.get_telemetry()}), 200
+
+@app.route("/api/webhook/stripe/fulfill", methods=["POST"])
+def api_stripe_fulfill_hook():
+    import sovereign_revenue_fulfillment as _srf
+    ev = request.get_json(force=True, silent=True) or {}
+    if ev.get("type") == "checkout.session.completed":
+        obj = (ev.get("data") or {}).get("object") or {}
+        meta = obj.get("metadata") or {}
+        sid = obj.get("id", "")
+        amt = float(obj.get("amount_total") or 0) / 100.0
+        em = obj.get("customer_email") or meta.get("email") or "Toomer1980@gmail.com"
+        if sid: _srf.enqueue_paid_order(sid, meta.get("sku", "pro_node"), em, amt, meta)
+    return jsonify({"received": True}), 200
 
 @app.route("/api/order/lookup")
 def api_lookup():
