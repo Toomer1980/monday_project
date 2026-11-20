@@ -67,10 +67,10 @@ def sync_promo_kit(store_url):
         "TIMELESS COLLECTIVE TAROT READING & ENERGY ALIGNMENT",
         "If this message found you today, there is no coincidence. Type I CLAIM THIS ALIGNMENT below.",
         "",
-        f"-> Full Oracle Systems Storefront : {store_url}",
-        f"-> 52-Week Collective Reading & Media Blueprint ($29.00) : {store_url}",
-        f"-> SovereignCore Pro Automation Node License ($99.00) : {store_url}",
-        f"-> Oracle Studio & Merchandising Automation Suite ($249.00) : {store_url}",
+        f"- Full Oracle Systems Storefront : {store_url}",
+        f"- 52-Week Collective Reading & Media Blueprint ($29.00) : {store_url}",
+        f"- SovereignCore Pro Automation Node License ($99.00) : {store_url}",
+        f"- Oracle Studio & Merchandising Automation Suite ($249.00) : {store_url}",
         "#TarotReading #CollectiveReading #EnergyUpdate #OracleSystems #SpiritualAwakening"
     ])
     open(ROOT + "/ORACLE_YOUTUBE_DESCRIPTION.txt", "w", encoding="utf-8").write(kit)
