@@ -175,6 +175,8 @@ def api_personalize_reading():
         im.thumbnail((512, 512))
         im.save(pfile)
         portrait_url = f"/static/portraits/p_{rid}.png"
+        import oracle_art_factory as _oaf
+        _oaf.make_depth_map(pfile, f"{pdir}/p_{rid}_depth.png")
         small = im.resize((16, 16))
         px = list(small.getdata())
         best = max(px, key=lambda c: max(c) - min(c))
@@ -184,7 +186,9 @@ def api_personalize_reading():
     c1 = deck[h % len(deck)]
     c2 = deck[(h // 13) % len(deck)]
     c3 = deck[(h // 37) % len(deck)]
-    cards = [{"pos": "I. PAST FOUNDATION", "name": c1}, {"pos": "II. PRESENT SHIFT", "name": c2}, {"pos": "III. INCOMING OUTCOME", "name": c3}]
+    import oracle_art_factory as _oaf
+    i1, d1 = _oaf.ensure_card_art(c1); i2, d2 = _oaf.ensure_card_art(c2); i3, d3 = _oaf.ensure_card_art(c3)
+    cards = [{"pos": "I. PAST FOUNDATION", "name": c1, "img": i1, "depth": d1}, {"pos": "II. PRESENT SHIFT", "name": c2, "img": i2, "depth": d2}, {"pos": "III. INCOMING OUTCOME", "name": c3, "img": i3, "depth": d3}]
     scenario = f"Welcome {name}. Your energy signature has been assimilated into the Oracle field. Regarding {focus}, {c1} confirms you outgrew old limitations. Right now {c2} is activating clarity and direct alignment around you. Moving forward, {c3} signals a concrete breakthrough arriving over the next seventy-two hours. Trust the opening in front of you."
     try:
         prompt = f"Respond strictly in English. Write a warm, realistic 95-word personalized tarot reading for {name} focused on {focus}, weaving in the three cards: {c1}, {c2}, and {c3}. Speak directly to them as a human reader."
@@ -198,7 +202,7 @@ def api_personalize_reading():
     audio_url = ""
     if oracle_audio_master.synthesize_human_voice(scenario, audio_file):
         audio_url = f"/static/portraits/r_{rid}.mp3"
-    return jsonify({"status": "OK", "name": name, "headline": focus, "aura_hex": aura_hex, "portrait_url": portrait_url, "cards": cards, "scenario": scenario, "audio_url": audio_url}), 200
+    return jsonify({"status": "OK", "name": name, "headline": focus, "aura_hex": aura_hex, "portrait_url": portrait_url, "portrait_depth_url": portrait_url.replace(".png", "_depth.png") if portrait_url else "", "cards": cards, "scenario": scenario, "audio_url": audio_url}), 200
 
 
 try:
