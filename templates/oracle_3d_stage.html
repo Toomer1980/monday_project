@@ -1,304 +1,233 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Oracle Systems // Live 3D/4D Sovereign Tarot Sanctuary</title>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Oracle Systems // Living 3D/4D Tarot Sanctuary</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #050612; color: #f8fafc; font-family: "Segoe UI", system-ui, sans-serif; overflow: hidden; }
-  #canvas-wrap { position: fixed; inset: 0; z-index: 1; }
-  #hud-top { position: fixed; top: 22px; left: 0; right: 0; text-align: center; z-index: 10; pointer-events: none; }
-  .kicker { color: #38bdf8; letter-spacing: 4px; font-size: 13px; font-weight: 700; text-transform: uppercase; text-shadow: 0 0 18px rgba(56,189,248,0.6); }
-  .main-title { font-family: Georgia, serif; font-size: 38px; color: #fde68a; margin-top: 6px; text-shadow: 0 0 32px rgba(251,191,36,0.5); }
-  #hud-bottom { position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%); z-index: 10; pointer-events: none; background: rgba(8,12,30,0.72); border: 1px solid rgba(218,175,55,0.55); padding: 12px 28px; border-radius: 999px; backdrop-filter: blur(12px); font-size: 14px; letter-spacing: 1.5px; color: #fef3c7; white-space: nowrap; }
-  #panel { position: fixed; left: 22px; top: 96px; width: 340px; max-height: calc(100vh - 130px); overflow-y: auto; z-index: 20; background: rgba(7,10,26,0.82); border: 1px solid rgba(218,175,55,0.45); border-radius: 16px; padding: 18px; backdrop-filter: blur(16px); box-shadow: 0 20px 50px rgba(0,0,0,0.65); }
-  #panel h2 { font-family: Georgia, serif; font-size: 20px; color: #fde68a; margin-bottom: 6px; }
-  #panel p.sub { font-size: 12px; color: #94a3b8; margin-bottom: 14px; line-height: 1.4; }
-  label { display: block; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: #38bdf8; margin: 10px 0 4px; }
-  input[type="text"], textarea, input[type="file"] { width: 100%; background: rgba(15,23,42,0.85); border: 1px solid rgba(148,163,184,0.3); color: #f8fafc; padding: 9px 11px; border-radius: 8px; font-size: 13px; }
-  textarea { resize: vertical; min-height: 62px; }
-  .btn { width: 100%; margin-top: 12px; padding: 12px; border: none; border-radius: 10px; font-weight: 700; font-size: 13px; letter-spacing: 1px; cursor: pointer; text-transform: uppercase; }
-  .btn-gold { background: linear-gradient(135deg, #f59e0b, #fbbf24, #d97706); color: #0b0f19; box-shadow: 0 0 24px rgba(245,158,11,0.4); }
-  .btn-emerald { background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; margin-top: 8px; }
-  #scenario-out { margin-top: 14px; padding: 12px; background: rgba(15,23,42,0.75); border-left: 3px solid #fbbf24; border-radius: 6px; font-size: 13px; line-height: 1.55; color: #e2e8f0; display: none; }
-  #audio-player { width: 100%; margin-top: 10px; display: none; }
-  .render-mode #panel { display: none !important; }
-</style>
-</head>
-<body>
-<div id="canvas-wrap"></div>
-<div id="hud-top">
-  <div class="kicker" id="hud-kicker">ORACLE SYSTEMS LLC // LIVE 3D QUANTUM TAROT ENGINE</div>
-  <div class="main-title" id="hud-title">Sudden Financial &amp; Spiritual Breakthrough</div>
-</div>
-<div id="hud-bottom" id="hud-cta">TYPE "I CLAIM THIS ALIGNMENT"  |  LIVE 3D PERSONALIZED READINGS &amp; 52-WEEK BLUEPRINT IN DESCRIPTION</div>
-
+*{box-sizing:border-box;margin:0;padding:0}body{background:#040510;color:#f8fafc;font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden}
+#canvas-wrap{position:fixed;inset:0;z-index:1}#hud-bottom{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:10;pointer-events:none;background:rgba(6,10,26,.76);border:1px solid rgba(234,179,8,.55);padding:9px 24px;border-radius:999px;font-size:13px;letter-spacing:1.3px;color:#fef3c7;white-space:nowrap}
+#panel{position:fixed;left:16px;top:16px;width:335px;max-height:calc(100vh - 32px);overflow-y:auto;z-index:20;background:rgba(6,9,24,.86);border:1px solid rgba(234,179,8,.45);border-radius:16px;padding:15px;backdrop-filter:blur(14px)}
+#panel h2{font-family:Georgia,serif;font-size:18px;color:#fde68a;margin-bottom:4px}#panel p.sub{font-size:11.5px;color:#94a3b8;margin-bottom:10px;line-height:1.35}
+label{display:block;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:#38bdf8;margin:8px 0 3px}
+input[type="text"],textarea,input[type="file"]{width:100%;background:rgba(15,23,42,.9);border:1px solid rgba(148,163,184,.3);color:#f8fafc;padding:7px 9px;border-radius:8px;font-size:12.5px}
+textarea{min-height:48px}.btn{width:100%;margin-top:9px;padding:10px;border:none;border-radius:9px;font-weight:700;font-size:11.5px;letter-spacing:1px;cursor:pointer;text-transform:uppercase}
+.btn-gold{background:linear-gradient(135deg,#f59e0b,#fbbf24,#d97706);color:#0b0f19}.btn-emerald{background:linear-gradient(135deg,#10b981,#059669);color:#fff}
+.btn-slate{background:#1e293b;color:#38bdf8;border:1px solid rgba(56,189,248,.35)}.btn-row{display:flex;gap:7px;margin-top:8px}.btn-row .btn{margin-top:0;flex:1;padding:8px 4px;font-size:10.5px}
+.divider{border-top:1px solid rgba(234,179,8,.25);margin:12px 0 9px}#voice-status{font-size:11px;color:#a7f3d0;margin-top:6px}
+#scenario-out{margin-top:10px;padding:10px;background:rgba(15,23,42,.8);border-left:3px solid #fbbf24;border-radius:6px;font-size:12px;line-height:1.45;display:none}
+#audio-player{width:100%;margin-top:8px;display:none}.render-mode #panel{display:none!important}
+</style></head><body><div id="canvas-wrap"></div>
+<div id="hud-bottom">TYPE "I CLAIM THIS ALIGNMENT" | LIVE 3D/4D PERSONALIZED READING &amp; 52-WEEK BLUEPRINT IN DESCRIPTION</div>
 <div id="panel">
-  <h2>Personalize Your 3D Reading</h2>
-  <p class="sub">Upload your photo to assimilate your color aura directly into the 3D quantum field and generate a tailored scenario + live voice reading.</p>
-  <label>Your First Name</label>
-  <input type="text" id="u-name" placeholder="e.g. Jordan">
-  <label>Your Focus / Scenario</label>
-  <textarea id="u-focus" placeholder="Career breakthrough, financial expansion, relationship clarity..."></textarea>
-  <label>Upload Your Picture (Assimilates Into 3D Aura)</label>
-  <input type="file" id="u-photo" accept="image/*">
-  <button class="btn btn-gold" id="btn-gen">Assimilate &amp; Channel 3D Reading</button>
-  <button class="btn btn-emerald" onclick="buyPersonal3D()">Order Custom 4K 3D Reading Video ($49)</button><button class="btn" style="background:#1e293b;color:#38bdf8;margin-top:8px;" onclick="window.location.href='/store'">View All Tiers ($29 - $1,500)</button><script>async function buyPersonal3D(){const r=await fetch("/api/billing/create-checkout",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sku:"personal_3d_video",email:"Toomer1980@gmail.com"})});const d=await r.json();if(d.checkout_url)window.location.href=d.checkout_url;}</script>
-  <div id="scenario-out"></div>
-  <audio id="audio-player" controls></audio>
+  <h2>Live 3D/4D Oracle Sanctuary</h2>
+  <p class="sub">Upload your picture to assimilate your aura into the living 3D/4D motion-picture cards and generate a tailored reading.</p>
+  <label>Your First Name</label><input type="text" id="u-name" placeholder="e.g. Thomas">
+  <label>Your Focus / Scenario</label><textarea id="u-focus" placeholder="Financial breakthrough, career elevation..."></textarea>
+  <label>Upload Picture (3D Hologram + Aura Sync)</label><input type="file" id="u-photo" accept="image/*">
+  <button class="btn btn-gold" id="btn-gen">Assimilate &amp; Launch 3D Reading</button>
+  <button class="btn btn-emerald" onclick="buyPersonal3D()">Order Custom 4K 3D Video ($49)</button>
+  <button class="btn btn-slate" onclick="location.href='/store'">Full Storefront ($29 - $1,500)</button>
+  <div id="scenario-out"></div><audio id="audio-player" controls></audio>
+  <div class="divider"></div><h2>Voice Studio (Instant Revert)</h2>
+  <div class="btn-row"><button class="btn btn-slate" id="btn-rec-start">Record My Voice</button><button class="btn btn-gold" id="btn-rec-stop" disabled>Stop &amp; Save</button></div>
+  <label>Or Upload Audio (.wav / .mp3)</label><input type="file" id="v-file" accept="audio/*">
+  <div class="btn-row"><button class="btn btn-emerald" id="btn-use-custom">Use My Voice</button><button class="btn btn-slate" id="btn-revert-neural">Revert Neural</button></div>
+  <div id="voice-status">Active Voice: Loading...</div>
 </div>
+<script>
+async function buyPersonal3D(){const r=await fetch("/api/billing/create-checkout",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sku:"personal_3d_video",email:"Toomer1980@gmail.com"})});const d=await r.json();if(d.checkout_url)location.href=d.checkout_url;}
+</script>
 
 <script type="module">
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js";
-
-const qs = new URLSearchParams(window.location.search);
-const IS_RENDER = qs.get("render") === "1";
+const qs = new URLSearchParams(location.search), IS_RENDER = qs.get("render") === "1";
 if (IS_RENDER) document.body.classList.add("render-mode");
-
-const INIT_KICKER = qs.get("kicker") || "ORACLE SYSTEMS COLLECTIVE TAROT // LIVE 3D";
-const INIT_TITLE = qs.get("title") || "Sudden Financial & Spiritual Breakthrough";
-const INIT_CARDS = [
-  { pos: "I. PAST FOUNDATION", name: qs.get("c1") || "The Tower", glyph: "TOWER" },
-  { pos: "II. PRESENT SHIFT", name: qs.get("c2") || "The Star", glyph: "STAR" },
-  { pos: "III. INCOMING OUTCOME", name: qs.get("c3") || "Ace of Pentacles", glyph: "PENTACLES" }
+let KICKER_TXT = qs.get("kicker") || "ORACLE SYSTEMS // LIVING 3D/4D QUANTUM TAROT";
+let TITLE_TXT = qs.get("title") || "Sudden Financial & Spiritual Breakthrough";
+let ACTIVE_CARDS = [
+  { pos: "I. PAST FOUNDATION", name: qs.get("c1") || "The Tower", theme: "storm", story: "ACT I: SHATTERING OLD LIMITS" },
+  { pos: "II. PRESENT SHIFT", name: qs.get("c2") || "The Star", theme: "star", story: "ACT II: COSMIC CLARITY & ALIGNMENT" },
+  { pos: "III. INCOMING OUTCOME", name: qs.get("c3") || "Ace of Pentacles", theme: "gold", story: "ACT III: TANGIBLE WEALTH MATERIALIZING" }
 ];
-let AURA_HEX = qs.get("aura") || "#38bdf8";
-const PORTRAIT_URL = qs.get("portrait") || "";
+let AURA_HEX = qs.get("aura") || "#38bdf8"; const PORTRAIT_URL = qs.get("portrait") || "";
+const scene = new THREE.Scene(); scene.fog = new THREE.FogExp2(0x040612, 0.028);
+const isVertical = innerHeight > innerWidth;
+const camera = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 0.1, 220);
+camera.position.set(0, 0.6, isVertical ? 14.5 : 11.4);
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, powerPreference: "high-performance" });
+renderer.setSize(innerWidth, innerHeight); renderer.setPixelRatio(IS_RENDER ? 1 : Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.28;
+document.getElementById("canvas-wrap").appendChild(renderer.domElement);
+scene.add(new THREE.AmbientLight(0x8fa4dd, 0.85));
+const keyLight = new THREE.DirectionalLight(0xffe8a6, 2.5); keyLight.position.set(5, 8, 9); scene.add(keyLight);
+const auraLight = new THREE.PointLight(new THREE.Color(AURA_HEX), 6.0, 32); auraLight.position.set(0, 2.5, 4.5); scene.add(auraLight);
+const goldRim = new THREE.PointLight(0xfbbf24, 4.2, 28); goldRim.position.set(-6, -2, 6); scene.add(goldRim);
 
-document.getElementById("hud-kicker").textContent = INIT_KICKER;
-document.getElementById("hud-title").textContent = INIT_TITLE;
+// 4D Rotating Hypercube (Tesseract)
+const verts4D = [], edges4D = [];
+for (let i = 0; i < 16; i++) { verts4D.push([(i&1)?1:-1,(i&2)?1:-1,(i&4)?1:-1,(i&8)?1:-1]); for (let b=0;b<4;b++){ const j=i^(1<<b); if(i<j) edges4D.push([i,j]); } }
+const tessPos = new Float32Array(edges4D.length * 6), tessGeo = new THREE.BufferGeometry();
+tessGeo.setAttribute("position", new THREE.BufferAttribute(tessPos, 3));
+const tessMat = new THREE.LineBasicMaterial({ color: new THREE.Color(AURA_HEX), transparent: true, opacity: 0.45 });
+const tesseract = new THREE.LineSegments(tessGeo, tessMat); tesseract.position.set(0, 0.2, -5.2); scene.add(tesseract);
+function updateTesseract(t) {
+  const c1=Math.cos(t*.42),s1=Math.sin(t*.42),c2=Math.cos(t*.31),s2=Math.sin(t*.31),c3=Math.cos(t*.25),s3=Math.sin(t*.25);
+  const p = verts4D.map(([x,y,z,w]) => {
+    let nx=x*c1-w*s1, nw=x*s1+w*c1; x=nx; w=nw; let ny=y*c2-w*s2; nw=y*s2+w*c2; y=ny; w=nw;
+    nx=x*c3-z*s3; let nz=x*s3+z*c3; const sc=3.8/(3.1-w); return [nx*sc, y*sc, nz*sc];
+  });
+  let k=0; for (const [a,b] of edges4D) { tessPos[k++]=p[a][0]; tessPos[k++]=p[a][1]; tessPos[k++]=p[a][2]; tessPos[k++]=p[b][0]; tessPos[k++]=p[b][1]; tessPos[k++]=p[b][2]; }
+  tessGeo.attributes.position.needsUpdate = true;
+}
 
-const wrap = document.getElementById("canvas-wrap");
-const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x050714, 0.032);
-
-const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 200);
-camera.position.set(0, 0.6, 11.2);
-
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: true, powerPreference: "high-performance" });
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(IS_RENDER ? 1 : Math.min(window.devicePixelRatio, 2));
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.25;
-wrap.appendChild(renderer.domElement);
-
-// Cinematic studio 3-point + dynamic aura lighting
-const amb = new THREE.AmbientLight(0x8899cc, 0.75);
-scene.add(amb);
-const keyLight = new THREE.DirectionalLight(0xffe49e, 2.4);
-keyLight.position.set(5, 8, 9);
-scene.add(keyLight);
-const auraLight = new THREE.PointLight(new THREE.Color(AURA_HEX), 5.0, 28);
-auraLight.position.set(0, 2.5, 4.5);
-scene.add(auraLight);
-const rimLight = new THREE.PointLight(0xd4af37, 3.8, 25);
-rimLight.position.set(-6, -3, 5);
-scene.add(rimLight);
-
-// Procedural high-res metallic gold tarot face & back textures
-function makeCardTexture(posLabel, cardName, auraColor, isBack) {
-  const c = document.createElement("canvas");
-  c.width = 512; c.height = 820;
-  const ctx = c.getContext("2d");
-  const g = ctx.createLinearGradient(0, 0, 512, 820);
-  g.addColorStop(0, "#0b0e24"); g.addColorStop(0.5, "#151238"); g.addColorStop(1, "#070918");
-  ctx.fillStyle = g; ctx.fillRect(0, 0, 512, 820);
-  ctx.strokeStyle = "#eab308"; ctx.lineWidth = 10; ctx.strokeRect(18, 18, 476, 784);
-  ctx.strokeStyle = auraColor; ctx.lineWidth = 3; ctx.strokeRect(34, 34, 444, 752);
-  // Sacred geometry mandala
-  ctx.save(); ctx.translate(256, 390);
-  for (let r = 170; r >= 40; r -= 26) {
-    ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2);
-    ctx.strokeStyle = r % 52 === 0 ? auraColor : "#d4af37"; ctx.lineWidth = 2; ctx.stroke();
-  }
-  for (let a = 0; a < 12; a++) {
-    const rad = (a * Math.PI) / 6;
-    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(rad)*175, Math.sin(rad)*175);
-    ctx.strokeStyle = "rgba(234,179,8,0.55)"; ctx.lineWidth = 2; ctx.stroke();
-  }
-  ctx.beginPath(); ctx.arc(0, 0, 58, 0, Math.PI * 2);
-  ctx.fillStyle = "#0d1026"; ctx.fill(); ctx.lineWidth = 4; ctx.strokeStyle = "#fde68a"; ctx.stroke();
-  ctx.fillStyle = "#fde68a"; ctx.font = "bold 20px Georgia"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-  ctx.fillText(isBack ? "ORACLE" : "TAROT", 0, 0);
-  ctx.restore();
-  if (!isBack) {
-    ctx.fillStyle = auraColor; ctx.font = "bold 22px Segoe UI"; ctx.textAlign = "center";
-    ctx.fillText(posLabel, 256, 95);
-    ctx.fillStyle = "#ffffff"; ctx.font = "bold 36px Georgia";
-    ctx.fillText(cardName.slice(0, 22), 256, 685);
-    ctx.fillStyle = "#fde68a"; ctx.font = "16px Segoe UI";
-    ctx.fillText("ORACLE SYSTEMS // SOVEREIGN EDITION", 256, 745);
+// Living Motion-Picture Card Renderer
+function drawLivingCardScene(ctx, card, t, auraColor) {
+  const W = 512, H = 820, g = ctx.createLinearGradient(0, 0, 0, H);
+  if (card.theme==="storm"){ g.addColorStop(0,"#09061c"); g.addColorStop(.55,"#1f103d"); g.addColorStop(1,"#0b0717"); }
+  else if (card.theme==="star"){ g.addColorStop(0,"#040d26"); g.addColorStop(.55,"#0d2852"); g.addColorStop(1,"#050b1f"); }
+  else { g.addColorStop(0,"#120c04"); g.addColorStop(.55,"#2b1d07"); g.addColorStop(1,"#090703"); }
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); ctx.save(); ctx.beginPath(); ctx.rect(42, 128, 428, 515); ctx.clip();
+  if (card.theme === "storm") {
+    for (let k=0;k<6;k++){ const cx=((t*(38+k*9)+k*110)%620)-55, cy=200+Math.sin(t*.9+k)*35+k*24, r=95+(k%3)*28; const cg=ctx.createRadialGradient(cx,cy,8,cx,cy,r); cg.addColorStop(0,"rgba(139,92,246,.36)"); cg.addColorStop(1,"rgba(9,6,28,0)"); ctx.fillStyle=cg; ctx.beginPath(); ctx.arc(cx,cy,r,0,6.28); ctx.fill(); }
+    const sh = Math.sin(t*18)*(Math.sin(t*2.3)>.7?3.5:.4);
+    ctx.fillStyle="#1c1535"; ctx.strokeStyle="#f59e0b"; ctx.lineWidth=4; ctx.fillRect(212+sh,310,88,330); ctx.strokeRect(212+sh,310,88,330);
+    ctx.fillStyle="#fef08a"; ctx.fillRect(244+sh,360,24,38); ctx.fillRect(244+sh,445,24,38);
+    ctx.beginPath(); ctx.moveTo(202+sh,310); ctx.lineTo(222+sh,268); ctx.lineTo(256+sh,290); ctx.lineTo(290+sh,268); ctx.lineTo(310+sh,310); ctx.closePath(); ctx.fillStyle="#fbbf24"; ctx.fill();
+    const fl = Math.sin(t*3.1)>.35; ctx.beginPath(); ctx.moveTo(390,128); ctx.lineTo(325+Math.sin(t*14)*12,200); ctx.lineTo(350+Math.cos(t*12)*10,220); ctx.lineTo(256+sh,286); ctx.strokeStyle=fl?"#fff":"#fde047"; ctx.lineWidth=fl?7:3; ctx.stroke();
+    for (let s=0;s<24;s++){ ctx.fillStyle=s%2?"#fde047":auraColor; ctx.beginPath(); ctx.arc(80+((s*67+Math.sin(t*2+s)*25)%350), 640-((t*(75+(s%5)*20)+s*43)%500), 2.5+(s%3), 0, 6.28); ctx.fill(); }
+  } else if (card.theme === "star") {
+    for (let b=0;b<5;b++){ ctx.beginPath(); for(let x=40;x<=475;x+=18){ const y=260+b*48+Math.sin(x*.018+t*(1.4+b*.25)+b)*32; x===40?ctx.moveTo(x,y):ctx.lineTo(x,y); } ctx.strokeStyle=b%2?"rgba(253,224,71,.35)":"rgba(56,189,248,.48)"; ctx.lineWidth=14; ctx.stroke(); }
+    ctx.save(); ctx.translate(256,330); ctx.rotate(t*.35); const pl=1+Math.sin(t*2.8)*.12;
+    const sg=ctx.createRadialGradient(0,0,8,0,0,140*pl); sg.addColorStop(0,"rgba(255,255,255,.95)"); sg.addColorStop(.35,"rgba(56,189,248,.6)"); sg.addColorStop(1,"rgba(4,13,38,0)");
+    ctx.fillStyle=sg; ctx.beginPath(); ctx.arc(0,0,140*pl,0,6.28); ctx.fill(); ctx.beginPath();
+    for(let p=0;p<16;p++){ const r=(p%2?34:108)*pl, a=p*Math.PI/8; p?ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r):ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r); }
+    ctx.closePath(); ctx.fillStyle="#fef9c3"; ctx.fill(); ctx.strokeStyle="#38bdf8"; ctx.lineWidth=3; ctx.stroke(); ctx.restore();
+    for(let w=0;w<6;w++){ ctx.beginPath(); for(let x=42;x<=470;x+=16){ const y=515+w*20+Math.sin(x*.04-t*3+w)*5; x===42?ctx.moveTo(x,y):ctx.lineTo(x,y); } ctx.strokeStyle="rgba(125,211,252,.55)"; ctx.lineWidth=3; ctx.stroke(); }
   } else {
-    ctx.fillStyle = "#fde68a"; ctx.font = "bold 28px Georgia"; ctx.textAlign = "center";
-    ctx.fillText("SOVEREIGN ORACLE", 256, 120);
-    ctx.fillText("QUANTUM DECK", 256, 710);
+    ctx.save(); ctx.translate(256,375); ctx.rotate(t*.25); for(let r=0;r<18;r++){ ctx.rotate(Math.PI/9); ctx.fillStyle="rgba(251,191,36,.13)"; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(-14,-270); ctx.lineTo(14,-270); ctx.closePath(); ctx.fill(); } ctx.restore();
+    for(let k=0;k<3;k++){ const rr=((t*75+k*90)%240)+30; ctx.beginPath(); ctx.arc(256,375,rr,0,6.28); ctx.strokeStyle=`rgba(251,191,36,${Math.max(0,.7-rr/280)})`; ctx.lineWidth=4; ctx.stroke(); }
+    const scX=Math.max(.18,Math.abs(Math.cos(t*1.6))); ctx.save(); ctx.translate(256,375+Math.sin(t*2)*14); ctx.scale(scX,1);
+    const cg=ctx.createRadialGradient(-24,-24,10,0,0,118); cg.addColorStop(0,"#fef9c3"); cg.addColorStop(.55,"#f59e0b"); cg.addColorStop(1,"#92400e");
+    ctx.beginPath(); ctx.arc(0,0,114,0,6.28); ctx.fillStyle=cg; ctx.fill(); ctx.lineWidth=7; ctx.strokeStyle="#fde68a"; ctx.stroke();
+    ctx.beginPath(); for(let i=0;i<5;i++){ const a=-Math.PI/2+i*4*Math.PI/5; i?ctx.lineTo(Math.cos(a)*82,Math.sin(a)*82):ctx.moveTo(Math.cos(a)*82,Math.sin(a)*82); } ctx.closePath(); ctx.strokeStyle="#451a03"; ctx.lineWidth=6; ctx.stroke(); ctx.restore();
+    for(let s=0;s<26;s++){ ctx.fillStyle=s%3?"#fbbf24":"#fff"; ctx.beginPath(); ctx.arc(60+((s*59+Math.cos(t+s)*20)%390), 640-((t*(65+(s%4)*22)+s*37)%510), 3+(s%2), 0, 6.28); ctx.fill(); }
   }
-  const tex = new THREE.CanvasTexture(c);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  return tex;
+  ctx.restore();
+  ctx.strokeStyle="#eab308"; ctx.lineWidth=10; ctx.strokeRect(18,18,W-36,H-36); ctx.strokeStyle=auraColor; ctx.lineWidth=3; ctx.strokeRect(36,36,W-72,H-72);
+  ctx.strokeStyle="rgba(234,179,8,.75)"; ctx.strokeRect(42,128,428,515);
+  ctx.fillStyle=auraColor; ctx.font="bold 22px Segoe UI"; ctx.textAlign="center"; ctx.fillText(card.pos,256,86);
+  ctx.fillStyle="#fff"; ctx.font="bold 36px Georgia"; ctx.fillText(card.name.slice(0,22),256,705);
+  ctx.fillStyle="#fde68a"; ctx.font="15px Segoe UI"; ctx.fillText("ORACLE SYSTEMS // LIVING 3D DECK",256,756);
 }
+function makeBackTexture(ac) {
+  const c=document.createElement("canvas"); c.width=512; c.height=820; const ctx=c.getContext("2d");
+  ctx.fillStyle="#080b20"; ctx.fillRect(0,0,512,820); ctx.strokeStyle="#eab308"; ctx.lineWidth=10; ctx.strokeRect(20,20,472,780);
+  ctx.strokeStyle=ac; ctx.lineWidth=3; ctx.strokeRect(38,38,436,744); ctx.save(); ctx.translate(256,410);
+  for(let r=160;r>=40;r-=30){ ctx.beginPath(); ctx.arc(0,0,r,0,6.28); ctx.strokeStyle="#eab308"; ctx.lineWidth=2.5; ctx.stroke(); }
+  ctx.fillStyle="#fde68a"; ctx.font="bold 28px Georgia"; ctx.textAlign="center"; ctx.fillText("ORACLE",0,10); ctx.restore();
+  const tx=new THREE.CanvasTexture(c); tx.colorSpace=THREE.SRGBColorSpace; return tx;
+}
+function makeKineticBanner(w, h) {
+  const c=document.createElement("canvas"); c.width=w; c.height=h;
+  const tex=new THREE.CanvasTexture(c); tex.colorSpace=THREE.SRGBColorSpace;
+  const mesh=new THREE.Mesh(new THREE.PlaneGeometry(w/135,h/135), new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,side:THREE.DoubleSide}));
+  return {ctx:c.getContext("2d"),tex,mesh};
+}
+const titleBanner3D = makeKineticBanner(1280,190); titleBanner3D.mesh.position.set(0,isVertical?4.35:3.15,.2); scene.add(titleBanner3D.mesh);
+const storyBanner3D = makeKineticBanner(1024,120); storyBanner3D.mesh.position.set(0,isVertical?-3.45:-2.95,1.4); scene.add(storyBanner3D.mesh);
+function renderTitleBanner3D(k, t, ac) {
+  const ctx=titleBanner3D.ctx; ctx.clearRect(0,0,1280,190); ctx.textAlign="center"; ctx.shadowColor=ac; ctx.shadowBlur=18;
+  ctx.fillStyle=ac; ctx.font="bold 26px Segoe UI"; ctx.fillText(k.toUpperCase(),640,52);
+  ctx.shadowColor="#f59e0b"; ctx.shadowBlur=28; ctx.fillStyle="#fef08a"; ctx.font="bold 56px Georgia"; ctx.fillText(t.slice(0,44),640,132);
+  titleBanner3D.tex.needsUpdate=true;
+}
+let lastStory="";
+function renderStoryBanner3D(txt, ac) {
+  if(txt===lastStory) return; lastStory=txt; const ctx=storyBanner3D.ctx; ctx.clearRect(0,0,1024,120);
+  ctx.fillStyle="rgba(6,10,28,.74)"; ctx.fillRect(60,18,904,84); ctx.strokeStyle=ac; ctx.lineWidth=3; ctx.strokeRect(60,18,904,84);
+  ctx.textAlign="center"; ctx.fillStyle="#fff"; ctx.font="bold 31px Georgia"; ctx.shadowColor=ac; ctx.shadowBlur=14; ctx.fillText(txt,512,71);
+  storyBanner3D.tex.needsUpdate=true;
+}
+renderTitleBanner3D(KICKER_TXT, TITLE_TXT, AURA_HEX);
 
-// Build 3D tarot cards with metallic gold edges
-const cardGroup = new THREE.Group();
-scene.add(cardGroup);
-const cardMeshes = [];
-const cardGeo = new THREE.BoxGeometry(2.55, 4.1, 0.09);
-const edgeMat = new THREE.MeshStandardMaterial({ color: 0xeab308, metalness: 0.92, roughness: 0.18 });
-const isVertical = window.innerHeight > window.innerWidth;
-const xOffsets = isVertical ? [-1.95, 0, 1.95] : [-3.35, 0, 3.35];
-if (isVertical) { camera.position.set(0, 0.2, 13.8); }
-
-function buildCards(cardsArr, auraColor) {
-  while (cardGroup.children.length) cardGroup.remove(cardGroup.children[0]);
-  cardMeshes.length = 0;
-  cardsArr.forEach((cd, idx) => {
-    const frontTex = makeCardTexture(cd.pos, cd.name, auraColor, false);
-    const backTex = makeCardTexture("", "", auraColor, true);
-    const mats = [
-      edgeMat, edgeMat, edgeMat, edgeMat,
-      new THREE.MeshStandardMaterial({ map: frontTex, metalness: 0.35, roughness: 0.25 }),
-      new THREE.MeshStandardMaterial({ map: backTex, metalness: 0.45, roughness: 0.25 })
-    ];
-    const mesh = new THREE.Mesh(cardGeo, mats);
-    mesh.position.set(xOffsets[idx], -0.45, idx === 1 ? 0.45 : -0.2);
-    mesh.rotation.y = Math.PI;
-    cardGroup.add(mesh);
-    cardMeshes.push(mesh);
+const cardGroup=new THREE.Group(); scene.add(cardGroup); const cardObjs=[];
+const cardGeo=new THREE.BoxGeometry(2.6,4.16,.11), edgeMat=new THREE.MeshStandardMaterial({color:0xeab308,metalness:.94,roughness:.16});
+const xOffsets = isVertical ? [-2.1, 0, 2.1] : [-3.4, 0, 3.4];
+function rebuildDeck(arr, ac) {
+  while(cardGroup.children.length) cardGroup.remove(cardGroup.children[0]); cardObjs.length=0;
+  const backTex=makeBackTexture(ac);
+  arr.forEach((cd,idx)=>{
+    const cv=document.createElement("canvas"); cv.width=512; cv.height=820; const ctx=cv.getContext("2d"); drawLivingCardScene(ctx,cd,0,ac);
+    const ft=new THREE.CanvasTexture(cv); ft.colorSpace=THREE.SRGBColorSpace;
+    const m=new THREE.Mesh(cardGeo,[edgeMat,edgeMat,edgeMat,edgeMat,new THREE.MeshStandardMaterial({map:ft,metalness:.25,roughness:.22}),new THREE.MeshStandardMaterial({map:backTex,metalness:.45,roughness:.25})]);
+    m.position.set(xOffsets[idx],-.35,idx===1?.45:-.2); m.rotation.y=Math.PI; cardGroup.add(m); cardObjs.push({mesh:m,ctx,frontTex:ft,card:cd});
   });
 }
-buildCards(INIT_CARDS, AURA_HEX);
+rebuildDeck(ACTIVE_CARDS, AURA_HEX);
 
-// Holographic 3D Energy Ring + Portrait Assimilation Medallion above the spread
-const portalGroup = new THREE.Group();
-portalGroup.position.set(0, isVertical ? 3.2 : 2.35, -0.6);
-scene.add(portalGroup);
-const ring1 = new THREE.Mesh(new THREE.TorusGeometry(1.18, 0.045, 20, 96), new THREE.MeshStandardMaterial({ color: 0xfbbf24, emissive: 0xb45309, emissiveIntensity: 0.8, metalness: 0.9, roughness: 0.15 }));
-const ring2 = new THREE.Mesh(new THREE.TorusGeometry(1.38, 0.025, 16, 96), new THREE.MeshStandardMaterial({ color: new THREE.Color(AURA_HEX), emissive: new THREE.Color(AURA_HEX), emissiveIntensity: 1.1, metalness: 0.7, roughness: 0.2 }));
-portalGroup.add(ring1, ring2);
-const portraitMat = new THREE.MeshStandardMaterial({ color: 0x111827, emissive: new THREE.Color(AURA_HEX), emissiveIntensity: 0.22, metalness: 0.25, roughness: 0.35, side: THREE.DoubleSide });
-const portraitDisc = new THREE.Mesh(new THREE.CircleGeometry(1.06, 64), portraitMat);
-portalGroup.add(portraitDisc);
-portalGroup.visible = false;
+const portalGroup=new THREE.Group(); portalGroup.position.set(0,isVertical?2.85:1.9,-.5); scene.add(portalGroup);
+const ring1=new THREE.Mesh(new THREE.TorusGeometry(.95,.04,20,96),new THREE.MeshStandardMaterial({color:0xfbbf24,emissive:0xb45309,emissiveIntensity:.9,metalness:.9,roughness:.15}));
+const ring2=new THREE.Mesh(new THREE.TorusGeometry(1.12,.025,16,96),new THREE.MeshStandardMaterial({color:new THREE.Color(AURA_HEX),emissive:new THREE.Color(AURA_HEX),emissiveIntensity:1.2}));
+const portraitMat=new THREE.MeshStandardMaterial({color:0x111827,side:THREE.DoubleSide});
+portalGroup.add(ring1,ring2,new THREE.Mesh(new THREE.CircleGeometry(.86,64),portraitMat)); portalGroup.visible=false;
+function applyPortraitUrl(u){ if(!u)return; new THREE.TextureLoader().load(u,tx=>{tx.colorSpace=THREE.SRGBColorSpace;portraitMat.map=tx;portraitMat.color.set(0xffffff);portraitMat.needsUpdate=true;portalGroup.visible=true;}); }
+if(PORTRAIT_URL) applyPortraitUrl(PORTRAIT_URL);
 
-function applyPortraitUrl(url, auraColor) {
-  if (!url) return;
-  const loader = new THREE.TextureLoader();
-  loader.load(url, (tex) => {
-    tex.colorSpace = THREE.SRGBColorSpace;
-    portraitMat.map = tex;
-    portraitMat.color.set(0xffffff);
-    portraitMat.emissive.set(auraColor);
-    portraitMat.emissiveIntensity = 0.14;
-    portraitMat.needsUpdate = true;
-    portalGroup.visible = true;
-  });
-}
-if (PORTRAIT_URL) applyPortraitUrl(PORTRAIT_URL, AURA_HEX);
+const pCount=1600, pPos=new Float32Array(pCount*3), pCol=new Float32Array(pCount*3), cA=new THREE.Color(AURA_HEX), cG=new THREE.Color(0xfbbf24);
+for(let i=0;i<pCount;i++){const r=4.2+Math.random()*15,a=Math.random()*6.28;pPos[i*3]=Math.cos(a)*r;pPos[i*3+1]=(Math.random()-.5)*13;pPos[i*3+2]=Math.sin(a)*r-4;const c=i%2?cA:cG;pCol[i*3]=c.r;pCol[i*3+1]=c.g;pCol[i*3+2]=c.b;}
+const pGeo=new THREE.BufferGeometry(); pGeo.setAttribute("position",new THREE.BufferAttribute(pPos,3)); pGeo.setAttribute("color",new THREE.BufferAttribute(pCol,3));
+const vortex=new THREE.Points(pGeo,new THREE.PointsMaterial({size:.09,vertexColors:true,transparent:true,opacity:.85,blending:THREE.AdditiveBlending})); scene.add(vortex);
 
-// 4D-feel swirling golden/aura cosmic particle vortex
-const pCount = 1600;
-const pPos = new Float32Array(pCount * 3);
-const pCol = new Float32Array(pCount * 3);
-const cAura = new THREE.Color(AURA_HEX);
-const cGold = new THREE.Color(0xfbbf24);
-for (let i = 0; i < pCount; i++) {
-  const r = 4.5 + Math.random() * 14.0;
-  const ang = Math.random() * Math.PI * 2;
-  pPos[i*3] = Math.cos(ang) * r;
-  pPos[i*3+1] = (Math.random() - 0.5) * 12.0;
-  pPos[i*3+2] = Math.sin(ang) * r - 4.0;
-  const col = i % 2 === 0 ? cGold : cAura;
-  pCol[i*3] = col.r; pCol[i*3+1] = col.g; pCol[i*3+2] = col.b;
-}
-const pGeo = new THREE.BufferGeometry();
-pGeo.setAttribute("position", new THREE.BufferAttribute(pPos, 3));
-pGeo.setAttribute("color", new THREE.BufferAttribute(pCol, 3));
-const pMat = new THREE.PointsMaterial({ size: 0.085, vertexColors: true, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending });
-const vortex = new THREE.Points(pGeo, pMat);
-scene.add(vortex);
-
-// Deterministic timeline function (drives both live animation & 4K video rendering)
-function smoothstep(edge0, edge1, x) {
-  const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
-  return t * t * (3 - 2 * t);
-}
-const flipStarts = [2.6, 13.6, 27.6];
+const ss=(e0,e1,x)=>{const t=Math.max(0,Math.min(1,(x-e0)/(e1-e0)));return t*t*(3-2*t);};
+const lerp=(a,b,k)=>a+(b-a)*k, flipStarts=[2.6,13.6,27.6];
 window.setTimeline = function(t) {
-  camera.position.x = Math.sin(t * 0.28) * 1.15;
-  camera.position.y = (isVertical ? 0.35 : 0.55) + Math.cos(t * 0.22) * 0.35;
-  camera.lookAt(0, -0.1, 0);
-  vortex.rotation.y = t * 0.14;
-  vortex.rotation.z = Math.sin(t * 0.18) * 0.08;
-  auraLight.position.x = Math.sin(t * 0.7) * 5.0;
-  auraLight.intensity = 4.2 + Math.sin(t * 1.6) * 1.1;
-  ring1.rotation.z = t * 0.45;
-  ring2.rotation.x = Math.sin(t * 0.6) * 0.35;
-  ring2.rotation.y = t * 0.55;
-  portalGroup.position.y = (isVertical ? 3.2 : 2.35) + Math.sin(t * 1.1) * 0.12;
-  cardMeshes.forEach((m, idx) => {
-    const p = smoothstep(flipStarts[idx], flipStarts[idx] + 1.6, t);
-    m.rotation.y = Math.PI * (1.0 - p) + Math.sin(t * 0.8 + idx) * 0.08;
-    m.rotation.x = Math.cos(t * 0.65 + idx * 1.3) * 0.05;
-    m.position.y = -0.45 + Math.sin(t * 1.15 + idx * 1.7) * 0.16 + (p > 0 && p < 1 ? Math.sin(p * Math.PI) * 0.55 : 0);
-    m.position.z = (idx === 1 ? 0.45 : -0.2) + (p > 0 && p < 1 ? Math.sin(p * Math.PI) * 1.1 : 0);
+  updateTesseract(t); vortex.rotation.y=t*.16; vortex.rotation.z=Math.sin(t*.2)*.09;
+  auraLight.position.x=Math.sin(t*.75)*5.2; auraLight.intensity=4.8+Math.sin(t*1.8)*1.2; ring1.rotation.z=t*.5; ring2.rotation.y=t*.65;
+  titleBanner3D.mesh.rotation.y=Math.sin(t*.45)*.14; titleBanner3D.mesh.position.y=(isVertical?4.35:3.15)+Math.sin(t*.9)*.08;
+  storyBanner3D.mesh.rotation.y=Math.cos(t*.5)*.10; storyBanner3D.mesh.position.z=1.4+Math.sin(t*1.2)*.25;
+  let cx=Math.sin(t*.3)*.9, cz=isVertical?14.5:11.4, lx=0;
+  if(t>=2.2&&t<13){const k=ss(2.2,4.2,t)*(1-ss(11,13,t));cx=lerp(cx,xOffsets[0]*.85,k);cz=lerp(cz,isVertical?10.6:7.8,k);lx=lerp(0,xOffsets[0]*.65,k);renderStoryBanner3D(ACTIVE_CARDS[0].story+" // "+ACTIVE_CARDS[0].name.toUpperCase(),AURA_HEX);}
+  else if(t>=13&&t<27){const k=ss(13,15,t)*(1-ss(25,27,t));cx=lerp(cx,0,k);cz=lerp(cz,isVertical?10.4:7.6,k);renderStoryBanner3D(ACTIVE_CARDS[1].story+" // "+ACTIVE_CARDS[1].name.toUpperCase(),AURA_HEX);}
+  else if(t>=27&&t<39){const k=ss(27,29,t)*(1-ss(37,39,t));cx=lerp(cx,xOffsets[2]*.85,k);cz=lerp(cz,isVertical?10.6:7.8,k);lx=lerp(0,xOffsets[2]*.65,k);renderStoryBanner3D(ACTIVE_CARDS[2].story+" // "+ACTIVE_CARDS[2].name.toUpperCase(),AURA_HEX);}
+  else {renderStoryBanner3D("ORACLE SYSTEMS // LIVING 3D/4D SOVEREIGN SPREAD",AURA_HEX);}
+  camera.position.set(cx,.4+Math.cos(t*.25)*.22,cz); camera.lookAt(lx,-.15,0);
+  cardObjs.forEach((o,i)=>{
+    const p=ss(flipStarts[i],flipStarts[i]+1.5,t); drawLivingCardScene(o.ctx,o.card,t+i*1.7,AURA_HEX); o.frontTex.needsUpdate=true;
+    o.mesh.rotation.y=Math.PI*(1-p)+Math.sin(t*.85+i)*.08; o.mesh.rotation.x=Math.cos(t*.65+i*1.4)*.05;
+    o.mesh.position.y=-.35+Math.sin(t*1.15+i*1.7)*.16+(p>0&&p<1?Math.sin(p*Math.PI)*.55:0);
+    o.mesh.position.z=(i===1?.45:-.2)+(p>0&&p<1?Math.sin(p*Math.PI)*1.15:0);
   });
   renderer.render(scene, camera);
 };
+let startMs=performance.now();
+function animate(){ if(!IS_RENDER){ window.setTimeline((performance.now()-startMs)/1000); requestAnimationFrame(animate); } }
+IS_RENDER ? window.setTimeline(0) : animate();
+addEventListener("resize",()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); });
 
-let startMs = performance.now();
-function animate() {
-  if (!IS_RENDER) {
-    const elapsed = (performance.now() - startMs) / 1000.0;
-    window.setTimeline(elapsed);
-    requestAnimationFrame(animate);
-  }
-}
-if (IS_RENDER) { window.setTimeline(0); } else { animate(); }
-
-window.addEventListener("resize", () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
-
-// Live Interactive Portrait Assimilation Handler
-const btnGen = document.getElementById("btn-gen");
-if (btnGen) {
-  btnGen.addEventListener("click", async () => {
-    btnGen.disabled = true; btnGen.textContent = "Assimilating Aura & Channeling...";
-    const fd = new FormData();
-    fd.append("name", document.getElementById("u-name").value || "Sovereign Seeker");
-    fd.append("focus", document.getElementById("u-focus").value || "Financial & Spiritual Breakthrough");
-    const photoEl = document.getElementById("u-photo");
-    if (photoEl.files && photoEl.files[0]) fd.append("photo", photoEl.files[0]);
-    try {
-      const res = await fetch("/api/personalize/reading", { method: "POST", body: fd });
-      const data = await res.json();
-      if (data.status === "OK") {
-        AURA_HEX = data.aura_hex || "#38bdf8";
-        auraLight.color.set(AURA_HEX);
-        ring2.material.color.set(AURA_HEX);
-        ring2.material.emissive.set(AURA_HEX);
-        document.getElementById("hud-kicker").textContent = "PERSONALIZED 3D READING // " + data.name.toUpperCase();
-        document.getElementById("hud-title").textContent = data.headline;
-        buildCards(data.cards, AURA_HEX);
-        if (data.portrait_url) applyPortraitUrl(data.portrait_url, AURA_HEX);
-        startMs = performance.now();
-        const out = document.getElementById("scenario-out");
-        out.style.display = "block";
-        out.textContent = data.scenario;
-        if (data.audio_url) {
-          const ap = document.getElementById("audio-player");
-          ap.src = data.audio_url; ap.style.display = "block"; ap.play().catch(()=>{});
-        }
-      }
-    } catch (err) {
-      alert("Reading engine error: " + err);
+// Personalize + Voice Studio Handlers
+const btnGen=document.getElementById("btn-gen");
+if(btnGen) btnGen.onclick=async()=>{
+  btnGen.disabled=true; btnGen.textContent="Assimilating Aura...";
+  const fd=new FormData(); fd.append("name",document.getElementById("u-name").value||"Sovereign Seeker"); fd.append("focus",document.getElementById("u-focus").value||"Financial Breakthrough");
+  const ph=document.getElementById("u-photo"); if(ph.files&&ph.files[0]) fd.append("photo",ph.files[0]);
+  try{
+    const d=await(await fetch("/api/personalize/reading",{method:"POST",body:fd})).json();
+    if(d.status==="OK"){
+      AURA_HEX=d.aura_hex||"#38bdf8"; auraLight.color.set(AURA_HEX); tessMat.color.set(AURA_HEX); ring2.material.color.set(AURA_HEX); ring2.material.emissive.set(AURA_HEX);
+      renderTitleBanner3D("PERSONALIZED 3D // "+d.name.toUpperCase(),d.headline,AURA_HEX);
+      ACTIVE_CARDS=[{pos:d.cards[0].pos,name:d.cards[0].name,theme:"storm",story:"ACT I: PAST"},{pos:d.cards[1].pos,name:d.cards[1].name,theme:"star",story:"ACT II: PRESENT"},{pos:d.cards[2].pos,name:d.cards[2].name,theme:"gold",story:"ACT III: OUTCOME"}];
+      rebuildDeck(ACTIVE_CARDS,AURA_HEX); if(d.portrait_url) applyPortraitUrl(d.portrait_url); startMs=performance.now();
+      const out=document.getElementById("scenario-out"); out.style.display="block"; out.textContent=d.scenario;
+      if(d.audio_url){const ap=document.getElementById("audio-player"); ap.src=d.audio_url+"?t="+Date.now(); ap.style.display="block"; ap.play().catch(()=>{});}
     }
-    btnGen.disabled = false; btnGen.textContent = "Assimilate & Channel 3D Reading";
-  });
+  }catch(e){alert("Error: "+e);} btnGen.disabled=false; btnGen.textContent="Assimilate & Launch 3D Reading";
+};
+async function refreshV(){const el=document.getElementById("voice-status");if(!el)return;try{const d=await(await fetch("/api/voice/config")).json();el.textContent=`Active Voice: ${d.mode.toUpperCase()} | Sample Saved: ${d.has_sample?"YES":"NO"}`;}catch(e){}}
+refreshV();
+let mr=null,rc=[]; const bs=document.getElementById("btn-rec-start"),bt=document.getElementById("btn-rec-stop");
+if(bs&&bt){
+  bs.onclick=async()=>{try{const st=await navigator.mediaDevices.getUserMedia({audio:true});mr=new MediaRecorder(st);rc=[];mr.ondataavailable=e=>{if(e.data.size)rc.push(e.data);};mr.onstop=async()=>{const fd=new FormData();fd.append("voice",new Blob(rc,{type:"audio/webm"}),"thomas_voice.webm");await fetch("/api/voice/upload-sample",{method:"POST",body:fd});st.getTracks().forEach(t=>t.stop());refreshV();};mr.start();bs.disabled=true;bt.disabled=false;bs.textContent="Recording...";}catch(e){alert(e);}};
+  bt.onclick=()=>{if(mr)mr.stop();bs.disabled=false;bt.disabled=true;bs.textContent="Record My Voice";};
 }
-</script>
-</body>
-</html>
+const vf=document.getElementById("v-file"); if(vf) vf.onchange=async()=>{if(!vf.files[0])return;const fd=new FormData();fd.append("voice",vf.files[0]);await fetch("/api/voice/upload-sample",{method:"POST",body:fd});refreshV();};
+const bc=document.getElementById("btn-use-custom"),bn=document.getElementById("btn-revert-neural");
+if(bc) bc.onclick=async()=>{await fetch("/api/voice/config",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({mode:"custom"})});refreshV();};
+if(bn) bn.onclick=async()=>{await fetch("/api/voice/config",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({mode:"neural"})});refreshV();};
+</script></body></html>
