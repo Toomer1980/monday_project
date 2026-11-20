@@ -7,16 +7,16 @@ os.chdir(ROOT)
 
 def get_audio_duration(audio_path):
     try:
-        out = subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", audio_path], text=True).strip()
+        out = subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", audio_path], text=True, creationflags=0x08000000).strip()
         return max(10.0, float(out))
     except Exception:
         return 42.0
 
 def detect_video_encoder():
     try:
-        enc = subprocess.check_output(["ffmpeg", "-hide_banner", "-encoders"], text=True, stderr=subprocess.DEVNULL)
+        enc = subprocess.check_output(["ffmpeg", "-hide_banner", "-encoders"], text=True, stderr=subprocess.DEVNULL, creationflags=0x08000000)
         if "h264_nvenc" in enc:
-            test = subprocess.run(["ffmpeg", "-y", "-f", "lavfi", "-i", "color=c=black:s=640x360:d=0.1", "-c:v", "h264_nvenc", "-f", "null", "-"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            test = subprocess.run(["ffmpeg", "-y", "-f", "lavfi", "-i", "color=c=black:s=640x360:d=0.1", "-c:v", "h264_nvenc", "-f", "null", "-"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=0x08000000)
             if test.returncode == 0:
                 return "h264_nvenc"
     except Exception: pass
@@ -47,7 +47,7 @@ def render_3d_video(out_mp4, title, c1, c2, c3, spoken_text, kicker="ORACLE SYST
         "-c:a", "aac", "-b:a", "192k",
         "-shortest", out_mp4
     ]
-    proc = subprocess.Popen(ff_cmd, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    proc = subprocess.Popen(ff_cmd, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=0x08000000)
 
     with sync_playwright() as p:
         browser = p.chromium.launch(channel="msedge", headless=True, args=["--use-gl=angle", "--enable-webgl", "--ignore-gpu-blocklist"])

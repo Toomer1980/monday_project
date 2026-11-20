@@ -1,0 +1,6 @@
+{
+  "mode": "neural",
+  "neural_voice": "en-US-AvaMultilingualNeural",
+  "custom_sample": "C:/Users/toome/Desktop/SovereignCore/voice_samples/thomas_voice.wav",
+  "elevenlabs_voice_id": ""
+}

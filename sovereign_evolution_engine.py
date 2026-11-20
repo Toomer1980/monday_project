@@ -70,7 +70,7 @@ def self_heal_codebase():
         try:
             py_compile.compile(fp, doraise=True)
         except Exception as err:
-            subprocess.run(["git", "checkout", "HEAD", "--", fn], cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.run(["git", "checkout", "HEAD", "--", fn], cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=0x08000000)
             conn.execute("INSERT INTO heal_events (module, issue, action_taken, ts) VALUES (?, ?, ?, ?)", (fn, str(err)[:220], "GIT_ROLLBACK_RESTORED", datetime.now().isoformat()))
             repaired.append(fn)
     conn.commit()
