@@ -18,7 +18,7 @@ textarea{min-height:48px}.btn{width:100%;margin-top:9px;padding:10px;border:none
 <div id="panel">
   <h2>Live 3D Window Oracle Sanctuary</h2>
   <p class="sub">Upload your picture to transform it into a living 3D depth-parallax window and channel a personalized reading.</p>
-  <label>Your First Name</label><input type="text" id="u-name" placeholder="e.g. Thomas">
+  <label>Your First Name</label><input type="text" id="u-name" placeholder="e.g. Thomas"><label>Your Email (For 4K Delivery)</label><input type="text" id="u-email" placeholder="you@email.com">
   <label>Your Focus / Scenario</label><textarea id="u-focus" placeholder="Financial breakthrough, career elevation..."></textarea>
   <label>Upload Picture (3D Living Window)</label><input type="file" id="u-photo" accept="image/*">
   <button class="btn btn-gold" id="btn-gen">Assimilate &amp; Launch 3D Reading</button>
@@ -31,7 +31,7 @@ textarea{min-height:48px}.btn{width:100%;margin-top:9px;padding:10px;border:none
   <div class="btn-row"><button class="btn btn-emerald" id="btn-use-custom">Use My Voice</button><button class="btn btn-slate" id="btn-revert-neural">Revert Neural</button></div>
   <div id="voice-status">Active Voice: Loading...</div>
 </div>
-<script>async function buyPersonal3D(){const r=await fetch("/api/billing/create-checkout",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sku:"personal_3d_video",email:"Toomer1980@gmail.com"})});const d=await r.json();if(d.checkout_url)location.href=d.checkout_url;}</script>
+<script>window.__LAST_READING={};async function buyPersonal3D(){const em=(document.getElementById("u-email")&&document.getElementById("u-email").value)||"Toomer1980@gmail.com";const nm=(document.getElementById("u-name")&&document.getElementById("u-name").value)||"Sovereign Seeker";const fc=(document.getElementById("u-focus")&&document.getElementById("u-focus").value)||"Breakthrough";const lr=window.__LAST_READING||{};fetch("/api/leads/capture",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:em,name:nm,focus:fc,portrait_url:lr.portrait_url||"",aura_hex:lr.aura_hex||"#38bdf8"})}).catch(()=>{});const r=await fetch("/api/billing/create-checkout",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sku:"personal_3d_video",email:em,name:nm,focus:fc,portrait_url:lr.portrait_url||"",aura_hex:lr.aura_hex||"#38bdf8"})});const d=await r.json();if(d.checkout_url)location.href=d.checkout_url;}</script>
 <script type="module">
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js";
 const qs = new URLSearchParams(location.search), IS_RENDER = qs.get("render") === "1";
@@ -102,7 +102,7 @@ void main() {
   vec3 col = texture2D(uMap, clamp(uv + drift, 0.005, 0.995)).rgb;
   // Drifting volumetric atmospheric mist & theme light caustics
   float mist = noise(uv * vec2(3.5, 2.2) + vec2(uTime * 0.14, -uTime * 0.07)) * (1.0 - dVal * 0.65);
-  col += uAura * mist * 0.22;
+  col += uAura * mist * 0.14;
   if (uTheme < 0.5) {
     float bolt = smoothstep(0.86, 0.99, sin(uTime * 3.4) * sin(uTime * 7.1)) * (1.0 - uv.y * 0.4);
     col += vec3(1.0, 0.92, 0.65) * bolt * 0.48;
@@ -115,7 +115,7 @@ void main() {
   }
   // Recessed inner window frame shadow + subtle glass reflection glint
   vec2 edge = smoothstep(0.0, 0.07, uv) * smoothstep(0.0, 0.07, 1.0 - uv);
-  col *= (0.58 + 0.42 * edge.x * edge.y);
+  col = col * 1.16 * (0.78 + 0.22 * edge.x * edge.y);
   float glint = pow(max(0.0, 1.0 - abs((uv.x + uv.y * 0.55) - fract(uTime * 0.16) * 2.2)), 14.0);
   col += vec3(1.0, 0.96, 0.88) * glint * 0.18;
   gl_FragColor = vec4(col, 1.0);
@@ -176,12 +176,12 @@ function rebuildDeck(cardsArr, ac) {
   cardsArr.forEach((cd, idx) => {
     const g = new THREE.Group();
     const sl = slugify(cd.name);
-    const artUrl = cd.img || `/static/card_art/${sl}.jpg`;
-    const depUrl = cd.depth || `/static/card_art/${sl}_depth.png`;
+    const cb = Date.now(); const artUrl = (cd.img || `/static/card_art/${sl}.jpg`) + `?v=${cb}`;
+    const depUrl = (cd.depth || `/static/card_art/${sl}_depth.png`) + `?v=${cb}`;
     // Recessed 3D Window Portal Shader Mesh
-    const uniforms = { uMap: { value: loadTex(artUrl) }, uDepth: { value: loadRaw(depUrl) }, uTime: { value: 0 }, uDisp: { value: 0.36 }, uAura: { value: new THREE.Color(ac) }, uTheme: { value: cd.theme } };
+    const uniforms = { uMap: { value: loadTex(artUrl) }, uDepth: { value: loadRaw(depUrl) }, uTime: { value: 0 }, uDisp: { value: 0.44 }, uAura: { value: new THREE.Color(ac) }, uTheme: { value: cd.theme } };
     const portalMesh = new THREE.Mesh(new THREE.PlaneGeometry(2.36, 3.36, 64, 96), new THREE.ShaderMaterial({ vertexShader: WINDOW_VERT, fragmentShader: WINDOW_FRAG, uniforms }));
-    portalMesh.position.set(0, 0.24, -0.06); g.add(portalMesh);
+    portalMesh.position.set(0, 0.24, -0.01); const boxBack = new THREE.Mesh(new THREE.PlaneGeometry(2.44, 3.44), new THREE.MeshBasicMaterial({color:0x020308})); boxBack.position.set(0, 0.24, -0.09); g.add(boxBack, portalMesh);
     // Physical 3D Gilded Window Frame (4 raised rails creating true window depth)
     const railTop = new THREE.Mesh(new THREE.BoxGeometry(2.68, 0.16, 0.24), goldMat); railTop.position.set(0, 1.98, 0.04);
     const railBot = new THREE.Mesh(new THREE.BoxGeometry(2.68, 0.16, 0.24), goldMat); railBot.position.set(0, -2.06, 0.04);
@@ -233,7 +233,7 @@ window.setTimeline = function(t) {
   else if(t>=13&&t<27){const k=ss(13,15,t)*(1-ss(25,27,t));cx=lerp(cx,Math.sin(t*1.1)*.5,k);cz=lerp(cz,isVertical?9.8:6.9,k);drawStory(ACTIVE_CARDS[1].story+" // "+ACTIVE_CARDS[1].name.toUpperCase(),AURA_HEX);}
   else if(t>=27&&t<39){const k=ss(27,29,t)*(1-ss(37,39,t));cx=lerp(cx,xOffsets[2]*.85+Math.sin(t*1.1)*.45,k);cz=lerp(cz,isVertical?10.0:7.1,k);lx=lerp(0,xOffsets[2]*.68,k);drawStory(ACTIVE_CARDS[2].story+" // "+ACTIVE_CARDS[2].name.toUpperCase(),AURA_HEX);}
   else {drawStory("ORACLE SYSTEMS // PHOTOREALISTIC 3D WINDOW SPREAD",AURA_HEX);}
-  camera.position.set(cx,.35+Math.cos(t*.26)*.22,cz); camera.lookAt(lx,-.15,0);
+  camera.position.set(cx+(IS_RENDER?0:mouseX*1.35),.35+Math.cos(t*.26)*.22+(IS_RENDER?0:-mouseY*0.75),cz); camera.lookAt(lx,-.15,0);
   cardObjs.forEach((o,i)=>{
     const p=ss(flips[i],flips[i]+1.5,t); o.uniforms.uTime.value=t+i*2.1;
     o.mesh.rotation.y=Math.PI*(1-p)+Math.sin(t*.9+i)*.14; o.mesh.rotation.x=Math.cos(t*.65+i*1.3)*.07;
@@ -243,7 +243,7 @@ window.setTimeline = function(t) {
   });
   renderer.render(scene, camera);
 };
-let startMs=performance.now();
+let startMs=performance.now(), mouseX=0, mouseY=0; addEventListener("pointermove",e=>{mouseX=(e.clientX/innerWidth-0.5)*2.0; mouseY=(e.clientY/innerHeight-0.5)*2.0;});
 function animate(){if(!IS_RENDER){window.setTimeline((performance.now()-startMs)/1000);requestAnimationFrame(animate);}}
 IS_RENDER ? window.setTimeline(0) : animate();
 addEventListener("resize",()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
@@ -256,7 +256,7 @@ if(btnGen) btnGen.onclick=async()=>{
   const ph=document.getElementById("u-photo"); if(ph.files&&ph.files[0]) fd.append("photo",ph.files[0]);
   try{
     const d=await(await fetch("/api/personalize/reading",{method:"POST",body:fd})).json();
-    if(d.status==="OK"){
+    if(d.status==="OK"){window.__LAST_READING=d;const _em=document.getElementById("u-email");if(_em&&_em.value)fetch("/api/leads/capture",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:_em.value,name:d.name,focus:d.headline,portrait_url:d.portrait_url||"",aura_hex:d.aura_hex||"#38bdf8"})}).catch(()=>{});
       AURA_HEX=d.aura_hex||"#38bdf8"; auraLight.color.set(AURA_HEX); tessMat.color.set(AURA_HEX); ring2.material.color.set(AURA_HEX); ring2.material.emissive.set(AURA_HEX); portUni.uAura.value.set(AURA_HEX);
       drawTitle("PERSONALIZED 3D WINDOW // "+d.name.toUpperCase(),d.headline,AURA_HEX);
       ACTIVE_CARDS=[
