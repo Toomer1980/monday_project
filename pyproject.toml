@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sovereigncore-oracle"
+version = "1.10.0"
+description = "Oracle Systems LLC — SovereignCore Storefront, Fulfillment & Block 10 Treasury Engine"
+requires-python = ">=3.11"
+authors = [{ name = "Thomas Toomer", email = "Toomer1980@gmail.com" }]
+dependencies = [
+    "flask>=3.0.0",
+    "flask-socketio>=5.3.0",
+    "requests>=2.31.0",
+    "stripe>=10.0.0",
+    "gunicorn>=22.0.0",
+    "rich>=13.7.0",
+]
+
+[tool.sovereigncore]
+config_toml = "config/sovereign_block10.toml"
+config_ini = "config/sovereign_treasury.ini"
+block_stage = "Block_10_Automated_Treasury"

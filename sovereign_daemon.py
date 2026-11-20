@@ -1,3 +1,4 @@
+import re
 import sovereign_order_verifier
 import os as _os_path_mod
 _BASE_DIR = _os_path_mod.path.dirname(_os_path_mod.path.abspath(__file__)).replace("\\", "/")
@@ -451,6 +452,103 @@ async function lookup(){
 }
 if(initQ) lookup(); else document.getElementById("out").textContent="Enter a receipt, invoice, or license key above.";
 </script></body></html>"""
+
+
+# === ORACLE_UTM_AND_STRIPE_HOOK_START ===
+def _oracle_init_utm_db():
+    import os as _os, sqlite3 as _sq
+    _dbp = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "data", "utm_analytics.db")
+    _os.makedirs(_os.path.dirname(_dbp), exist_ok=True)
+    _c = _sq.connect(_dbp)
+    _c.execute(
+        "CREATE TABLE IF NOT EXISTS utm_clicks ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+        "ts_utc TEXT, tier TEXT, utm_source TEXT, utm_medium TEXT, "
+        "utm_campaign TEXT, utm_content TEXT, referrer TEXT, ip TEXT)"
+    )
+    _c.commit()
+    _c.close()
+    return _dbp
+
+_ORACLE_STRIPE_LINKS = {
+    "tier29": "https://buy.stripe.com/bJefZheeldrj1OU8YBcQU01",
+    "auravideo49": "https://buy.stripe.com/6oU28rb29evn8di7UxcQU00",
+    "tier1500": "https://buy.stripe.com/6oUeVdgmtcnf1OU7UxcQU02",
+    "fullstorefront": "https://buy.stripe.com/28E9AT6LT0Ex79e7UxcQU03",
+    "pro_node": "https://buy.stripe.com/aFa4gzgmt9b379efmZcQU04",
+}
+
+@app.route("/go/<tier>")
+def oracle_utm_redirect(tier):
+    import datetime as _dt, sqlite3 as _sq
+    from flask import redirect as _redirect
+    key = (tier or "").strip().lower()
+    dest = _ORACLE_STRIPE_LINKS.get(key) or _ORACLE_STRIPE_LINKS["fullstorefront"]
+    try:
+        _dbp = _oracle_init_utm_db()
+        _c = _sq.connect(_dbp)
+        _c.execute(
+            "INSERT INTO utm_clicks (ts_utc, tier, utm_source, utm_medium, utm_campaign, utm_content, referrer, ip) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                _dt.datetime.utcnow().isoformat() + "Z",
+                key,
+                (request.args.get("utm_source") or "direct").strip()[:80],
+                (request.args.get("utm_medium") or "organic").strip()[:80],
+                (request.args.get("utm_campaign") or "none").strip()[:120],
+                (request.args.get("utm_content") or "none").strip()[:120],
+                (request.referrer or "")[:200],
+                (request.remote_addr or "")[:64],
+            ),
+        )
+        _c.commit()
+        _c.close()
+    except Exception:
+        pass
+    return _redirect(dest, code=302)
+
+@app.route("/api/analytics/utm")
+def oracle_utm_analytics():
+    import sqlite3 as _sq
+    _dbp = _oracle_init_utm_db()
+    _c = _sq.connect(_dbp)
+    total = _c.execute("SELECT COUNT(*) FROM utm_clicks").fetchone()[0]
+    by_tier = [{"tier": r[0], "clicks": r[1]} for r in _c.execute(
+        "SELECT tier, COUNT(*) FROM utm_clicks GROUP BY tier ORDER BY COUNT(*) DESC"
+    ).fetchall()]
+    top_campaigns = [{"campaign": r[0], "source": r[1], "medium": r[2], "clicks": r[3]} for r in _c.execute(
+        "SELECT utm_campaign, utm_source, utm_medium, COUNT(*) FROM utm_clicks "
+        "GROUP BY utm_campaign, utm_source, utm_medium ORDER BY COUNT(*) DESC LIMIT 20"
+    ).fetchall()]
+    _c.close()
+    return jsonify({"total_clicks": total, "by_tier": by_tier, "top_campaigns": top_campaigns}), 200
+
+@app.after_request
+def _oracle_inject_store_router(resp):
+    try:
+        if request.path == "/store" and resp.status_code == 200 and "text/html" in (resp.content_type or ""):
+            body = resp.get_data(as_text=True)
+            if "oracle-stripe-store-router" not in body and "</body>" in body.lower():
+                js = (
+                    '<script id="oracle-stripe-store-router">'
+                    'document.addEventListener("click",function(e){'
+                    'var b=e.target.closest("button,a");if(!b)return;'
+                    'var t=(b.textContent||"").toUpperCase();var u=null;'
+                    'if(t.indexOf("49,999")>=0||t.indexOf("49999")>=0||t.indexOf("PRO_NODE")>=0||t.indexOf("PRO NODE")>=0)u="/go/pro_node?utm_source=store&utm_medium=cta";'
+                    'else if(t.indexOf("1,500")>=0||t.indexOf("1500")>=0)u="/go/tier1500?utm_source=store&utm_medium=cta";'
+                    'else if(t.indexOf("FULL STOREFRONT")>=0)u="/go/fullstorefront?utm_source=store&utm_medium=cta";'
+                    'else if(t.indexOf("$49")>=0||t.indexOf("AURA")>=0)u="/go/auravideo49?utm_source=store&utm_medium=cta";'
+                    'else if(t.indexOf("$29")>=0)u="/go/tier29?utm_source=store&utm_medium=cta";'
+                    'if(u){e.preventDefault();e.stopImmediatePropagation();window.open(u,"_blank","noopener,noreferrer");}'
+                    '},true);</script></body>'
+                )
+                body = re.sub(r'</body>', js, body, count=1, flags=re.IGNORECASE)
+                resp.set_data(body)
+    except Exception:
+        pass
+    return resp
+# === ORACLE_UTM_AND_STRIPE_HOOK_END ===
+
 
 if __name__ == "__main__":
     p = int(os.environ.get("PORT", 8000))

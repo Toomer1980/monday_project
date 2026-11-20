@@ -1,0 +1,115 @@
+# Oracle Systems LLC — SovereignCore Block 10 Master Configuration (TOML v1.0)
+# Parsed natively by Python 3.11+ tomllib. Keep secrets in .env, never here.
+
+[entity]
+company_name = "Oracle Systems LLC"
+principal = "Thomas Toomer"
+email = "Toomer1980@gmail.com"
+timezone = "America/New_York"
+github_repo = "Toomer1980/monday_project"
+project_dir = "C:\\Users\\toome\\Desktop\\SovereignCore"
+local_ai_dir = "C:\\Users\\toome\\LocalAI_Core"
+default_currency = "USD"
+
+[hardware_guards]
+max_ram_pct = 85.0
+min_free_disk_gb = 10.0
+max_daemon_log_mb = 5.0
+server_host = "127.0.0.1"
+server_port = 8000
+health_timeout_sec = 5
+
+[stripe]
+mode = "LIVE"
+account_label = "Toomerz"
+managed_payments_fee_pct = 0.035
+card_fee_pct = 0.029
+card_fee_fixed_usd = 0.30
+invoice_fee_pct = 0.004
+ach_fee_pct = 0.008
+ach_fee_cap_usd = 5.00
+wire_fee_flat_usd = 8.00
+initial_payout_date = "2026-11-27"
+ongoing_payout_business_days = 2
+ach_settlement_business_days = 4
+same_day_manual_cutoff_est = "17:00"
+us_bank_holidays = ["2026-11-26", "2026-12-25", "2027-01-01", "2027-01-18", "2027-02-15"]
+
+[stripe.links]
+Tier29 = "https://buy.stripe.com/bJefZheeldrj1OU8YBcQU01"
+AuraVideo49 = "https://buy.stripe.com/6oU28rb29evn8di7UxcQU00"
+Tier1500 = "https://buy.stripe.com/6oUeVdgmtcnf1OU7UxcQU02"
+FullStorefront = "https://buy.stripe.com/28E9AT6LT0Ex79e7UxcQU03"
+Pro_Node = "https://buy.stripe.com/aFa4gzgmt9b379efmZcQU04"
+
+[catalog]
+Tier29_usd = 29.00
+AuraVideo49_usd = 49.00
+Tier1500_usd = 1500.00
+FullStorefront_usd = 1500.00
+Pro_Node_usd = 49999.00
+
+[treasury_rules]
+# Configurable tax reserve set-aside ratio (adjust with your CPA; not formal tax advice)
+tax_reserve_pct = 0.25
+operating_buffer_months = 3
+internal_test_email = "Toomer1980@gmail.com"
+legacy_test_price_usd = 99.00
+verified_seed_receipt_id = "2352-8553"
+verified_seed_gross_usd = 49.00
+verified_seed_date = "2026-11-20"
+
+[cloud_tiers]
+active_tier = "TIER_0_LOCAL"
+ai_pro_monthly_usd = 19.99
+
+[cloud_tiers.tier_0_local]
+name = "Local Windows Laptop"
+monthly_hosting_usd = 0.00
+unlock_verified_net_usd = 0.00
+
+[cloud_tiers.tier_1_lean]
+name = "DigitalOcean Lean Production (4GB Droplet + Backups + Spaces CDN)"
+monthly_hosting_usd = 34.80
+unlock_verified_net_usd = 100.00
+
+[cloud_tiers.tier_2_managed]
+name = "Render Pro Managed Stack + Spaces CDN"
+monthly_hosting_usd = 100.00
+unlock_verified_net_usd = 300.00
+
+[cloud_tiers.tier_3_enterprise_ha]
+name = "Dedicated Enterprise HA Cluster (Per Pro_Node Client)"
+monthly_hosting_usd = 411.80
+annual_hosting_usd = 4941.60
+# Strictly locked until a funded 50% Milestone 1 Pro_Node deposit ($24,999.50) clears
+unlock_pronode_deposit_usd = 24999.50
+target_yr1_margin_pct = 89.70
+
+[vault_inventory]
+full_videos_dir = "Content_Vault_52Weeks"
+shorts_dir = "Content_Vault_Shorts"
+deliverables_dir = "static\\deliverables"
+expected_full_videos = 52
+expected_shorts = 52
+
+[audit_paths]
+inbox_dir = "audit_inbox"
+reports_dir = "reports"
+drive_staging_dir = "Oracle_Audit_2026"
+state_file = "logs\\block10_state.json"
+
+[stripe_api_polling]
+enabled = true
+api_base = "https://api.stripe.com/v1"
+env_key_name = "STRIPE_SECRET_KEY"
+snapshot_json = "audit_inbox\\stripe_live_api_snapshot.json"
+charges_csv = "audit_inbox\\stripe_live_api_charges.csv"
+max_transactions_fetch = 50
+check_account_verification = true
+
+[google_drive_sync]
+enabled = true
+target_folder_name = "Oracle_Audit_2026"
+rclone_remote = "gdrive:Oracle_Audit_2026"
+auto_detect_desktop_drive = true
