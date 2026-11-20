@@ -42,3 +42,7 @@ CURRENT_TUNNEL_URL.txt
 Content_Vault_52Weeks/
 static/*.zip
 LATEST_STRIPE_URL.txt
+
+Content_Vault_Shorts/
+Edge_Autopilot_Profile/
+uploaded_videos_ledger.json
