@@ -113,16 +113,17 @@ def api_stripe_webhook():
         return jsonify({"status": "RECORDED", "order": info}), 200
     return jsonify({"status": "IGNORED"}), 200
 
+
 @app.route("/api/billing/create-checkout", methods=["POST"])
-def api_checkout():
+def api_checkout_live_stripe():
     d = request.get_json(force=True, silent=True) or {}
     sku = d.get("sku", "pro_node")
     if sku not in revenue_engine.CATALOG: sku = "pro_node"
     em = (d.get("email") or "Toomer1980@gmail.com").strip()
     pr = revenue_engine.CATALOG.get(sku, revenue_engine.CATALOG["pro_node"])
-    sk = json.load(open("C:/Users/toome/Desktop/SovereignCore/.stripe_env.json", encoding="utf-8")).get("STRIPE_SECRET_KEY", "").strip()
+    sk_live = json.load(open("C:/Users/toome/Desktop/SovereignCore/.stripe_env.json", encoding="utf-8")).get("STRIPE_SECRET_KEY", "").strip()
     bu = request.host_url.rstrip("/")
-    stripe.api_key = sk
+    stripe.api_key = sk_live
     try:
         s = stripe.checkout.Session.create(
             customer_email=em, mode="payment",
