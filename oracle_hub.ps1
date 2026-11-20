@@ -19,7 +19,7 @@ function Show-Header {
     $v4dN   = (Get-ChildItem (Join-Path -Path $ProjectDir -ChildPath "Content_Vault_4D_Thumbnails") -Filter "*_3D_Thumb.jpg" -ErrorAction SilentlyContinue).Count
 
     Write-Host "========================================================================" -ForegroundColor Cyan
-    Write-Host "   ORACLE SYSTEMS LLC // SOVEREIGNCORE MASTER COMMAND HUB (PHASE 7)" -ForegroundColor White
+    Write-Host "   ORACLE SYSTEMS LLC // SOVEREIGNCORE MASTER COMMAND HUB (PHASE 8)" -ForegroundColor White
     Write-Host "========================================================================" -ForegroundColor Cyan
     Write-Host ("  Port 8000 : {0,-8} | RAM: {1}% ({2} GB free) | Vault: {3}/52 Full, {4}/52 Shorts | 4D Thumbs: {5}" -f $(if ($portUp) { "ONLINE" } else { "OFFLINE" }), $ramPct, $freeGB, $fullN, $shortN, $v4dN) -ForegroundColor $(if ($portUp -and $ramPct -lt 85) { "Green" } else { "Yellow" })
     Write-Host "------------------------------------------------------------------------" -ForegroundColor DarkGray
@@ -44,6 +44,10 @@ function Show-Header {
     Write-Host "  [J] Upgrade 52-Week Vault to 3D/4D Tesseract + Mobius Templates & Thumbs"
     Write-Host "  [K] Execute UCB1 Learning Curve Engine (Re-Rank 4D Queue + A/B Hooks)"
     Write-Host "  [L] Run Live Revenue Readiness Scorecard (Exact Gaps & Fixes)"
+    Write-Host "  [M] YouTube Data API v3 4D Auto-Uploader (Short / FullVideo / DryRun)"
+    Write-Host "  [N] Start Free Cloudflare HTTPS Tunnel + 24/7 Watchdog (Live Public URL)"
+    Write-Host "  [O] Schedule Automatic YouTube 4D Uploads (Daily 12PM + Fri 6PM)"
+    Write-Host "  [P] Pull Live YouTube Views/Likes -> Feed Into UCB1 Learning Curve"
     Write-Host "  [0] Safe Secret-Scanned GitHub Commit & Push (Toomer1980/monday_project)"
     Write-Host "  [Q] Quit"
     Write-Host "========================================================================" -ForegroundColor Cyan
@@ -57,7 +61,7 @@ function Run-SafeGitPush {
         "Modules/block10_treasury_engine.py","Modules/revenue_engine.py",
         "Modules/pronode_crm_engine.py","Modules/pronode_outreach_engine.py",
         "Modules/pronode_csv_importer.py","Modules/stripe_crm_reconciler.py",
-        "Modules/oracle_4d_vault_upgrader.py","Modules/learning_curve_engine.py",
+        "Modules/oracle_4d_vault_upgrader.py","Modules/learning_curve_engine.py","Modules/youtube_api_uploader.py","Modules/youtube_analytics_puller.py",
         "sovereign_daemon.py","autonomous_youtube_bot.py","templates/oracle_3d_stage.html",
         "sovereign_supervisor.ps1","run_block10_treasury.ps1","setup_gdrive_sync.ps1",
         "publish_youtube_vault.ps1","send_pronode_invoice.ps1","deploy_digitalocean_tier1.ps1",
@@ -65,7 +69,7 @@ function Run-SafeGitPush {
         "import_pronode_prospects.ps1","send_pronode_outreach.ps1","stripe_live_alerts.ps1",
         "morning_briefing.ps1","backup_sovereigncore.ps1","package_youtube_52weeks.ps1",
         "reconcile_stripe_crm.ps1","create_desktop_shortcuts.ps1","update_rclone_oauth.ps1",
-        "upgrade_52week_4d_vault.ps1","run_learning_curve.ps1","audit_revenue_gaps.ps1","Launch_OracleHub.cmd","Run_MorningBriefing.cmd",
+        "upgrade_52week_4d_vault.ps1","run_learning_curve.ps1","audit_revenue_gaps.ps1","upload_youtube_4d.ps1","schedule_youtube_uploads.ps1","start_cloudflare_tunnel.ps1","watch_cloudflare_tunnel.ps1","pull_youtube_analytics.ps1","Launch_OracleHub.cmd","Run_MorningBriefing.cmd",
         "test_stripe_webhook.ps1","oracle_hub.ps1",
         "deploy_bundle/sovereigncore.service","deploy_bundle/nginx_sovereigncore.conf",
         "deploy_bundle/.env.production.template","deploy_bundle/deploy_do_tier1.sh"
@@ -200,6 +204,20 @@ while ($true) {
         }
         "K" { .\run_learning_curve.ps1 -RegisterDailyTask }
         "L" { .\audit_revenue_gaps.ps1 }
+        "M" {
+            $ut = (Read-Host "Type [Short/FullVideo/Both] (default Short)").Trim()
+            if (-not $ut) { $ut = "Short" }
+            $pr = (Read-Host "Privacy [public/unlisted/private] (default unlisted)").Trim()
+            if (-not $pr) { $pr = "unlisted" }
+            $go = (Read-Host "Upload live now? (Y = LIVE, N = DryRun)").Trim().ToUpper()
+            if ($go -eq "Y") { .\upload_youtube_4d.ps1 -UploadType $ut -Privacy $pr -UploadNow } else { .\upload_youtube_4d.ps1 -UploadType $ut -Privacy $pr }
+        }
+        "N" {
+            $wb = (Read-Host "Register 24/7 Logon Watchdog too? (Y/N)").Trim().ToUpper()
+            if ($wb -eq "Y") { .\watch_cloudflare_tunnel.ps1 -RegisterBootTask -RunOnce } else { .\start_cloudflare_tunnel.ps1 }
+        }
+        "O" { .\schedule_youtube_uploads.ps1 }
+        "P" { .\pull_youtube_analytics.ps1 }
         "0" { Run-SafeGitPush }
         "Q" { break }
         default { Write-Host "Invalid option." -ForegroundColor Yellow }

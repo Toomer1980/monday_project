@@ -81,3 +81,15 @@ logs/learning_curve_state.json
 reports/learning_curve_ranked_queue.json
 reports/Learning_Curve_Report.md
 reports/youtube_queue/
+config/youtube_client_secret.json
+config/youtube_token.json
+config/public_url.txt
+data/youtube_analytics.json
+reports/youtube_upload_history.csv
+reports/youtube_analytics_snapshot.csv
+logs/youtube_quota_state.json
+logs/youtube_uploader.log
+logs/cloudflared*
+logs/cf_watchdog*
+logs/tunnel_history.log
+install_p*.ps1

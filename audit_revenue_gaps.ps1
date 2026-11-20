@@ -60,7 +60,7 @@ if (Test-Path $ytSt) {
         $pubCnt = @($y.published_full).Count + @($y.published_shorts).Count
     } catch {}
 }
-Add-Check "4. YouTube Traffic Live" ($pubCnt -gt 0) ("$pubCnt/104 videos uploaded to YouTube (0 views = $0 traffic)") ".\publish_youtube_vault.ps1 -OpenUploadFolder"
+Add-Check "4. YouTube Traffic Live" ($pubCnt -gt 0) ("$pubCnt/104 videos uploaded to YouTube (0 views = `$0 traffic)") ".\publish_youtube_vault.ps1 -OpenUploadFolder"
 
 # 5. Public Cloud Domain Active (Not localhost)
 $pubUrl = $EnvMap["PUBLIC_BASE_URL"]
