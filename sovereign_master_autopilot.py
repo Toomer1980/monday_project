@@ -127,6 +127,12 @@ while True:
     today = datetime.now().strftime("%Y-%m-%d")
     hour = datetime.now().hour
     if now - last_backup > 21600:
+        try:
+            import sovereign_evolution_engine as _evo
+            _eres = _evo.run_evolution_cycle()
+            log(f"[EVOLUTION] Gen {_eres.get('generation')} | Node: {_eres.get('compute_node')} | Healed: {_eres.get('healed_files')}")
+        except Exception as _ee:
+            log(f"[EVOLUTION] Cycle note: {_ee}")
         replenish_content_if_low()
         backup_and_sync()
         last_backup = now

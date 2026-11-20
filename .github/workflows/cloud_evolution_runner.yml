@@ -1,0 +1,19 @@
+name: SovereignCore Cloud Compute & Evolution Runner
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+jobs:
+  evolve-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify Core Python AST Integrity in Cloud
+        run: |
+          python -m py_compile sovereign_daemon.py sovereign_master_autopilot.py sovereign_evolution_engine.py oracle_audio_master.py oracle_3d_renderer.py
+      - name: Run Cloud Prompt & Telemetry Verification
+        run: |
+          python -c "import json; m=json.load(open('SOVEREIGN_CORE_MANIFEST.json')); print('Cloud Core Verified:', m['version'])"

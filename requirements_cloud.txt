@@ -1,0 +1,6 @@
+flask
+waitress
+stripe
+Pillow
+edge-tts
+requests

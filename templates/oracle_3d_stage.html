@@ -44,7 +44,7 @@
   <label>Upload Your Picture (Assimilates Into 3D Aura)</label>
   <input type="file" id="u-photo" accept="image/*">
   <button class="btn btn-gold" id="btn-gen">Assimilate &amp; Channel 3D Reading</button>
-  <button class="btn btn-emerald" onclick="window.location.href='/store'">Unlock Full 4K Reading &amp; 52-Week Suite</button>
+  <button class="btn btn-emerald" onclick="buyPersonal3D()">Order Custom 4K 3D Reading Video ($49)</button><button class="btn" style="background:#1e293b;color:#38bdf8;margin-top:8px;" onclick="window.location.href='/store'">View All Tiers ($29 - $1,500)</button><script>async function buyPersonal3D(){const r=await fetch("/api/billing/create-checkout",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sku:"personal_3d_video",email:"Toomer1980@gmail.com"})});const d=await r.json();if(d.checkout_url)window.location.href=d.checkout_url;}</script>
   <div id="scenario-out"></div>
   <audio id="audio-player" controls></audio>
 </div>

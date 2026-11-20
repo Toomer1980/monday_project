@@ -1,0 +1,41 @@
+{
+  "routing_policy": "FASTEST_HEALTHY_CLOUD_FIRST",
+  "nodes": [
+    {
+      "id": "cloud_openai_compatible_primary",
+      "type": "openai_compatible",
+      "endpoint": "https://api.groq.com/openai/v1/chat/completions",
+      "model": "llama-3.3-70b-versatile",
+      "api_key_env": "GROQ_API_KEY",
+      "priority": 1,
+      "enabled": true
+    },
+    {
+      "id": "cloud_openrouter_burst",
+      "type": "openai_compatible",
+      "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "api_key_env": "OPENROUTER_API_KEY",
+      "priority": 2,
+      "enabled": true
+    },
+    {
+      "id": "remote_gpu_ollama_cluster",
+      "type": "ollama",
+      "endpoint": "",
+      "model": "qwen2.5:14b",
+      "api_key_env": "REMOTE_OLLAMA_URL",
+      "priority": 3,
+      "enabled": true
+    },
+    {
+      "id": "local_rtx2050_sovereign_node",
+      "type": "ollama",
+      "endpoint": "http://127.0.0.1:11434/api/generate",
+      "model": "qwen2.5:0.5b",
+      "api_key_env": "",
+      "priority": 10,
+      "enabled": true
+    }
+  ]
+}

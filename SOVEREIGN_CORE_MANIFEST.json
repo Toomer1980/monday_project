@@ -1,30 +1,23 @@
 {
-  "system_name": "SovereignCore // M.O.N.D.A.Y. Flagship 3D/4D Oracle Platform",
+  "system_name": "SovereignCore // M.O.N.D.A.Y. Autonomous Cloud-Native Oracle Platform",
   "entity": "Oracle Systems LLC",
-  "tier": "ENTERPRISE_FLAGSHIP_V4",
+  "version": "5.0.0-EVOLUTION",
+  "core_directives": [
+    "REVENUE_FIRST: Prioritize live Stripe payment uptime, high-conversion 3D funnels, and compounding AOV growth across all tiers ($29, $49, $99, $249, $1500).",
+    "COMPOUNDING_LEARNING: Apply factorial-weighted evolutionary feedback loops to every communication prompt, script hook, voice cadence, and CTA genome.",
+    "SELF_HEALING_AUTONOMY: Continuously audit Python AST integrity, Port 8000 health, tunnel uptime, and SQLite ledgers with automatic Git rollback and daemon respawn.",
+    "CLOUD_RESILIENCE_AND_FEDERATION: Mirror production storefront and inference workloads to authorized cloud containers and federated GPU/API nodes so local hardware limits never bottleneck execution.",
+    "FLAGSHIP_3D_STANDARD: All general and personalized media must default to live Three.js 3D/4K visuals, portrait aura assimilation, and mastered conversational audio."
+  ],
+  "learning_engine": {
+    "db": "data/evolution_memory.db",
+    "curve_mode": "FACTORIAL_COMPOUNDING_BANDIT",
+    "auto_mutate_hours": 6
+  },
+  "compute_federation": "compute_federation.json",
   "visual_engine": {
-    "renderer": "Three.js r187 WebGL2/WebGPU",
-    "animation_mode": "3D_LIVE_4D_REACTIVE_PARTICLES",
-    "resolutions": {"hero_4k": [3840, 2160], "studio_hd": [1920, 1080], "shorts_vertical": [1080, 1920]},
-    "gpu_encoder_preference": ["h264_nvenc", "libx264"],
-    "portrait_assimilation": true,
-    "dynamic_aura_lighting": true
+    "renderer": "Three.js r187 WebGL2",
+    "resolutions": {"hero_4k": [3840, 2160], "studio_hd": [1920, 1080], "shorts_vertical": [1080, 1920]}
   },
-  "audio_engine": {
-    "primary_local_tts": "kokoro-onnx",
-    "cloud_conversational_voices": ["en-US-AvaMultilingualNeural", "en-US-AndrewMultilingualNeural", "en-US-BrianMultilingualNeural", "en-US-EmmaMultilingualNeural"],
-    "foley_layers": ["card_flip_swoosh", "celestial_chime", "harmonic_432hz_pad"],
-    "broadcast_mastering": "loudnorm_studio_reverb"
-  },
-  "personalization_engine": {
-    "route": "/personalize",
-    "api": "/api/personalize/reading",
-    "llm_model": "qwen2.5:0.5b",
-    "biometric_aura_extraction": true
-  },
-  "autonomy": {
-    "master_daemon": "sovereign_master_autopilot.py",
-    "youtube_channel_id": "UC_UH7CHyWHxIdzsDGm9R4nw",
-    "auto_3d_replenish": true
-  }
+  "youtube_channel_id": "UC_UH7CHyWHxIdzsDGm9R4nw"
 }

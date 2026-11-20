@@ -200,6 +200,16 @@ def api_personalize_reading():
         audio_url = f"/static/portraits/r_{rid}.mp3"
     return jsonify({"status": "OK", "name": name, "headline": focus, "aura_hex": aura_hex, "portrait_url": portrait_url, "cards": cards, "scenario": scenario, "audio_url": audio_url}), 200
 
+
+try:
+    revenue_engine.CATALOG["personal_3d_video"] = {"name": "Oracle 3D/4K Personalized Aura Reading Video", "price_cents": 4900}
+except Exception: pass
+
+@app.route("/api/evolution/telemetry", methods=["GET"])
+def api_evolution_telemetry():
+    import sovereign_evolution_engine as _evo
+    return jsonify(_evo.get_telemetry()), 200
+
 @app.route("/api/order/lookup")
 def api_lookup():
     o = db.get_order_by_token((request.args.get("token") or "").strip())
