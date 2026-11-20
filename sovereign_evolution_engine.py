@@ -143,9 +143,11 @@ def run_evolution_cycle():
 
     conn.commit(); conn.close()
     conn.commit(); conn.close()
+    conn.commit(); conn.close()
     # Mutate a new next-generation hook using our fastest federated compute node
     top_hook = best_by_cat.get("hook", (1.0, "Trust the timing of this reading."))[1]
     mutated, used_node = query_federated_llm(f"Upgrade and tighten this 2-sentence tarot video opening hook so it feels deeply personal, cinematic, and high-retention: {top_hook}", max_tokens=90)
+    conn = sqlite3.connect(DB_PATH, timeout=30.0)
     conn = sqlite3.connect(DB_PATH, timeout=30.0)
     conn = sqlite3.connect(DB_PATH, timeout=30.0)
     if mutated and len(mutated) > 45 and len(mutated) < 320:
