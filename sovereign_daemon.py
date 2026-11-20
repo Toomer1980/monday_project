@@ -126,14 +126,26 @@ def api_checkout():
     try:
         s = stripe.checkout.Session.create(
             customer_email=em, mode="payment",
-            line_items=[{"price_data": {"currency": "usd", "unit_amount": pr["price_cents"], "product_data": {"name": pr["name"]}}, "quantity": 1}],
+            line_items=[{"price_data": {"currency": "usd", "unit_amount": pr["price_cents"], "product_data": {"name": pr["name"], "tax_code": "txcd_10000000"}}, "quantity": 1}],
             metadata={"sku": sku, "email": em},
             success_url=f"{bu}/portal?session_id={{CHECKOUT_SESSION_ID}}",
             cancel_url=f"{bu}/store"
         )
         return jsonify({"status": "REDIRECT", "checkout_url": s.url}), 200
-    except Exception as e:
-        return jsonify({"status": "ERROR", "error": str(e)}), 500
+    except Exception as e1:
+        try:
+            s = stripe.checkout.Session.create(
+                customer_email=em, mode="payment",
+                managed_payments={"enabled": False},
+                line_items=[{"price_data": {"currency": "usd", "unit_amount": pr["price_cents"], "product_data": {"name": pr["name"]}}, "quantity": 1}],
+                metadata={"sku": sku, "email": em},
+                success_url=f"{bu}/portal?session_id={{CHECKOUT_SESSION_ID}}",
+                cancel_url=f"{bu}/store"
+            )
+            return jsonify({"status": "REDIRECT", "checkout_url": s.url}), 200
+        except Exception as e2:
+            print("[!] Stripe Checkout Error:", e1, "| Fallback:", e2)
+            return jsonify({"status": "ERROR", "error": str(e2)}), 500
 
 @app.route("/api/order/lookup")
 def api_lookup():
