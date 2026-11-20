@@ -1,0 +1,30 @@
+{
+  "system_name": "SovereignCore // M.O.N.D.A.Y. Flagship 3D/4D Oracle Platform",
+  "entity": "Oracle Systems LLC",
+  "tier": "ENTERPRISE_FLAGSHIP_V4",
+  "visual_engine": {
+    "renderer": "Three.js r187 WebGL2/WebGPU",
+    "animation_mode": "3D_LIVE_4D_REACTIVE_PARTICLES",
+    "resolutions": {"hero_4k": [3840, 2160], "studio_hd": [1920, 1080], "shorts_vertical": [1080, 1920]},
+    "gpu_encoder_preference": ["h264_nvenc", "libx264"],
+    "portrait_assimilation": true,
+    "dynamic_aura_lighting": true
+  },
+  "audio_engine": {
+    "primary_local_tts": "kokoro-onnx",
+    "cloud_conversational_voices": ["en-US-AvaMultilingualNeural", "en-US-AndrewMultilingualNeural", "en-US-BrianMultilingualNeural", "en-US-EmmaMultilingualNeural"],
+    "foley_layers": ["card_flip_swoosh", "celestial_chime", "harmonic_432hz_pad"],
+    "broadcast_mastering": "loudnorm_studio_reverb"
+  },
+  "personalization_engine": {
+    "route": "/personalize",
+    "api": "/api/personalize/reading",
+    "llm_model": "qwen2.5:0.5b",
+    "biometric_aura_extraction": true
+  },
+  "autonomy": {
+    "master_daemon": "sovereign_master_autopilot.py",
+    "youtube_channel_id": "UC_UH7CHyWHxIdzsDGm9R4nw",
+    "auto_3d_replenish": true
+  }
+}

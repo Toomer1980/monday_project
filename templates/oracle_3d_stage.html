@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oracle Systems // Live 3D/4D Sovereign Tarot Sanctuary</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #050612; color: #f8fafc; font-family: "Segoe UI", system-ui, sans-serif; overflow: hidden; }
+  #canvas-wrap { position: fixed; inset: 0; z-index: 1; }
+  #hud-top { position: fixed; top: 22px; left: 0; right: 0; text-align: center; z-index: 10; pointer-events: none; }
+  .kicker { color: #38bdf8; letter-spacing: 4px; font-size: 13px; font-weight: 700; text-transform: uppercase; text-shadow: 0 0 18px rgba(56,189,248,0.6); }
+  .main-title { font-family: Georgia, serif; font-size: 38px; color: #fde68a; margin-top: 6px; text-shadow: 0 0 32px rgba(251,191,36,0.5); }
+  #hud-bottom { position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%); z-index: 10; pointer-events: none; background: rgba(8,12,30,0.72); border: 1px solid rgba(218,175,55,0.55); padding: 12px 28px; border-radius: 999px; backdrop-filter: blur(12px); font-size: 14px; letter-spacing: 1.5px; color: #fef3c7; white-space: nowrap; }
+  #panel { position: fixed; left: 22px; top: 96px; width: 340px; max-height: calc(100vh - 130px); overflow-y: auto; z-index: 20; background: rgba(7,10,26,0.82); border: 1px solid rgba(218,175,55,0.45); border-radius: 16px; padding: 18px; backdrop-filter: blur(16px); box-shadow: 0 20px 50px rgba(0,0,0,0.65); }
+  #panel h2 { font-family: Georgia, serif; font-size: 20px; color: #fde68a; margin-bottom: 6px; }
+  #panel p.sub { font-size: 12px; color: #94a3b8; margin-bottom: 14px; line-height: 1.4; }
+  label { display: block; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: #38bdf8; margin: 10px 0 4px; }
+  input[type="text"], textarea, input[type="file"] { width: 100%; background: rgba(15,23,42,0.85); border: 1px solid rgba(148,163,184,0.3); color: #f8fafc; padding: 9px 11px; border-radius: 8px; font-size: 13px; }
+  textarea { resize: vertical; min-height: 62px; }
+  .btn { width: 100%; margin-top: 12px; padding: 12px; border: none; border-radius: 10px; font-weight: 700; font-size: 13px; letter-spacing: 1px; cursor: pointer; text-transform: uppercase; }
+  .btn-gold { background: linear-gradient(135deg, #f59e0b, #fbbf24, #d97706); color: #0b0f19; box-shadow: 0 0 24px rgba(245,158,11,0.4); }
+  .btn-emerald { background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; margin-top: 8px; }
+  #scenario-out { margin-top: 14px; padding: 12px; background: rgba(15,23,42,0.75); border-left: 3px solid #fbbf24; border-radius: 6px; font-size: 13px; line-height: 1.55; color: #e2e8f0; display: none; }
+  #audio-player { width: 100%; margin-top: 10px; display: none; }
+  .render-mode #panel { display: none !important; }
+</style>
+</head>
+<body>
+<div id="canvas-wrap"></div>
+<div id="hud-top">
+  <div class="kicker" id="hud-kicker">ORACLE SYSTEMS LLC // LIVE 3D QUANTUM TAROT ENGINE</div>
+  <div class="main-title" id="hud-title">Sudden Financial &amp; Spiritual Breakthrough</div>
+</div>
+<div id="hud-bottom" id="hud-cta">TYPE "I CLAIM THIS ALIGNMENT"  |  LIVE 3D PERSONALIZED READINGS &amp; 52-WEEK BLUEPRINT IN DESCRIPTION</div>
+
+<div id="panel">
+  <h2>Personalize Your 3D Reading</h2>
+  <p class="sub">Upload your photo to assimilate your color aura directly into the 3D quantum field and generate a tailored scenario + live voice reading.</p>
+  <label>Your First Name</label>
+  <input type="text" id="u-name" placeholder="e.g. Jordan">
+  <label>Your Focus / Scenario</label>
+  <textarea id="u-focus" placeholder="Career breakthrough, financial expansion, relationship clarity..."></textarea>
+  <label>Upload Your Picture (Assimilates Into 3D Aura)</label>
+  <input type="file" id="u-photo" accept="image/*">
+  <button class="btn btn-gold" id="btn-gen">Assimilate &amp; Channel 3D Reading</button>
+  <button class="btn btn-emerald" onclick="window.location.href='/store'">Unlock Full 4K Reading &amp; 52-Week Suite</button>
+  <div id="scenario-out"></div>
+  <audio id="audio-player" controls></audio>
+</div>
+
+<script type="module">
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js";
+
+const qs = new URLSearchParams(window.location.search);
+const IS_RENDER = qs.get("render") === "1";
+if (IS_RENDER) document.body.classList.add("render-mode");
+
+const INIT_KICKER = qs.get("kicker") || "ORACLE SYSTEMS COLLECTIVE TAROT // LIVE 3D";
+const INIT_TITLE = qs.get("title") || "Sudden Financial & Spiritual Breakthrough";
+const INIT_CARDS = [
+  { pos: "I. PAST FOUNDATION", name: qs.get("c1") || "The Tower", glyph: "TOWER" },
+  { pos: "II. PRESENT SHIFT", name: qs.get("c2") || "The Star", glyph: "STAR" },
+  { pos: "III. INCOMING OUTCOME", name: qs.get("c3") || "Ace of Pentacles", glyph: "PENTACLES" }
+];
+let AURA_HEX = qs.get("aura") || "#38bdf8";
+const PORTRAIT_URL = qs.get("portrait") || "";
+
+document.getElementById("hud-kicker").textContent = INIT_KICKER;
+document.getElementById("hud-title").textContent = INIT_TITLE;
+
+const wrap = document.getElementById("canvas-wrap");
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x050714, 0.032);
+
+const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 200);
+camera.position.set(0, 0.6, 11.2);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: true, powerPreference: "high-performance" });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(IS_RENDER ? 1 : Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.25;
+wrap.appendChild(renderer.domElement);
+
+// Cinematic studio 3-point + dynamic aura lighting
+const amb = new THREE.AmbientLight(0x8899cc, 0.75);
+scene.add(amb);
+const keyLight = new THREE.DirectionalLight(0xffe49e, 2.4);
+keyLight.position.set(5, 8, 9);
+scene.add(keyLight);
+const auraLight = new THREE.PointLight(new THREE.Color(AURA_HEX), 5.0, 28);
+auraLight.position.set(0, 2.5, 4.5);
+scene.add(auraLight);
+const rimLight = new THREE.PointLight(0xd4af37, 3.8, 25);
+rimLight.position.set(-6, -3, 5);
+scene.add(rimLight);
+
+// Procedural high-res metallic gold tarot face & back textures
+function makeCardTexture(posLabel, cardName, auraColor, isBack) {
+  const c = document.createElement("canvas");
+  c.width = 512; c.height = 820;
+  const ctx = c.getContext("2d");
+  const g = ctx.createLinearGradient(0, 0, 512, 820);
+  g.addColorStop(0, "#0b0e24"); g.addColorStop(0.5, "#151238"); g.addColorStop(1, "#070918");
+  ctx.fillStyle = g; ctx.fillRect(0, 0, 512, 820);
+  ctx.strokeStyle = "#eab308"; ctx.lineWidth = 10; ctx.strokeRect(18, 18, 476, 784);
+  ctx.strokeStyle = auraColor; ctx.lineWidth = 3; ctx.strokeRect(34, 34, 444, 752);
+  // Sacred geometry mandala
+  ctx.save(); ctx.translate(256, 390);
+  for (let r = 170; r >= 40; r -= 26) {
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.strokeStyle = r % 52 === 0 ? auraColor : "#d4af37"; ctx.lineWidth = 2; ctx.stroke();
+  }
+  for (let a = 0; a < 12; a++) {
+    const rad = (a * Math.PI) / 6;
+    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(rad)*175, Math.sin(rad)*175);
+    ctx.strokeStyle = "rgba(234,179,8,0.55)"; ctx.lineWidth = 2; ctx.stroke();
+  }
+  ctx.beginPath(); ctx.arc(0, 0, 58, 0, Math.PI * 2);
+  ctx.fillStyle = "#0d1026"; ctx.fill(); ctx.lineWidth = 4; ctx.strokeStyle = "#fde68a"; ctx.stroke();
+  ctx.fillStyle = "#fde68a"; ctx.font = "bold 20px Georgia"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText(isBack ? "ORACLE" : "TAROT", 0, 0);
+  ctx.restore();
+  if (!isBack) {
+    ctx.fillStyle = auraColor; ctx.font = "bold 22px Segoe UI"; ctx.textAlign = "center";
+    ctx.fillText(posLabel, 256, 95);
+    ctx.fillStyle = "#ffffff"; ctx.font = "bold 36px Georgia";
+    ctx.fillText(cardName.slice(0, 22), 256, 685);
+    ctx.fillStyle = "#fde68a"; ctx.font = "16px Segoe UI";
+    ctx.fillText("ORACLE SYSTEMS // SOVEREIGN EDITION", 256, 745);
+  } else {
+    ctx.fillStyle = "#fde68a"; ctx.font = "bold 28px Georgia"; ctx.textAlign = "center";
+    ctx.fillText("SOVEREIGN ORACLE", 256, 120);
+    ctx.fillText("QUANTUM DECK", 256, 710);
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+// Build 3D tarot cards with metallic gold edges
+const cardGroup = new THREE.Group();
+scene.add(cardGroup);
+const cardMeshes = [];
+const cardGeo = new THREE.BoxGeometry(2.55, 4.1, 0.09);
+const edgeMat = new THREE.MeshStandardMaterial({ color: 0xeab308, metalness: 0.92, roughness: 0.18 });
+const isVertical = window.innerHeight > window.innerWidth;
+const xOffsets = isVertical ? [-1.95, 0, 1.95] : [-3.35, 0, 3.35];
+if (isVertical) { camera.position.set(0, 0.2, 13.8); }
+
+function buildCards(cardsArr, auraColor) {
+  while (cardGroup.children.length) cardGroup.remove(cardGroup.children[0]);
+  cardMeshes.length = 0;
+  cardsArr.forEach((cd, idx) => {
+    const frontTex = makeCardTexture(cd.pos, cd.name, auraColor, false);
+    const backTex = makeCardTexture("", "", auraColor, true);
+    const mats = [
+      edgeMat, edgeMat, edgeMat, edgeMat,
+      new THREE.MeshStandardMaterial({ map: frontTex, metalness: 0.35, roughness: 0.25 }),
+      new THREE.MeshStandardMaterial({ map: backTex, metalness: 0.45, roughness: 0.25 })
+    ];
+    const mesh = new THREE.Mesh(cardGeo, mats);
+    mesh.position.set(xOffsets[idx], -0.45, idx === 1 ? 0.45 : -0.2);
+    mesh.rotation.y = Math.PI;
+    cardGroup.add(mesh);
+    cardMeshes.push(mesh);
+  });
+}
+buildCards(INIT_CARDS, AURA_HEX);
+
+// Holographic 3D Energy Ring + Portrait Assimilation Medallion above the spread
+const portalGroup = new THREE.Group();
+portalGroup.position.set(0, isVertical ? 3.2 : 2.35, -0.6);
+scene.add(portalGroup);
+const ring1 = new THREE.Mesh(new THREE.TorusGeometry(1.18, 0.045, 20, 96), new THREE.MeshStandardMaterial({ color: 0xfbbf24, emissive: 0xb45309, emissiveIntensity: 0.8, metalness: 0.9, roughness: 0.15 }));
+const ring2 = new THREE.Mesh(new THREE.TorusGeometry(1.38, 0.025, 16, 96), new THREE.MeshStandardMaterial({ color: new THREE.Color(AURA_HEX), emissive: new THREE.Color(AURA_HEX), emissiveIntensity: 1.1, metalness: 0.7, roughness: 0.2 }));
+portalGroup.add(ring1, ring2);
+const portraitMat = new THREE.MeshStandardMaterial({ color: 0x111827, emissive: new THREE.Color(AURA_HEX), emissiveIntensity: 0.22, metalness: 0.25, roughness: 0.35, side: THREE.DoubleSide });
+const portraitDisc = new THREE.Mesh(new THREE.CircleGeometry(1.06, 64), portraitMat);
+portalGroup.add(portraitDisc);
+portalGroup.visible = false;
+
+function applyPortraitUrl(url, auraColor) {
+  if (!url) return;
+  const loader = new THREE.TextureLoader();
+  loader.load(url, (tex) => {
+    tex.colorSpace = THREE.SRGBColorSpace;
+    portraitMat.map = tex;
+    portraitMat.color.set(0xffffff);
+    portraitMat.emissive.set(auraColor);
+    portraitMat.emissiveIntensity = 0.14;
+    portraitMat.needsUpdate = true;
+    portalGroup.visible = true;
+  });
+}
+if (PORTRAIT_URL) applyPortraitUrl(PORTRAIT_URL, AURA_HEX);
+
+// 4D-feel swirling golden/aura cosmic particle vortex
+const pCount = 1600;
+const pPos = new Float32Array(pCount * 3);
+const pCol = new Float32Array(pCount * 3);
+const cAura = new THREE.Color(AURA_HEX);
+const cGold = new THREE.Color(0xfbbf24);
+for (let i = 0; i < pCount; i++) {
+  const r = 4.5 + Math.random() * 14.0;
+  const ang = Math.random() * Math.PI * 2;
+  pPos[i*3] = Math.cos(ang) * r;
+  pPos[i*3+1] = (Math.random() - 0.5) * 12.0;
+  pPos[i*3+2] = Math.sin(ang) * r - 4.0;
+  const col = i % 2 === 0 ? cGold : cAura;
+  pCol[i*3] = col.r; pCol[i*3+1] = col.g; pCol[i*3+2] = col.b;
+}
+const pGeo = new THREE.BufferGeometry();
+pGeo.setAttribute("position", new THREE.BufferAttribute(pPos, 3));
+pGeo.setAttribute("color", new THREE.BufferAttribute(pCol, 3));
+const pMat = new THREE.PointsMaterial({ size: 0.085, vertexColors: true, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending });
+const vortex = new THREE.Points(pGeo, pMat);
+scene.add(vortex);
+
+// Deterministic timeline function (drives both live animation & 4K video rendering)
+function smoothstep(edge0, edge1, x) {
+  const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+  return t * t * (3 - 2 * t);
+}
+const flipStarts = [2.6, 13.6, 27.6];
+window.setTimeline = function(t) {
+  camera.position.x = Math.sin(t * 0.28) * 1.15;
+  camera.position.y = (isVertical ? 0.35 : 0.55) + Math.cos(t * 0.22) * 0.35;
+  camera.lookAt(0, -0.1, 0);
+  vortex.rotation.y = t * 0.14;
+  vortex.rotation.z = Math.sin(t * 0.18) * 0.08;
+  auraLight.position.x = Math.sin(t * 0.7) * 5.0;
+  auraLight.intensity = 4.2 + Math.sin(t * 1.6) * 1.1;
+  ring1.rotation.z = t * 0.45;
+  ring2.rotation.x = Math.sin(t * 0.6) * 0.35;
+  ring2.rotation.y = t * 0.55;
+  portalGroup.position.y = (isVertical ? 3.2 : 2.35) + Math.sin(t * 1.1) * 0.12;
+  cardMeshes.forEach((m, idx) => {
+    const p = smoothstep(flipStarts[idx], flipStarts[idx] + 1.6, t);
+    m.rotation.y = Math.PI * (1.0 - p) + Math.sin(t * 0.8 + idx) * 0.08;
+    m.rotation.x = Math.cos(t * 0.65 + idx * 1.3) * 0.05;
+    m.position.y = -0.45 + Math.sin(t * 1.15 + idx * 1.7) * 0.16 + (p > 0 && p < 1 ? Math.sin(p * Math.PI) * 0.55 : 0);
+    m.position.z = (idx === 1 ? 0.45 : -0.2) + (p > 0 && p < 1 ? Math.sin(p * Math.PI) * 1.1 : 0);
+  });
+  renderer.render(scene, camera);
+};
+
+let startMs = performance.now();
+function animate() {
+  if (!IS_RENDER) {
+    const elapsed = (performance.now() - startMs) / 1000.0;
+    window.setTimeline(elapsed);
+    requestAnimationFrame(animate);
+  }
+}
+if (IS_RENDER) { window.setTimeline(0); } else { animate(); }
+
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// Live Interactive Portrait Assimilation Handler
+const btnGen = document.getElementById("btn-gen");
+if (btnGen) {
+  btnGen.addEventListener("click", async () => {
+    btnGen.disabled = true; btnGen.textContent = "Assimilating Aura & Channeling...";
+    const fd = new FormData();
+    fd.append("name", document.getElementById("u-name").value || "Sovereign Seeker");
+    fd.append("focus", document.getElementById("u-focus").value || "Financial & Spiritual Breakthrough");
+    const photoEl = document.getElementById("u-photo");
+    if (photoEl.files && photoEl.files[0]) fd.append("photo", photoEl.files[0]);
+    try {
+      const res = await fetch("/api/personalize/reading", { method: "POST", body: fd });
+      const data = await res.json();
+      if (data.status === "OK") {
+        AURA_HEX = data.aura_hex || "#38bdf8";
+        auraLight.color.set(AURA_HEX);
+        ring2.material.color.set(AURA_HEX);
+        ring2.material.emissive.set(AURA_HEX);
+        document.getElementById("hud-kicker").textContent = "PERSONALIZED 3D READING // " + data.name.toUpperCase();
+        document.getElementById("hud-title").textContent = data.headline;
+        buildCards(data.cards, AURA_HEX);
+        if (data.portrait_url) applyPortraitUrl(data.portrait_url, AURA_HEX);
+        startMs = performance.now();
+        const out = document.getElementById("scenario-out");
+        out.style.display = "block";
+        out.textContent = data.scenario;
+        if (data.audio_url) {
+          const ap = document.getElementById("audio-player");
+          ap.src = data.audio_url; ap.style.display = "block"; ap.play().catch(()=>{});
+        }
+      }
+    } catch (err) {
+      alert("Reading engine error: " + err);
+    }
+    btnGen.disabled = false; btnGen.textContent = "Assimilate & Channel 3D Reading";
+  });
+}
+</script>
+</body>
+</html>
