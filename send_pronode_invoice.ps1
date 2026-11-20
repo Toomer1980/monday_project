@@ -68,7 +68,7 @@ Write-Host ("Client       : {0} <{1}>" -f $ClientName, $ClientEmail)
 Write-Host ("Line Item    : {0}" -f $Label)
 Write-Host ("Amount Due   : `${0:N2} USD (Net {1} days)" -f $AmountUsd, $DaysUntilDue)
 Write-Host ("Payment Rail : US Bank Account (ACH Direct Debit ONLY - Credit Card disabled)" ) -ForegroundColor Green
-Write-Host ("Est. Fees    : `${0:N2} Invoice (0.4%) + `${1:N2} ACH (capped $5) -> Est. Net: `${2:N2}" -f $EstInvFee, $EstAchFee, $EstNet) -ForegroundColor Green
+Write-Host ("Est. Fees    : `${0:N2} Invoice (0.4%) + `${1:N2} ACH (capped `$5) -> Est. Net: `${2:N2}" -f $EstInvFee, $EstAchFee, $EstNet) -ForegroundColor Green
 
 if ($DryRun -or (-not $SendInvoice)) {
     Write-Host "`n[DRY RUN COMPLETE] No Stripe invoice was created or emailed." -ForegroundColor Yellow

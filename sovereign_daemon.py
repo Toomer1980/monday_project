@@ -323,9 +323,9 @@ def web_store():
         "<div class='grid'>"
     ]
     for k, p in revenue_engine.CATALOG.items():
-        pr = f"${p['price_cents']/100:,.2f}"
-        h.append(f"<div class='card'><small style='color:#34d399'>{p['badge']}</small>")
-        h.append(f"<h3>{p['name']}</h3><div class='pr'>{pr}</div><p>{p['desc']}</p>")
+        pr = f"${p.get('price_cents', 0)/100:,.2f}"
+        h.append(f"<div class='card'><small style='color:#34d399'>{p.get('badge', 'ORACLE SYSTEMS')}</small>")
+        h.append(f"<h3>{p.get('name', k.upper())}</h3><div class='pr'>{pr}</div><p>{p.get('desc', 'Instant automated fulfillment.')}</p>")
         h.append(f"<button onclick=\"buy('{k}')\">Purchase & Instant ZIP Delivery</button></div>")
     h.append("</div><script>async function buy(s){document.getElementById('st').innerText='Processing...';")
     h.append("const r=await fetch('/api/billing/create-checkout',{method:'POST',headers:{'Content-Type':'application/json'},")

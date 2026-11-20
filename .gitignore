@@ -61,3 +61,8 @@ config/vault.enc.json
 *.bak*
 Monday_System_Logs.txt
 tools/
+deploy_bundle/.env
+deploy_bundle/*.key
+data/pronode_crm.db
+reports/crm/
+reports/outreach/

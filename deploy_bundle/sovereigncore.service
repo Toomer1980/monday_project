@@ -1,0 +1,18 @@
+[Unit]
+Description=Oracle Systems LLC - SovereignCore Production Server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=oracle
+Group=oracle
+WorkingDirectory=/opt/sovereigncore
+EnvironmentFile=/opt/sovereigncore/.env
+ExecStart=/opt/sovereigncore/venv/bin/gunicorn --workers 3 --threads 4 --bind 127.0.0.1:8000 --timeout 120 --access-logfile /opt/sovereigncore/logs/access.log --error-logfile /opt/sovereigncore/logs/error.log sovereign_daemon:app
+Restart=always
+RestartSec=5
+MemoryMax=3G
+
+[Install]
+WantedBy=multi-user.target
