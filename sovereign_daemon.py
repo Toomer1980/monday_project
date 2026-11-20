@@ -1,3 +1,4 @@
+import sovereign_order_verifier
 import os as _os_path_mod
 _BASE_DIR = _os_path_mod.path.dirname(_os_path_mod.path.abspath(__file__)).replace("\\", "/")
 import os, json, stripe
@@ -270,7 +271,7 @@ def api_stripe_fulfill_hook():
 
 @app.route("/api/download/secure-asset")
 def api_dl():
-    o = db.get_order_by_token((request.args.get("token") or "").strip())
+    o = db.get_order_by_token(t) or sovereign_order_verifier.lookup_cached(t)
     if not o: return jsonify({"error": "Invalid token"}), 403
     info = {"session_id": o["session_id"], "email": o["customer_email"],
             "amount_cents": o["amount_cents"], "sku": o.get("product_sku") or "pro_node",
@@ -354,78 +355,19 @@ def web_dashboard():
 
 
 
+
 @app.route("/api/order/lookup", methods=["GET"])
 def api_lookup():
-    import secrets as _sec, glob as _gl
-    base = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
-    sid = (request.args.get("session_id") or "").strip()
-    tok = (request.args.get("token") or "").strip()
-    cache_p = base + "/data/verified_sessions.json"
-    os.makedirs(base + "/data", exist_ok=True)
-    cache = json.load(open(cache_p, "r", encoding="utf-8")) if os.path.exists(cache_p) else {}
-
-    qval = tok or sid
-    if qval:
-        try:
-            o = db.get_order_by_token(qval)
-            if o: return jsonify({"status": "FOUND", "order": o}), 200
-        except Exception: pass
-        for _k, _v in cache.items():
-            if qval in (_k, _v.get("download_token"), _v.get("license_key"), _v.get("invoice_number")):
-                return jsonify({"status": "FOUND", "order": _v}), 200
-        if qval.startswith("cs_"): sid = qval
-
-    sk = (os.environ.get("STRIPE_SECRET_KEY") or (json.load(open(base + "/.stripe_env.json", encoding="utf-8")).get("STRIPE_SECRET_KEY", "") if os.path.exists(base + "/.stripe_env.json") else "")).strip()
-    stripe.api_key = sk
-
-    # Resolve by Invoice Number (e.g. CPHAMCTV-0001) if no cs_ session_id supplied
-    if not sid and qval and "-" in qval and not qval.startswith(("tok_", "ORACLE-")):
-        try:
-            invs = stripe.Invoice.list(limit=25)
-            for inv in invs.data:
-                if (getattr(inv, "number", "") or "").upper() == qval.upper():
-                    sess_list = stripe.checkout.Session.list(limit=25)
-                    for s_it in sess_list.data:
-                        if getattr(s_it, "invoice", None) == inv.id:
-                            sid = s_it.id; break
-                    break
-        except Exception: pass
-
-    if sid.startswith("cs_"):
-        try:
-            sess = stripe.checkout.Session.retrieve(sid, expand=["invoice"])
-            pstat = getattr(sess, "payment_status", "") or ""
-            sstat = getattr(sess, "status", "") or ""
-            if pstat in ("paid", "no_payment_required") or sstat == "complete":
-                meta = dict(sess.metadata) if getattr(sess, "metadata", None) else {}
-                amt_cents = int(getattr(sess, "amount_total", 0) or 4900)
-                cd = getattr(sess, "customer_details", None)
-                em = (getattr(cd, "email", None) if cd else None) or getattr(sess, "customer_email", None) or meta.get("email") or "Toomer1980@gmail.com"
-                sku = meta.get("sku") or ("personal_3d_video" if amt_cents == 4900 else "pro_node")
-                inv_obj = getattr(sess, "invoice", None)
-                inv_num = getattr(inv_obj, "number", "") if inv_obj and not isinstance(inv_obj, str) else ""
-                if not meta.get("portrait_url"):
-                    pimgs = sorted(_gl.glob(base + "/static/portraits/p_*.png"), key=os.path.getmtime, reverse=True)
-                    pimgs = [x for x in pimgs if "_depth" not in x]
-                    if pimgs: meta["portrait_url"] = "/static/portraits/" + os.path.basename(pimgs[0])
-                info = None
-                try:
-                    info = revenue_engine.process_successful_checkout({"id": sid, "amount_total": amt_cents, "customer_details": {"email": em}, "metadata": {"sku": sku, "email": em}})
-                except Exception: info = None
-                if not isinstance(info, dict):
-                    info = {"product_name": "Oracle 3D/4K Personalized Aura Reading Video", "license_key": "ORACLE-" + _sec.token_hex(4).upper() + "-" + _sec.token_hex(4).upper(), "download_token": "tok_" + _sec.token_hex(16)}
-                info.update({"session_id": sid, "sku": sku, "amount_cents": amt_cents, "email": em, "invoice_number": inv_num, "stripe_payment_status": pstat})
-                cache[sid] = info
-                json.dump(cache, open(cache_p, "w", encoding="utf-8"), indent=2)
-                try:
-                    import sovereign_revenue_fulfillment as _srf
-                    _srf.enqueue_paid_order(sid, sku, em, amt_cents / 100.0, meta)
-                except Exception: pass
-                return jsonify({"status": "FOUND", "order": info}), 200
-            return jsonify({"status": "UNPAID", "error": f"Stripe status is {sstat}/{pstat}"}), 402
-        except Exception as e:
-            return jsonify({"status": "ERROR", "error": str(e)}), 500
-    return jsonify({"status": "NOT_FOUND"}), 404
+    q = (request.args.get("session_id") or request.args.get("token") or "").strip()
+    if not q: return jsonify({"status": "NOT_FOUND"}), 404
+    o = sovereign_order_verifier.lookup_cached(q)
+    if not o and q.startswith("cs_"):
+        try: o = sovereign_order_verifier.unlock_session(q)
+        except Exception as e: return jsonify({"status": "ERROR", "error": str(e)}), 500
+    if not o:
+        sovereign_order_verifier.sync_recent_stripe_sales()
+        o = sovereign_order_verifier.lookup_cached(q)
+    return (jsonify({"status": "FOUND", "order": o}), 200) if o else (jsonify({"status": "NOT_FOUND"}), 404)
 
 @app.route("/api/order/deliverable-status", methods=["GET"])
 def api_deliverable_status():
@@ -452,31 +394,30 @@ button,.btn{background:#10b981;color:#fff;border:none;padding:11px 18px;border-r
 .meta{margin-top:18px;font-family:Consolas,monospace;line-height:1.7;font-size:13.5px}.ok{color:#10b981;font-weight:700}.key{color:#fbbf24;font-weight:700}
 .links{margin-top:18px;font-size:13px}.links a{color:#38bdf8;margin-right:12px}</style></head><body><div class="box">
 <h2>Oracle Systems // Customer Fulfillment Portal</h2>
-<div class="row"><input id="q" placeholder="Invoice (CPHAMCTV-0001), Token, License Key, or Session ID"><button onclick="lookup()">Verify</button></div>
+<div class="row"><input id="q" placeholder="Receipt (2352-8553), Invoice (CPHAMCTV-0001), Token, or Session ID"><button onclick="lookup()">Verify</button></div>
 <div id="out" class="meta">Checking order...</div>
 <div class="links"><a href="/store">&larr; Storefront</a><a href="/personalize">3D Sanctuary</a><a href="/dashboard">Executive Matrix</a></div>
 </div><script>
-const qs=new URLSearchParams(location.search), initSid=qs.get("session_id")||"", initTok=qs.get("token")||"";
-document.getElementById("q").value=initTok||initSid;
+const qs=new URLSearchParams(location.search), initQ=qs.get("session_id")||qs.get("token")||"";
+document.getElementById("q").value=initQ;
 async function pollVideo(sid){
   const el=document.getElementById("vid-slot"); if(!el||!sid) return;
   const r=await(await fetch("/api/order/deliverable-status?session_id="+encodeURIComponent(sid))).json();
   if(r.status==="COMPLETED"&&r.download_url&&r.download_url.endsWith(".mp4")){
     el.innerHTML='<a class="btn btn-gold" href="'+r.download_url+'" download>Download Custom 3D Reading (.MP4)</a>';
   } else if(r.sku==="personal_3d_video"||r.status==="PENDING"){
-    el.innerHTML='<div style="color:#38bdf8;margin-top:10px">Rendering your custom 3D Reading MP4... auto-refreshing.</div>';
+    el.innerHTML='<div style="color:#38bdf8;margin-top:10px">Rendering custom 3D Reading MP4... auto-refreshing.</div>';
     setTimeout(()=>pollVideo(sid),5000);
   }
 }
 async function lookup(){
   const val=document.getElementById("q").value.trim(), out=document.getElementById("out");
-  if(!val){out.textContent="Enter your invoice number, token, or session ID.";return;}
-  out.textContent="Verifying live payment with Stripe...";
+  if(!val){out.textContent="Enter a receipt, invoice, token, or session ID.";return;}
   const param=val.startsWith("cs_")?"session_id="+encodeURIComponent(val):"token="+encodeURIComponent(val);
   const res=await fetch("/api/order/lookup?"+param); const d=await res.json();
   if(res.ok&&d.order){
     const o=d.order, amt=((o.amount_cents||4900)/100).toFixed(2);
-    out.innerHTML='<div class="ok">VERIFIED LIVE LICENSE ('+(o.invoice_number||'LIVE')+')</div>'+
+    out.innerHTML='<div class="ok">VERIFIED PAID ORDER // '+(o.invoice_number||'')+' '+(o.receipt_number?'(Receipt '+o.receipt_number+')':'')+'</div>'+
       '<div>Product: '+(o.product_name||o.sku)+'</div>'+
       '<div>License Key: <span class="key">'+o.license_key+'</span></div>'+
       '<div>Download Token: '+o.download_token+'</div>'+
@@ -486,7 +427,7 @@ async function lookup(){
     if(o.session_id&&o.session_id.startsWith("cs_")) pollVideo(o.session_id);
   } else { out.textContent=d.error||"Not found"; }
 }
-if(initSid||initTok) lookup(); else document.getElementById("out").textContent="Enter an invoice number, token, or license key above.";
+if(initQ) lookup(); else document.getElementById("out").textContent="Enter a receipt, invoice, or license key above.";
 </script></body></html>"""
 
 if __name__ == "__main__":

@@ -123,6 +123,10 @@ last_upload_day = ""
 while True:
     ensure_daemon()
     ensure_tunnel()
+    try:
+        import sovereign_order_verifier as _sov
+        if _sov.sync_recent_stripe_sales() > 0: log('[STRIPE-SYNC] Auto-fulfilled new paid Stripe orders.')
+    except Exception: pass
     now = time.time()
     today = datetime.now().strftime("%Y-%m-%d")
     hour = datetime.now().hour
