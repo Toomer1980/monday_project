@@ -15,37 +15,48 @@ store_url = open(url_file, "r", encoding="utf-8").read().strip() if os.path.exis
 uploaded = json.load(open(ledger_file, "r", encoding="utf-8")) if os.path.exists(ledger_file) else {}
 
 def complete_publish_dialog(page, label):
-    for dismiss_txt in ["Cancel", "Close", "Dismiss"]:
-        try:
-            dlg = page.locator("ytcp-dialog").filter(has_text="Verify")
-            if dlg.count() > 0:
-                dlg.get_by_text(dismiss_txt).first.click(timeout=2000)
-                time.sleep(1)
-        except Exception: pass
+    # 1. Select Not Made For Kids and verify aria-checked=true
+    nfk = page.locator("tp-yt-paper-radio-button[name='VIDEO_MADE_FOR_KIDS_NOT_MFK']").first
     try:
-        nfk = page.locator("tp-yt-paper-radio-button[name='VIDEO_MADE_FOR_KIDS_NOT_MFK']").first
         nfk.scroll_into_view_if_needed(timeout=8000)
-        nfk.click(force=True, timeout=8000)
+        nfk.click(timeout=6000)
         time.sleep(1)
-    except Exception: pass
-    try:
-        page.locator("#step-badge-3").click(timeout=6000)
-        time.sleep(2)
-    except Exception:
-        for _ in range(3):
-            try:
-                page.locator("#next-button").click(timeout=5000)
-                time.sleep(1.5)
-            except Exception: pass
-    try:
-        pub = page.locator("tp-yt-paper-radio-button[name='PUBLIC']").first
-        pub.scroll_into_view_if_needed(timeout=8000)
-        pub.click(force=True, timeout=8000)
-        time.sleep(2)
-    except Exception: pass
+        if nfk.get_attribute("aria-checked") != "true":
+            page.get_by_text("No, it's not made for kids", exact=False).first.click(timeout=5000)
+            time.sleep(1)
+    except Exception as e:
+        print(f"    [*] Audience check note: {e}")
+
+    # 2. Advance step-by-step via #next-button until PUBLIC radio is visible
+    pub = page.locator("tp-yt-paper-radio-button[name='PUBLIC']").first
+    for step in range(5):
+        if pub.is_visible():
+            break
+        try:
+            nxt = page.locator("#next-button").first
+            if nxt.is_visible():
+                nxt.click(timeout=6000)
+                time.sleep(2)
+                continue
+        except Exception: pass
+        try:
+            page.locator("#step-badge-3").click(timeout=4000)
+            time.sleep(2)
+        except Exception: pass
+
+    # 3. Select PUBLIC visibility and verify checked
+    pub.wait_for(state="visible", timeout=20000)
+    pub.scroll_into_view_if_needed(timeout=5000)
+    pub.click(timeout=6000)
+    time.sleep(1.5)
+    if pub.get_attribute("aria-checked") != "true":
+        pub.click(force=True, timeout=5000)
+        time.sleep(1.5)
+
+    # 4. Wait until #done-button is visible and enabled, then click Publish
     done = page.locator("#done-button").first
     done.wait_for(state="visible", timeout=20000)
-    for _ in range(20):
+    for _ in range(25):
         if done.get_attribute("aria-disabled") != "true":
             break
         time.sleep(1)
@@ -55,6 +66,38 @@ def complete_publish_dialog(page, label):
     try: page.locator("#close-button").first.click(timeout=4000)
     except Exception: pass
     time.sleep(2)
+
+def clear_existing_drafts(page):
+    page.goto(f"https://studio.youtube.com/channel/{channel_id}/videos/upload", wait_until="domcontentloaded", timeout=60000)
+    time.sleep(5)
+    for tab_name in ["Videos", "Shorts"]:
+        try:
+            tab = page.locator("tp-yt-paper-tab").filter(has_text=tab_name).first
+            if tab.is_visible():
+                tab.click(timeout=5000)
+                time.sleep(3)
+        except Exception: pass
+        while True:
+            draft_btns = page.locator("ytcp-button").filter(has_text="Edit draft")
+            if draft_btns.count() == 0: break
+            draft_btns.first.click(timeout=10000)
+            time.sleep(4)
+            try: title_txt = page.locator("#textbox").nth(0).inner_text().strip()
+            except Exception: title_txt = "Draft_Video"
+            try:
+                complete_publish_dialog(page, title_txt)
+                for folder in [vault, shorts_dir]:
+                    for mf in glob.glob(folder + "/*.mp4"):
+                        fn = os.path.basename(mf)
+                        slug = " ".join(os.path.splitext(fn)[0].split("_")[2:])
+                        if slug.lower() in title_txt.lower() and (("short" in fn.lower()) == ("#shorts" in title_txt.lower())):
+                            uploaded[fn] = {"title": title_txt, "channel_id": channel_id, "published_at": time.strftime("%Y-%m-%d %H:%M:%S"), "store_url": store_url}
+                json.dump(uploaded, open(ledger_file, "w", encoding="utf-8"), indent=2)
+            except Exception as e:
+                print(f"[!] Draft publish note: {e}")
+                break
+            page.reload(wait_until="domcontentloaded", timeout=60000)
+            time.sleep(4)
 
 def upload_video(page, mp4_path, is_short=False):
     fn = os.path.basename(mp4_path)
@@ -102,6 +145,7 @@ with sync_playwright() as p:
         args=["--disable-blink-features=AutomationControlled", "--start-maximized"], no_viewport=True
     )
     page = context.pages[0] if context.pages else context.new_page()
+    clear_existing_drafts(page)
     long_pending = [f for f in sorted(glob.glob(vault + "/Week_*.mp4")) if os.path.basename(f) not in uploaded]
     short_pending = [f for f in sorted(glob.glob(shorts_dir + "/Short_*.mp4")) if os.path.basename(f) not in uploaded]
     if mode == "shorts":
