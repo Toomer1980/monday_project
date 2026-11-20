@@ -550,6 +550,35 @@ def _oracle_inject_store_router(resp):
 # === ORACLE_UTM_AND_STRIPE_HOOK_END ===
 
 
+
+# === ORACLE_PORTAL_UPSELL_HOOK_START ===
+@app.after_request
+def _oracle_inject_portal_upsell(resp):
+    try:
+        if request.path == "/portal" and resp.status_code == 200 and "text/html" in (resp.content_type or ""):
+            body = resp.get_data(as_text=True)
+            if "oracle-portal-upsell" not in body and "</body>" in body.lower():
+                banner = (
+                    '<div id="oracle-portal-upsell" style="max-width:720px;margin:24px auto;padding:18px;'
+                    'background:linear-gradient(135deg,#0b132b,#111827);border:1px solid #f59e0b;border-radius:10px;'
+                    'font-family:sans-serif;color:#f8fafc;text-align:center;">'
+                    '<div style="color:#38bdf8;font-size:12px;letter-spacing:1.5px;font-weight:bold;">VERIFIED MEMBER UPGRADE // ORACLE SYSTEMS LLC</div>'
+                    '<h3 style="margin:8px 0;color:#facc15;">Unlock the Full 4D Storefront Bundle or Dedicated Pro_Node</h3>'
+                    '<p style="font-size:14px;color:#cbd5e1;margin:0 0 14px 0;">Upgrade instantly with tracked member access to our complete autonomous media and compute stack.</p>'
+                    '<a href="/go/fullstorefront?utm_source=portal_upsell&utm_medium=banner&utm_campaign=member_upgrade" target="_blank" rel="noopener" '
+                    'style="display:inline-block;margin:6px;padding:10px 18px;background:#059669;color:#fff;text-decoration:none;border-radius:6px;font-weight:bold;">Upgrade: Full Storefront ($1,500)</a>'
+                    '<a href="/go/pro_node?utm_source=portal_upsell&utm_medium=banner&utm_campaign=enterprise_upgrade" target="_blank" rel="noopener" '
+                    'style="display:inline-block;margin:6px;padding:10px 18px;background:#0284c7;color:#fff;text-decoration:none;border-radius:6px;font-weight:bold;">Enterprise Pro_Node ($49,999)</a>'
+                    '</div></body>'
+                )
+                body = re.sub(r'</body>', banner, body, count=1, flags=re.IGNORECASE)
+                resp.set_data(body)
+    except Exception:
+        pass
+    return resp
+# === ORACLE_PORTAL_UPSELL_HOOK_END ===
+
+
 if __name__ == "__main__":
     p = int(os.environ.get("PORT", 8000))
     threading.Thread(target=lambda: app.run(host="0.0.0.0", port=p, debug=False, use_reloader=False, threaded=True), daemon=True).start()

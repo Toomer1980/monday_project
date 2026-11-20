@@ -1,40 +1,35 @@
 # ==============================================================================
-# Oracle Systems LLC - publish_youtube_vault.ps1 (Pure ASCII / PS 5.1 Safe)
-# Manages 52 Full Videos + 52 Shorts publishing queue, injects UTM-tracked
-# storefront links (/go/auravideo49, /go/tier29, /go/fullstorefront), and
-# pulls live A/B click rankings from /api/analytics/utm.
+# Oracle Systems LLC - publish_youtube_vault.ps1 (v2.0 - 4D Vault + Learning Curve)
+# Pulls next highest-scoring 4D Short & 4D Full Video from learning_curve_ranked_queue.json,
+# stages the 4D .mp4, 3D pop-out .jpg thumbnail, animated movie-thumb, and bold 4D
+# description into reports\youtube_queue\ready_to_upload\ for zero-friction publishing.
 # ==============================================================================
 param(
     [switch]$MarkNextPublished,
-    [string]$BaseUrl = ""
+    [switch]$OpenUploadFolder
 )
 
-$ErrorActionPreference = "Continue"
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-
-$ProjectDir = "C:\Users\toome\Desktop\SovereignCore"
+$ErrorActionPreference = "Stop"
+$ProjectDir  = "C:\Users\toome\Desktop\SovereignCore"
 Set-Location $ProjectDir
 
-$Utf8NoBom  = New-Object System.Text.UTF8Encoding($false)
-$FullDir    = Join-Path $ProjectDir "Content_Vault_52Weeks"
-$ShortsDir  = Join-Path $ProjectDir "Content_Vault_Shorts"
-$StatePath  = Join-Path $ProjectDir "data\youtube_publish_state.json"
-$QueueDir   = Join-Path $ProjectDir "reports\youtube_queue"
+$Utf8NoBom   = New-Object System.Text.UTF8Encoding($false)
+$StatePath   = Join-Path -Path $ProjectDir -ChildPath "data\youtube_publish_state.json"
+$RankedPath  = Join-Path -Path $ProjectDir -ChildPath "reports\learning_curve_ranked_queue.json"
+$QueueDir    = Join-Path -Path $ProjectDir -ChildPath "reports\youtube_queue"
+$ReadyDir    = Join-Path -Path $QueueDir   -ChildPath "ready_to_upload"
+
 New-Item -ItemType Directory -Path (Split-Path $StatePath) -Force | Out-Null
-New-Item -ItemType Directory -Path $QueueDir -Force | Out-Null
+New-Item -ItemType Directory -Path $ReadyDir -Force | Out-Null
 
-# Resolve public base URL (prefer live domain from .env or public_url.txt; fallback to live Stripe links if local)
-if (-not $BaseUrl) {
-    $envFile = Join-Path $ProjectDir ".env"
-    if (Test-Path $envFile) {
-        $m = Select-String -Path $envFile -Pattern '^PUBLIC_BASE_URL\s*=\s*(.+)$' | Select-Object -First 1
-        if ($m) { $BaseUrl = $m.Matches[0].Groups[1].Value.Trim().TrimEnd("/") }
-    }
-}
-if (-not $BaseUrl) { $BaseUrl = "http://127.0.0.1:8000" }
-$IsPublicDomain = ($BaseUrl -notmatch '127\.0\.0\.1|localhost')
+# Refresh Learning Curve rankings first so queue is always optimal
+& (Join-Path -Path $ProjectDir -ChildPath "run_learning_curve.ps1") | Out-Null
 
-# Load or initialize state
+$ranked = Get-Content $RankedPath -Raw -Encoding UTF8 | ConvertFrom-Json
+$nextShort = $ranked.meta.next_recommended_short
+$nextFull  = $ranked.meta.next_recommended_full
+
+# Load state
 $State = @{ published_full = @(); published_shorts = @(); last_updated = "" }
 if (Test-Path $StatePath) {
     try {
@@ -44,100 +39,47 @@ if (Test-Path $StatePath) {
     } catch {}
 }
 
-$FullFiles  = Get-ChildItem -Path $FullDir   -Filter "*.mp4" -ErrorAction SilentlyContinue | Sort-Object Name
-$ShortFiles = Get-ChildItem -Path $ShortsDir -Filter "*.mp4" -ErrorAction SilentlyContinue | Sort-Object Name
+Write-Host "=== 4D YOUTUBE VAULT PUBLISHER (LEARNING-CURVE RANKED) ===" -ForegroundColor Cyan
+Write-Host ("Published Progress: {0}/52 Full Videos | {1}/52 Shorts" -f $State.published_full.Count, $State.published_shorts.Count) -ForegroundColor Gray
 
-$NextFull  = $FullFiles  | Where-Object { $State.published_full   -notcontains $_.Name } | Select-Object -First 1
-$NextShort = $ShortFiles | Where-Object { $State.published_shorts -notcontains $_.Name } | Select-Object -First 1
-
-function Build-Metadata([System.IO.FileInfo]$file, [string]$medium) {
-    $slug = $file.BaseName
-    $cleanTitle = ($slug -replace '^(Week|Short)_\d+_', '') -replace '_', ' '
-    $prefix = if ($medium -eq "short") { "#Shorts | " } else { "Oracle Systems Collective Reading: " }
-    $title = "$prefix$cleanTitle - Sudden Alignment & Breakthrough"
-
-    if ($IsPublicDomain) {
-        $auraLink  = "$BaseUrl/go/auravideo49?utm_source=youtube&utm_medium=$medium&utm_campaign=$slug"
-        $tier29    = "$BaseUrl/go/tier29?utm_source=youtube&utm_medium=$medium&utm_campaign=$slug"
-        $storeLink = "$BaseUrl/go/fullstorefront?utm_source=youtube&utm_medium=$medium&utm_campaign=$slug"
-    } else {
-        # Direct live Stripe links (work immediately even before custom cloud domain is active)
-        $auraLink  = "https://buy.stripe.com/6oU28rb29evn8di7UxcQU00"
-        $tier29    = "https://buy.stripe.com/bJefZheeldrj1OU8YBcQU01"
-        $storeLink = "https://buy.stripe.com/28E9AT6LT0Ex79e7UxcQU03"
-    }
-
-    $desc = @"
-$title
-
-Claim your personalized 3D/4K Aura Reading Video ($49):
-$auraLink
-
-Starter Tier Access ($29):
-$tier29
-
-Full Oracle Systems Storefront Bundle ($1,500):
-$storeLink
-
-Campaign Tracking ID: $slug ($medium)
-#tarot #collective #oraclesystems #breakthrough #abundance #shorts
-"@
-    return [ordered]@{
-        file        = $file.FullName
-        filename    = $file.Name
-        size_mb     = [math]::Round($file.Length / 1MB, 2)
-        medium      = $medium
-        campaign    = $slug
-        title       = $title
-        description = $desc
-        utm_ready   = $IsPublicDomain
-    }
+if ($nextShort) {
+    $szMb = if (Test-Path $nextShort.upgraded_4d_mp4) { [math]::Round((Get-Item $nextShort.upgraded_4d_mp4).Length / 1MB, 1) } else { 0 }
+    Write-Host "`n[TOP-RANKED 4D SHORT] Short #$($nextShort.sequence) | Theme: $($nextShort.theme) | Variant: $($nextShort.ab_variant) | Score: $($nextShort.ucb1_score)" -ForegroundColor Green
+    Write-Host "  Video File : $($nextShort.upgraded_4d_mp4) ($szMb MB)" -ForegroundColor White
+    Write-Host "  3D Thumb   : $($nextShort.thumb_3d_jpg)" -ForegroundColor Gray
+    Write-Host "  A/B Title  : $($nextShort.ab_recommended_title)" -ForegroundColor Cyan
+    [System.IO.File]::WriteAllText((Join-Path -Path $ReadyDir -ChildPath "NEXT_SHORT_TITLE.txt"), $nextShort.ab_recommended_title, $Utf8NoBom)
+    [System.IO.File]::WriteAllText((Join-Path -Path $ReadyDir -ChildPath "NEXT_SHORT_DESCRIPTION.txt"), $nextShort.description, $Utf8NoBom)
+    if (Test-Path $nextShort.thumb_3d_jpg) { Copy-Item $nextShort.thumb_3d_jpg (Join-Path -Path $ReadyDir -ChildPath "NEXT_SHORT_THUMB.jpg") -Force }
 }
 
-Write-Host "=== YOUTUBE 52-WEEK VAULT PUBLISHER & UTM TRACKER ===" -ForegroundColor Cyan
-Write-Host ("Full Videos: {0}/{1} published | Shorts: {2}/{3} published" -f $State.published_full.Count, $FullFiles.Count, $State.published_shorts.Count, $ShortFiles.Count) -ForegroundColor Gray
-Write-Host ("Link Mode: " + $(if ($IsPublicDomain) { "Tracked UTM Redirects ($BaseUrl/go/...)" } else { "Direct Live Stripe Links (upgrade to cloud domain in .env to enable public UTM clicks)" })) -ForegroundColor Gray
-
-$Payload = [ordered]@{
-    generated_utc = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
-    next_short    = if ($NextShort) { Build-Metadata $NextShort "short" } else { $null }
-    next_full     = if ($NextFull)  { Build-Metadata $NextFull  "video" } else { $null }
-}
-
-$QueueJsonPath = Join-Path $QueueDir "next_upload_package.json"
-[System.IO.File]::WriteAllText($QueueJsonPath, ($Payload | ConvertTo-Json -Depth 6), $Utf8NoBom)
-
-if ($Payload.next_short) {
-    Write-Host "`n[NEXT DAILY SHORT] $($Payload.next_short.filename) ($($Payload.next_short.size_mb) MB)" -ForegroundColor Green
-    Write-Host "  Title: $($Payload.next_short.title)" -ForegroundColor White
-    [System.IO.File]::WriteAllText((Join-Path $QueueDir "next_short_description.txt"), $Payload.next_short.description, $Utf8NoBom)
-}
-if ($Payload.next_full) {
-    Write-Host "`n[NEXT WEEKLY FULL VIDEO] $($Payload.next_full.filename) ($($Payload.next_full.size_mb) MB)" -ForegroundColor Green
-    Write-Host "  Title: $($Payload.next_full.title)" -ForegroundColor White
-    [System.IO.File]::WriteAllText((Join-Path $QueueDir "next_full_description.txt"), $Payload.next_full.description, $Utf8NoBom)
+if ($nextFull) {
+    $szMb = if (Test-Path $nextFull.upgraded_4d_mp4) { [math]::Round((Get-Item $nextFull.upgraded_4d_mp4).Length / 1MB, 1) } else { 0 }
+    Write-Host "`n[TOP-RANKED 4D FULL VIDEO] Week #$($nextFull.sequence) | Theme: $($nextFull.theme) | Variant: $($nextFull.ab_variant) | Score: $($nextFull.ucb1_score)" -ForegroundColor Green
+    Write-Host "  Video File : $($nextFull.upgraded_4d_mp4) ($szMb MB)" -ForegroundColor White
+    Write-Host "  3D Thumb   : $($nextFull.thumb_3d_jpg)" -ForegroundColor Gray
+    Write-Host "  A/B Title  : $($nextFull.ab_recommended_title)" -ForegroundColor Cyan
+    [System.IO.File]::WriteAllText((Join-Path -Path $ReadyDir -ChildPath "NEXT_FULL_TITLE.txt"), $nextFull.ab_recommended_title, $Utf8NoBom)
+    [System.IO.File]::WriteAllText((Join-Path -Path $ReadyDir -ChildPath "NEXT_FULL_DESCRIPTION.txt"), $nextFull.description, $Utf8NoBom)
+    if (Test-Path $nextFull.thumb_3d_jpg) { Copy-Item $nextFull.thumb_3d_jpg (Join-Path -Path $ReadyDir -ChildPath "NEXT_FULL_THUMB.jpg") -Force }
 }
 
 if ($MarkNextPublished) {
-    if ($NextShort) { $State.published_shorts += $NextShort.Name }
-    if ($NextFull)  { $State.published_full   += $NextFull.Name }
+    if ($nextShort) { $State.published_shorts += ($nextShort.slug + ".mp4") }
+    if ($nextFull)  { $State.published_full   += ($nextFull.slug + ".mp4") }
     $State.last_updated = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
     [System.IO.File]::WriteAllText($StatePath, ($State | ConvertTo-Json -Depth 4), $Utf8NoBom)
-    Write-Host "`n[MARKED PUBLISHED] Updated $StatePath" -ForegroundColor Cyan
+    Write-Host "`n[MARKED PUBLISHED] Logged in $StatePath & ready for next Learning Curve cycle." -ForegroundColor Cyan
 }
 
-# Pull live A/B UTM click leaderboard from local SovereignCore API
 Write-Host "`n=== LIVE UTM CLICK LEADERBOARD (/api/analytics/utm) ===" -ForegroundColor Cyan
 try {
     $stats = Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/analytics/utm" -Method Get -TimeoutSec 5
     Write-Host "Total Tracked Funnel Clicks: $($stats.total_clicks)" -ForegroundColor Green
-    if ($stats.by_tier -and $stats.by_tier.Count -gt 0) {
-        $stats.by_tier | Format-Table -AutoSize
-    }
-    if ($stats.top_campaigns -and $stats.top_campaigns.Count -gt 0) {
-        $stats.top_campaigns | Format-Table -AutoSize
-    }
+    if ($stats.by_tier -and $stats.by_tier.Count -gt 0) { $stats.by_tier | Format-Table -AutoSize }
 } catch {
-    Write-Host "[INFO] Could not fetch /api/analytics/utm yet: $($_.Exception.Message)" -ForegroundColor Yellow
+    Write-Host "[INFO] Port 8000 offline or unreachable: $($_.Exception.Message)" -ForegroundColor Yellow
 }
-Write-Host "Upload package saved to: $QueueDir" -ForegroundColor Cyan
+
+Write-Host "Ready-to-upload titles, bold 4D descriptions & 3D thumbs staged in: $ReadyDir" -ForegroundColor Cyan
+if ($OpenUploadFolder) { Start-Process explorer.exe $ReadyDir }

@@ -77,3 +77,7 @@ Content_Vault_4D_Thumbnails/
 reports/youtube_4d_descriptions/
 reports/youtube_52week_4d_manifest.*
 logs/tier3_ha_unlocked.json
+logs/learning_curve_state.json
+reports/learning_curve_ranked_queue.json
+reports/Learning_Curve_Report.md
+reports/youtube_queue/
