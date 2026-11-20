@@ -71,3 +71,9 @@ config/backup_master.dpapi
 *.enc
 install_phase*.ps1
 reports/youtube_52week_manifest.*
+Content_Vault_4D_Full/
+Content_Vault_4D_Shorts/
+Content_Vault_4D_Thumbnails/
+reports/youtube_4d_descriptions/
+reports/youtube_52week_4d_manifest.*
+logs/tier3_ha_unlocked.json

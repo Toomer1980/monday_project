@@ -1,6 +1,6 @@
 # ==============================================================================
 # Oracle Systems LLC - oracle_hub.ps1 (Pure ASCII / PS 5.1 Safe)
-# Master Terminal Command Center for SovereignCore Automation Suite (Phase 5)
+# Master Terminal Command Center for SovereignCore Automation Suite (Phase 6)
 # ==============================================================================
 $ErrorActionPreference = "Continue"
 $ProjectDir = "C:\Users\toome\Desktop\SovereignCore"
@@ -16,11 +16,12 @@ function Show-Header {
     $portUp = [bool](Get-NetTCPConnection -LocalPort 8000 -State Listen -ErrorAction SilentlyContinue)
     $fullN  = (Get-ChildItem (Join-Path -Path $ProjectDir -ChildPath "Content_Vault_52Weeks") -Filter "*.mp4" -ErrorAction SilentlyContinue).Count
     $shortN = (Get-ChildItem (Join-Path -Path $ProjectDir -ChildPath "Content_Vault_Shorts")  -Filter "*.mp4" -ErrorAction SilentlyContinue).Count
+    $v4dN   = (Get-ChildItem (Join-Path -Path $ProjectDir -ChildPath "Content_Vault_4D_Thumbnails") -Filter "*_3D_Thumb.jpg" -ErrorAction SilentlyContinue).Count
 
     Write-Host "========================================================================" -ForegroundColor Cyan
-    Write-Host "   ORACLE SYSTEMS LLC // SOVEREIGNCORE MASTER COMMAND HUB (PHASE 5)" -ForegroundColor White
+    Write-Host "   ORACLE SYSTEMS LLC // SOVEREIGNCORE MASTER COMMAND HUB (PHASE 6)" -ForegroundColor White
     Write-Host "========================================================================" -ForegroundColor Cyan
-    Write-Host ("  Port 8000 : {0,-10} | RAM: {1}% ({2} GB free) | Vault: {3}/52 Full, {4}/52 Shorts" -f $(if ($portUp) { "ONLINE" } else { "OFFLINE" }), $ramPct, $freeGB, $fullN, $shortN) -ForegroundColor $(if ($portUp -and $ramPct -lt 85) { "Green" } else { "Yellow" })
+    Write-Host ("  Port 8000 : {0,-8} | RAM: {1}% ({2} GB free) | Vault: {3}/52 Full, {4}/52 Shorts | 4D Thumbs: {5}" -f $(if ($portUp) { "ONLINE" } else { "OFFLINE" }), $ramPct, $freeGB, $fullN, $shortN, $v4dN) -ForegroundColor $(if ($portUp -and $ramPct -lt 85) { "Green" } else { "Yellow" })
     Write-Host "------------------------------------------------------------------------" -ForegroundColor DarkGray
     Write-Host "  [1] Block 10 Treasury Audit + Live Stripe API Poll + Google Drive Sync"
     Write-Host "  [2] YouTube 52-Week Vault Publisher & Live UTM Click Leaderboard"
@@ -36,7 +37,11 @@ function Show-Header {
     Write-Host "  [C] Poll Live Stripe Balance & Pop Desktop Payout Alert (10-Min Watch)"
     Write-Host "  [D] Run 1-Screen Morning Executive Briefing (Stripe + Vault + CRM)"
     Write-Host "  [E] Run AES-256 Encrypted Backup & Sync to Google Drive (or Restore)"
-    Write-Host "  [F] Package Full 52-Week YouTube SEO Metadata & Upload Manifest"
+    Write-Host "  [F] Package Standard 52-Week YouTube Upload Manifest"
+    Write-Host "  [G] Run Stripe-to-CRM Auto-Reconciler (Paid Pro_Node -> Unlock Tier 3 HA)"
+    Write-Host "  [H] Create/Refresh One-Click Desktop Shortcuts for Oracle Suite"
+    Write-Host "  [I] Update Custom Google Cloud OAuth Client for rclone (Permanent Sync)"
+    Write-Host "  [J] Upgrade 52-Week Vault to 3D/4D Tesseract + Mobius Templates & Thumbs"
     Write-Host "  [0] Safe Secret-Scanned GitHub Commit & Push (Toomer1980/monday_project)"
     Write-Host "  [Q] Quit"
     Write-Host "========================================================================" -ForegroundColor Cyan
@@ -49,21 +54,23 @@ function Run-SafeGitPush {
         "config/sovereign_block10.toml","config/sovereign_treasury.ini",
         "Modules/block10_treasury_engine.py","Modules/revenue_engine.py",
         "Modules/pronode_crm_engine.py","Modules/pronode_outreach_engine.py",
-        "Modules/pronode_csv_importer.py",
+        "Modules/pronode_csv_importer.py","Modules/stripe_crm_reconciler.py",
+        "Modules/oracle_4d_vault_upgrader.py",
         "sovereign_daemon.py","autonomous_youtube_bot.py","templates/oracle_3d_stage.html",
         "sovereign_supervisor.ps1","run_block10_treasury.ps1","setup_gdrive_sync.ps1",
         "publish_youtube_vault.ps1","send_pronode_invoice.ps1","deploy_digitalocean_tier1.ps1",
         "optimize_ram_and_boot.ps1","pronode_crm.ps1","generate_pronode_outreach.ps1",
         "import_pronode_prospects.ps1","send_pronode_outreach.ps1","stripe_live_alerts.ps1",
         "morning_briefing.ps1","backup_sovereigncore.ps1","package_youtube_52weeks.ps1",
-        "Launch_OracleHub.cmd","Run_MorningBriefing.cmd",
+        "reconcile_stripe_crm.ps1","create_desktop_shortcuts.ps1","update_rclone_oauth.ps1",
+        "upgrade_52week_4d_vault.ps1","Launch_OracleHub.cmd","Run_MorningBriefing.cmd",
         "test_stripe_webhook.ps1","oracle_hub.ps1",
         "deploy_bundle/sovereigncore.service","deploy_bundle/nginx_sovereigncore.conf",
         "deploy_bundle/.env.production.template","deploy_bundle/deploy_do_tier1.sh"
     )
     foreach ($f in $safe) { if (Test-Path (Join-Path -Path $ProjectDir -ChildPath $f)) { git add -- $f 2>$null } }
     $diff = (git diff --cached) -join "`n"
-    $rx = '(sk_live_[A-Za-z0-9]{16,}|sk_test_[A-Za-z0-9]{16,}|rk_live_[A-Za-z0-9]{16,}|whsec_[A-Za-z0-9]{16,}|ghp_[A-Za-z0-9]{20,}|ya29\.[A-Za-z0-9\-_]{20,}|1//[0-9A-Za-z\-_]{20,}|GMAIL_APP_PASSWORD\s*=\s*[a-z]{16}|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY)'
+    $rx = '(sk_live_[A-Za-z0-9]{16,}|sk_test_[A-Za-z0-9]{16,}|rk_live_[A-Za-z0-9]{16,}|whsec_[A-Za-z0-9]{16,}|ghp_[A-Za-z0-9]{20,}|ya29\.[A-Za-z0-9\-_]{20,}|1//[0-9A-Za-z\-_]{20,}|GOCSPX-[A-Za-z0-9\-_]{16,}|GMAIL_APP_PASSWORD\s*=\s*[a-z]{16}|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY)'
     if ($diff -match $rx) {
         Write-Host "[ABORTED] Secret pattern detected in staged diff! Resetting index." -ForegroundColor Red
         git reset | Out-Null
@@ -169,6 +176,26 @@ while ($true) {
             else { .\backup_sovereigncore.ps1 -RegisterWeeklyTask }
         }
         "F" { .\package_youtube_52weeks.ps1 }
+        "G" {
+            $md = (Read-Host "Mode [AUTO / LIVE / TEST] (default AUTO)").Trim().ToUpper()
+            if (-not $md) { $md = "AUTO" }
+            $rt = (Read-Host "Also register 30-min background task? (Y/N)").Trim().ToUpper()
+            if ($rt -eq "Y") { .\reconcile_stripe_crm.ps1 -Mode $md -RegisterTask } else { .\reconcile_stripe_crm.ps1 -Mode $md }
+        }
+        "H" { .\create_desktop_shortcuts.ps1 }
+        "I" {
+            $g = (Read-Host "Show setup guide only? (Y = Guide, N = Enter Client ID & Secret now)").Trim().ToUpper()
+            if ($g -eq "Y") { .\update_rclone_oauth.ps1 -ShowGuideOnly } else { .\update_rclone_oauth.ps1 }
+        }
+        "J" {
+            $vm = (Read-Host "4D Upgrade Mode [META_ONLY / TEST_FIRST / ALL] (default TEST_FIRST)").Trim().ToUpper()
+            if (-not $vm) { $vm = "TEST_FIRST" }
+            $fs = (Read-Host "Full video length in seconds (default 1800 = 30 min)").Trim()
+            if (-not $fs) { $fs = "1800" }
+            $ss = (Read-Host "Short video length in seconds (default 175 = 2m55s max Short)").Trim()
+            if (-not $ss) { $ss = "175" }
+            .\upgrade_52week_4d_vault.ps1 -Mode $vm -FullDurationSec ([int]$fs) -ShortDurationSec ([int]$ss)
+        }
         "0" { Run-SafeGitPush }
         "Q" { break }
         default { Write-Host "Invalid option." -ForegroundColor Yellow }
