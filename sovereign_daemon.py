@@ -114,6 +114,7 @@ def api_stripe_webhook():
     return jsonify({"status": "IGNORED"}), 200
 
 
+
 @app.route("/api/billing/create-checkout", methods=["POST"])
 def api_checkout_live_stripe():
     d = request.get_json(force=True, silent=True) or {}
