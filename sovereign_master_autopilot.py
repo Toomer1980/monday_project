@@ -82,29 +82,22 @@ def replenish_content_if_low():
     if len(pending) >= 5: return
     next_num = len(mp4s) + 1
     slug = f"Week_{next_num:02d}_Sovereign_Alignment"
-    log(f"[AI-FACTORY] Queue low ({len(pending)} pending). Producing {slug} via Ollama + Edge-TTS...")
-    store_url = open(URL_FILE, "r", encoding="utf-8").read().strip() if os.path.exists(URL_FILE) else "https://schema-julian-divorce-broadcasting.trycloudflare.com/store"
-    spoken = f"Welcome back to Oracle Systems Collective Tarot for Week {next_num}. If this message found you today, trust the timing. Old resistance is clearing out right now, making room for a tangible financial and spiritual opening over the next few days. Type I claim this alignment in the comments below, and visit our live storefront in the description for the complete 52-week blueprint."
+    log(f"[3D-AI-FACTORY] Queue low ({len(pending)} pending). Producing live 3D animated {slug}...")
+    spoken = f"Welcome back to Oracle Systems Collective Tarot for Week {next_num}. If this message found you today, trust the timing. Old resistance is clearing out right now, making room for a tangible financial and spiritual opening over the next few days. Type I claim this alignment in the comments below, and visit our live storefront in the description for your own live 3D personalized reading and the complete fifty-two week blueprint."
     try:
-        req = urllib.request.Request("http://127.0.0.1:11434/api/generate", data=json.dumps({"model": "qwen2.5:0.5b", "prompt": f"Respond strictly in English. Write a warm 120-word collective tarot reading script for Week {next_num} focusing on financial breakthrough and alignment. End with a call to visit the storefront link in the description.", "stream": False, "keep_alive": "2m"}).encode("utf-8"), headers={"Content-Type": "application/json"})
+        req = urllib.request.Request("http://127.0.0.1:11434/api/generate", data=json.dumps({"model": "qwen2.5:0.5b", "prompt": f"Respond strictly in English. Write a warm 120-word collective tarot reading script for Week {next_num} focusing on financial breakthrough and alignment.", "stream": False, "keep_alive": "2m"}).encode("utf-8"), headers={"Content-Type": "application/json"})
         with urllib.request.urlopen(req, timeout=25) as r:
             ai_txt = json.loads(r.read().decode("utf-8")).get("response", "").strip()
             clean = "".join(c if (32 <= ord(c) < 127) else " " for c in ai_txt)
             if len(clean) > 150: spoken = " ".join(clean.split())
     except Exception: pass
-    base = VAULT + "/" + slug
-    open(base + ".md", "w", encoding="utf-8").write(f"# Week {next_num} Sovereign Alignment" + chr(10) + spoken)
-    open(base + "_spoken.txt", "w", encoding="utf-8").write(spoken)
-    subprocess.run(["edge-tts", "--voice", "en-US-AriaNeural", "--file", base + "_spoken.txt", "--write-media", base + ".mp3"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    sample_png = next(iter(sorted(glob.glob(VAULT + "/Week_*_canvas.png"))), ROOT + "/eyes.png")
-    pad_wav = VAULT + "/ambient_432hz.wav"
-    if os.path.exists(base + ".mp3") and os.path.exists(sample_png):
-        cmd = ["ffmpeg", "-y", "-loop", "1", "-i", sample_png, "-i", base + ".mp3"]
-        if os.path.exists(pad_wav):
-            cmd += ["-i", pad_wav, "-filter_complex", "[1:a]highpass=f=80,lowpass=f=11000,aecho=0.8:0.85:35:0.12,volume=1.15[v];[2:a]volume=0.14[a];[v][a]amix=inputs=2:duration=first[outa]", "-map", "0:v", "-map", "[outa]"]
-        cmd += ["-c:v", "libx264", "-tune", "stillimage", "-c:a", "aac", "-b:a", "192k", "-pix_fmt", "yuv420p", "-shortest", base + ".mp4"]
-        subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        log(f"[AI-FACTORY] Produced {slug}.mp4")
+    try:
+        import oracle_3d_renderer
+        oracle_3d_renderer.render_3d_video(VAULT + "/" + slug + ".mp4", f"Week {next_num} Sovereign Alignment", "The Magician", "The Star", "Ace of Pentacles", spoken, kicker=f"ORACLE SYSTEMS // WEEK {next_num:02d}", mode="1080p")
+        oracle_3d_renderer.render_3d_video(ROOT + "/Content_Vault_Shorts/Short_" + f"{next_num:02d}_Sovereign_Alignment.mp4", "Sovereign Alignment", "The Magician", "The Star", "Ace of Pentacles", spoken, kicker=f"URGENT MESSAGE // WEEK {next_num:02d}", mode="short")
+        log(f"[3D-AI-FACTORY] Produced 3D long-form & 3D vertical Short for {slug}")
+    except Exception as e:
+        log(f"[3D-AI-FACTORY] Render error: {e}")
 
 def backup_and_sync():
     bdir = ROOT + "/storage/backups/" + datetime.now().strftime("%Y%m%d_%H%M")

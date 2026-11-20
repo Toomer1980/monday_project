@@ -150,6 +150,56 @@ def api_checkout_live_stripe():
         except Exception as e2:
             return jsonify({"status": "ERROR", "error": str(e2), "primary": str(e1)}), 500
 
+
+@app.route("/personalize")
+@app.route("/oracle-3d")
+def oracle_3d_sanctuary():
+    return open("C:/Users/toome/Desktop/SovereignCore/templates/oracle_3d_stage.html", "r", encoding="utf-8").read()
+
+@app.route("/api/personalize/reading", methods=["POST"])
+def api_personalize_reading():
+    import secrets, hashlib, urllib.request
+    from PIL import Image
+    import oracle_audio_master
+    name = (request.form.get("name") or "Sovereign Seeker").strip()[:40]
+    focus = (request.form.get("focus") or "Financial & Spiritual Breakthrough").strip()[:160]
+    rid = secrets.token_hex(4)
+    aura_hex = "#38bdf8"
+    portrait_url = ""
+    photo = request.files.get("photo")
+    if photo and photo.filename:
+        pdir = "C:/Users/toome/Desktop/SovereignCore/static/portraits"
+        os.makedirs(pdir, exist_ok=True)
+        pfile = f"{pdir}/p_{rid}.png"
+        im = Image.open(photo.stream).convert("RGB")
+        im.thumbnail((512, 512))
+        im.save(pfile)
+        portrait_url = f"/static/portraits/p_{rid}.png"
+        small = im.resize((16, 16))
+        px = list(small.getdata())
+        best = max(px, key=lambda c: max(c) - min(c))
+        aura_hex = "#%02x%02x%02x" % (min(255, best[0]+45), min(255, best[1]+45), min(255, best[2]+45))
+    deck = ["The Magician", "The Star", "The Sun", "Ace of Pentacles", "Nine of Pentacles", "Ten of Pentacles", "Wheel of Fortune", "The Emperor", "The High Priestess", "Six of Wands", "The World", "King of Pentacles"]
+    h = int(hashlib.sha256((name + focus + aura_hex).encode()).hexdigest(), 16)
+    c1 = deck[h % len(deck)]
+    c2 = deck[(h // 13) % len(deck)]
+    c3 = deck[(h // 37) % len(deck)]
+    cards = [{"pos": "I. PAST FOUNDATION", "name": c1}, {"pos": "II. PRESENT SHIFT", "name": c2}, {"pos": "III. INCOMING OUTCOME", "name": c3}]
+    scenario = f"Welcome {name}. Your energy signature has been assimilated into the Oracle field. Regarding {focus}, {c1} confirms you outgrew old limitations. Right now {c2} is activating clarity and direct alignment around you. Moving forward, {c3} signals a concrete breakthrough arriving over the next seventy-two hours. Trust the opening in front of you."
+    try:
+        prompt = f"Respond strictly in English. Write a warm, realistic 95-word personalized tarot reading for {name} focused on {focus}, weaving in the three cards: {c1}, {c2}, and {c3}. Speak directly to them as a human reader."
+        req = urllib.request.Request("http://127.0.0.1:11434/api/generate", data=json.dumps({"model": "qwen2.5:0.5b", "prompt": prompt, "stream": False, "keep_alive": "2m"}).encode("utf-8"), headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=18) as r:
+            ai_txt = json.loads(r.read().decode("utf-8")).get("response", "").strip()
+            clean = "".join(ch if (32 <= ord(ch) < 127) else " " for ch in ai_txt)
+            if len(clean) > 120: scenario = " ".join(clean.split())
+    except Exception: pass
+    audio_file = f"C:/Users/toome/Desktop/SovereignCore/static/portraits/r_{rid}.mp3"
+    audio_url = ""
+    if oracle_audio_master.synthesize_human_voice(scenario, audio_file):
+        audio_url = f"/static/portraits/r_{rid}.mp3"
+    return jsonify({"status": "OK", "name": name, "headline": focus, "aura_hex": aura_hex, "portrait_url": portrait_url, "cards": cards, "scenario": scenario, "audio_url": audio_url}), 200
+
 @app.route("/api/order/lookup")
 def api_lookup():
     o = db.get_order_by_token((request.args.get("token") or "").strip())
