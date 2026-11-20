@@ -210,6 +210,32 @@ def api_evolution_telemetry():
     import sovereign_evolution_engine as _evo
     return jsonify(_evo.get_telemetry()), 200
 
+
+@app.route("/api/voice/config", methods=["GET", "POST"])
+def api_voice_config():
+    p = "C:/Users/toome/Desktop/SovereignCore/VOICE_CONFIG.json"
+    cfg = json.load(open(p, "r", encoding="utf-8")) if os.path.exists(p) else {"mode": "neural", "custom_sample": "C:/Users/toome/Desktop/SovereignCore/voice_samples/thomas_voice.wav"}
+    if request.method == "POST":
+        d = request.get_json(force=True, silent=True) or {}
+        if d.get("mode") in ("neural", "custom"):
+            cfg["mode"] = d["mode"]
+            json.dump(cfg, open(p, "w", encoding="utf-8"), indent=2)
+    cfg["has_sample"] = os.path.exists(cfg.get("custom_sample", ""))
+    return jsonify(cfg), 200
+
+@app.route("/api/voice/upload-sample", methods=["POST"])
+def api_voice_upload_sample():
+    import subprocess as _sp
+    f = request.files.get("voice")
+    if not f: return jsonify({"error": "no audio"}), 400
+    vdir = "C:/Users/toome/Desktop/SovereignCore/voice_samples"
+    os.makedirs(vdir, exist_ok=True)
+    raw_p = vdir + "/raw_upload.bin"
+    wav_p = vdir + "/thomas_voice.wav"
+    f.save(raw_p)
+    _sp.run(["ffmpeg", "-y", "-i", raw_p, "-ac", "1", "-ar", "24000", wav_p], stdout=_sp.DEVNULL, stderr=_sp.DEVNULL, creationflags=0x08000000)
+    return jsonify({"status": "SAVED", "path": wav_p}), 200
+
 @app.route("/api/order/lookup")
 def api_lookup():
     o = db.get_order_by_token((request.args.get("token") or "").strip())
