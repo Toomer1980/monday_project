@@ -191,7 +191,7 @@ def api_personalize_reading():
     cards = [{"pos": "I. PAST FOUNDATION", "name": c1, "img": i1, "depth": d1}, {"pos": "II. PRESENT SHIFT", "name": c2, "img": i2, "depth": d2}, {"pos": "III. INCOMING OUTCOME", "name": c3, "img": i3, "depth": d3}]
     scenario = f"Welcome {name}. Your energy signature has been assimilated into the Oracle field. Regarding {focus}, {c1} confirms you outgrew old limitations. Right now {c2} is activating clarity and direct alignment around you. Moving forward, {c3} signals a concrete breakthrough arriving over the next seventy-two hours. Trust the opening in front of you."
     try:
-        prompt = f"Respond strictly in English. Write a warm, realistic 95-word personalized tarot reading for {name} focused on {focus}, weaving in the three cards: {c1}, {c2}, and {c3}. Speak directly to them as a human reader."
+        prompt = f"Respond strictly in English. Write a warm, realistic 95-word personalized tarot reading for {name} focused on {focus}, weaving in the three cards: {c1}, {c2}, and {c3}. You are the Oracle reader speaking directly to {name}. Never say your own name is {name}."
         req = urllib.request.Request("http://127.0.0.1:11434/api/generate", data=json.dumps({"model": "qwen2.5:0.5b", "prompt": prompt, "stream": False, "keep_alive": "2m"}).encode("utf-8"), headers={"Content-Type": "application/json"})
         with urllib.request.urlopen(req, timeout=18) as r:
             ai_txt = json.loads(r.read().decode("utf-8")).get("response", "").strip()
