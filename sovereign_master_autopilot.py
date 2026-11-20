@@ -33,7 +33,7 @@ def ensure_daemon():
 def ensure_tunnel():
     cf_running = False
     try:
-        out = subprocess.check_output(["tasklist", "/FI", "IMAGENAME eq cloudflared.exe"], text=True)
+        out = subprocess.check_output(["tasklist", "/FI", "IMAGENAME eq cloudflared.exe"], text=True, creationflags=0x08000000)
         cf_running = "cloudflared.exe" in out
     except Exception: pass
     if not cf_running and os.path.exists(ROOT + "/cloudflared.exe"):
@@ -106,9 +106,9 @@ def backup_and_sync():
         if "backups" not in db:
             try: shutil.copy2(db, bdir)
             except Exception: pass
-    subprocess.run(["git", "add", "sovereign_daemon.py", "sovereign_master_autopilot.py", "autonomous_youtube_bot.py", "ORACLE_YOUTUBE_DESCRIPTION.txt"], cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    subprocess.run(["git", "commit", "-m", "Autopilot self-sync checkpoint"], cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    subprocess.run(["git", "push", "origin", "main"], cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run(["git", "add", "sovereign_daemon.py", "sovereign_master_autopilot.py", "autonomous_youtube_bot.py", "ORACLE_YOUTUBE_DESCRIPTION.txt"], cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=0x08000000)
+    subprocess.run(["git", "commit", "-m", "Autopilot self-sync checkpoint"], cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=0x08000000)
+    subprocess.run(["git", "push", "origin", "main"], cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=0x08000000)
     log("[SYNC] Ledgers backed up and GitHub synced.")
 
 def run_daily_youtube_drop():
