@@ -104,3 +104,6 @@ deliverables/*.mp4
 data/aura49_fulfillment_state.json
 reports/Executive_Weekly_Report_*
 audit_inbox/stripe_live_charges_for_aura49.json
+config/gmail_token.json
+config/stripe_new_tiers.json
+deliverables/*.zip

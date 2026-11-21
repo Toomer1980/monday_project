@@ -19,7 +19,7 @@ function Show-Header {
     $pubUrl = if (Test-Path "$ProjectDir\config\public_url.txt") { (Get-Content "$ProjectDir\config\public_url.txt" -Raw).Trim() } else { "LOCAL ONLY" }
 
     Write-Host "============================================================================" -ForegroundColor Cyan
-    Write-Host "  ORACLE SYSTEMS LLC // SOVEREIGNCORE EXECUTIVE HUB (v13 COMPLETE)" -ForegroundColor White
+    Write-Host "  ORACLE SYSTEMS LLC // SOVEREIGNCORE EXECUTIVE HUB (v14 - 100% COMPLETE)" -ForegroundColor White
     Write-Host "============================================================================" -ForegroundColor Cyan
     Write-Host ("  Port 8000: {0,-7} | RAM: {1}% ({2}GB free) | 4D Vault: {3}/52F {4}/52S {5}T" -f $(if ($portUp) { "ONLINE" } else { "OFFLINE" }), $ramPct, $freeGB, $f4d, $s4d, $t3d) -ForegroundColor $(if ($portUp -and $ramPct -lt 85) { "Green" } else { "Yellow" })
     Write-Host ("  Public Funnel: {0}" -f $pubUrl) -ForegroundColor Cyan
