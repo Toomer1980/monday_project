@@ -92,6 +92,7 @@ function Test-TunnelCycle {
     if ($newUrl -and ($newUrl -ne $curUrl)) {
         Write-WLog "[ROTATED] New live URL: $newUrl | Stripe Webhook: $newUrl/api/webhook/stripe" "Cyan"
         Show-TunnelNotice $newUrl
+        if (Test-Path "$ProjectDir\sync_stripe_webhook.ps1") { & "$ProjectDir\sync_stripe_webhook.ps1" }
         if (Test-Path "$ProjectDir\run_learning_curve.ps1") { & "$ProjectDir\run_learning_curve.ps1" | Out-Null }
     }
 }

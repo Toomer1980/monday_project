@@ -98,3 +98,4 @@ data/pronode_leads_formatted_*.csv
 reports/Nov27_Payout_Preflight_*.md
 reports/Funnel_Conversion_Dashboard.md
 reports/ProNode_Sprint_Report.md
+config/stripe_webhook_id.txt
