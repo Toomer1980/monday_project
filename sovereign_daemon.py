@@ -557,6 +557,9 @@ def _oracle_inject_store_router(resp):
 
 
 
+
+
+
 # === ORACLE_4D_STOREFRONT_HOOK_START ===
 @app.before_request
 def _oracle_handle_fast_cash_tiers():
@@ -571,7 +574,6 @@ def _oracle_handle_fast_cash_tiers():
                 td = _j.load(open(tpath, "r", encoding="utf-8"))
                 if td.get(tier_key):
                     target = td[tier_key]
-            # Log click into existing utm_analytics.db dynamically matching its columns
             udb = _o.path.join(_o.path.dirname(_o.path.abspath(__file__)), "data", "utm_analytics.db")
             if _o.path.exists(udb):
                 try:

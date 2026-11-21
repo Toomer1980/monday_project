@@ -107,3 +107,4 @@ audit_inbox/stripe_live_charges_for_aura49.json
 config/gmail_token.json
 config/stripe_new_tiers.json
 deliverables/*.zip
+p14.ps1

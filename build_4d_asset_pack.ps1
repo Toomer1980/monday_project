@@ -6,17 +6,14 @@ $ZipOut     = "$ProjectDir\deliverables\Oracle_4D_Creator_Asset_Pack_15.zip"
 $StageTmp   = "$ProjectDir\deliverables\_tmp_pack15"
 $TiersJson  = "$ProjectDir\config\stripe_new_tiers.json"
 
-# 1. Assemble instant-download $15 Creator Asset Pack ZIP from existing 4D loops & 3D thumbnails
 New-Item -ItemType Directory -Path $StageTmp -Force | Out-Null
 $readme = @"
 ORACLE SYSTEMS LLC - 4D TESSERACT & MOBIUS CREATOR ASSET PACK
 =============================================================
-Thank you for your purchase!
-Included in this commercial-use pack:
-- Seamless 4D Tesseract & Mobius Fluid Portal Video Loops (16:9 Landscape + 9:16 Vertical Shorts)
+Commercial-use pack:
+- Seamless 4D Tesseract & Mobius Fluid Portal Video Loops (16:9 + 9:16)
 - High-Resolution 3D Pop-Out Thumbnail Templates (JPEG)
 - Commercial License: Approved for unlimited YouTube, TikTok, Reels, OBS, and client projects.
-Support & Enterprise Upgrades: https://oraclesystemsllc.com
 "@
 [IO.File]::WriteAllText("$StageTmp\LICENSE_AND_README.txt", $readme, $Utf8NoBom)
 
@@ -33,7 +30,6 @@ Remove-Item $StageTmp -Recurse -Force -ErrorAction SilentlyContinue
 $mb = [math]::Round((Get-Item $ZipOut).Length / 1MB, 2)
 Write-Host "[PACK READY] $ZipOut ($mb MB)" -ForegroundColor Green
 
-# 2. Provision LIVE Stripe Payment Links for $15 Asset Pack + $15/mo Vault Subscription (idempotent)
 $tiers = @{ assetpack15 = ""; vaultsub15 = "" }
 if (Test-Path $TiersJson) {
     try {
@@ -50,25 +46,20 @@ if ($m.Success -and ($m.Groups[1].Value.Trim().Trim('"').Trim("'") -match '^(sk|
     $hdr = @{ Authorization = "Basic $([Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("${key}:")))" }
     try {
         if (-not $tiers.assetpack15) {
-            $p1 = Invoke-RestMethod -Uri "https://api.stripe.com/v1/products" -Headers $hdr -Method Post -ContentType "application/x-www-form-urlencoded" -Body "name=$([uri]::EscapeDataString('Oracle 4D Tesseract Creator Asset Pack'))&description=$([uri]::EscapeDataString('Seamless 4D Tesseract + Mobius video loops and 3D thumbnail templates (commercial license)'))"
+            $p1  = Invoke-RestMethod -Uri "https://api.stripe.com/v1/products" -Headers $hdr -Method Post -ContentType "application/x-www-form-urlencoded" -Body "name=$([uri]::EscapeDataString('Oracle 4D Tesseract Creator Asset Pack'))&description=$([uri]::EscapeDataString('Seamless 4D Tesseract + Mobius video loops and 3D thumbnail templates'))"
             $pr1 = Invoke-RestMethod -Uri "https://api.stripe.com/v1/prices" -Headers $hdr -Method Post -ContentType "application/x-www-form-urlencoded" -Body "unit_amount=1500&currency=usd&product=$($p1.id)"
             $pl1 = Invoke-RestMethod -Uri "https://api.stripe.com/v1/payment_links" -Headers $hdr -Method Post -ContentType "application/x-www-form-urlencoded" -Body "line_items[0][price]=$($pr1.id)&line_items[0][quantity]=1"
             $tiers.assetpack15 = $pl1.url
-            Write-Host "[STRIPE LIVE] Created `$15 Asset Pack Payment Link -> $($pl1.url)" -ForegroundColor Green
-        } else {
-            Write-Host "[STRIPE LIVE] `$15 Asset Pack Link active -> $($tiers.assetpack15)" -ForegroundColor Green
-        }
+            Write-Host "[STRIPE LIVE] Created `$15 Asset Pack Link -> $($pl1.url)" -ForegroundColor Green
+        } else { Write-Host "[STRIPE LIVE] `$15 Asset Pack Link active -> $($tiers.assetpack15)" -ForegroundColor Green }
+
         if (-not $tiers.vaultsub15) {
-            $p2 = Invoke-RestMethod -Uri "https://api.stripe.com/v1/products" -Headers $hdr -Method Post -ContentType "application/x-www-form-urlencoded" -Body "name=$([uri]::EscapeDataString('Oracle Sovereign 4D Member Vault (Monthly)'))&description=$([uri]::EscapeDataString('Monthly unlimited access to 30-min 4D transmissions, 432Hz downloads, and member priority perks'))"
+            $p2  = Invoke-RestMethod -Uri "https://api.stripe.com/v1/products" -Headers $hdr -Method Post -ContentType "application/x-www-form-urlencoded" -Body "name=$([uri]::EscapeDataString('Oracle Sovereign 4D Member Vault (Monthly)'))&description=$([uri]::EscapeDataString('Monthly unlimited access to 30-min 4D transmissions and 432Hz downloads'))"
             $pr2 = Invoke-RestMethod -Uri "https://api.stripe.com/v1/prices" -Headers $hdr -Method Post -ContentType "application/x-www-form-urlencoded" -Body "unit_amount=1500&currency=usd&recurring[interval]=month&product=$($p2.id)"
             $pl2 = Invoke-RestMethod -Uri "https://api.stripe.com/v1/payment_links" -Headers $hdr -Method Post -ContentType "application/x-www-form-urlencoded" -Body "line_items[0][price]=$($pr2.id)&line_items[0][quantity]=1"
             $tiers.vaultsub15 = $pl2.url
             Write-Host "[STRIPE LIVE] Created `$15/mo Vault Subscription Link -> $($pl2.url)" -ForegroundColor Green
-        } else {
-            Write-Host "[STRIPE LIVE] `$15/mo Vault Subscription Link active -> $($tiers.vaultsub15)" -ForegroundColor Green
-        }
-    } catch {
-        Write-Host "[WARN] Live Payment Link API note: $($_.Exception.Message)" -ForegroundColor Yellow
-    }
+        } else { Write-Host "[STRIPE LIVE] `$15/mo Vault Subscription Link active -> $($tiers.vaultsub15)" -ForegroundColor Green }
+    } catch { Write-Host "[WARN] Live Payment Link API note: $($_.Exception.Message)" -ForegroundColor Yellow }
 }
 [IO.File]::WriteAllText($TiersJson, ($tiers | ConvertTo-Json -Depth 3), $Utf8NoBom)
