@@ -560,16 +560,26 @@ def _oracle_inject_store_router(resp):
 
 
 
+
+
+
+
+
+
+
+
+
+
 # === ORACLE_4D_STOREFRONT_HOOK_START ===
 @app.before_request
 def _oracle_handle_fast_cash_tiers():
     try:
-        if request.path in ("/go/assetpack15", "/go/vaultsub15"):
+        from flask import request as _req, redirect as _redir
+        if _req.path in ("/go/assetpack15", "/go/vaultsub15"):
             import json as _j, os as _o, sqlite3 as _sq, datetime as _dt
-            from flask import redirect as _redir
-            tier_key = request.path.rsplit("/", 1)[-1]
+            tier_key = _req.path.rsplit("/", 1)[-1]
             tpath = _o.path.join(_o.path.dirname(_o.path.abspath(__file__)), "config", "stripe_new_tiers.json")
-            target = "https://buy.stripe.com/bJefZheeldrj1OU8YBcQU01"
+            target = "https://buy.stripe.com/eVq6oHgmt0Ex1OUfmZcQU05" if tier_key == "assetpack15" else "https://buy.stripe.com/aFa3cv3zH1IB65adeRcQU06"
             if _o.path.exists(tpath):
                 td = _j.load(open(tpath, "r", encoding="utf-8"))
                 if td.get(tier_key):
@@ -581,12 +591,12 @@ def _oracle_handle_fast_cash_tiers():
                     cols = [r[1] for r in c.execute("PRAGMA table_info(utm_clicks)").fetchall()]
                     vals_map = {
                         "tier": tier_key,
-                        "utm_source": request.args.get("utm_source", "store_hero"),
-                        "utm_medium": request.args.get("utm_medium", "card"),
-                        "utm_campaign": request.args.get("utm_campaign", "fast_cash_v14"),
+                        "utm_source": _req.args.get("utm_source", "store_hero"),
+                        "utm_medium": _req.args.get("utm_medium", "card"),
+                        "utm_campaign": _req.args.get("utm_campaign", "fast_cash_v14"),
                         "target_url": target,
-                        "ip": request.remote_addr or "",
-                        "user_agent": (request.headers.get("User-Agent") or "")[:200],
+                        "ip": _req.remote_addr or "",
+                        "user_agent": (_req.headers.get("User-Agent") or "")[:200],
                         "timestamp_utc": _dt.datetime.utcnow().isoformat() + "Z",
                         "created_utc": _dt.datetime.utcnow().isoformat() + "Z",
                         "clicked_at": _dt.datetime.utcnow().isoformat() + "Z",
@@ -607,14 +617,16 @@ def _oracle_handle_fast_cash_tiers():
 @app.after_request
 def _oracle_enhance_4d_store_and_portal(resp):
     try:
+        from flask import request as _req
+        import re as _re
         ct = (resp.content_type or "").lower()
         if resp.status_code != 200 or "text/html" not in ct:
             return resp
-        if request.path not in ("/store", "/portal"):
+        if _req.path not in ("/store", "/portal"):
             return resp
         body = resp.get_data(as_text=True)
 
-        if request.path == "/store" and "oracle-4d-hero" not in body:
+        if _req.path == "/store" and "oracle-4d-hero" not in body:
             hero = (
                 '<style>'
                 'body{background:#050814 !important;color:#e2e8f0 !important;font-family:"Segoe UI",system-ui,sans-serif !important;}'
@@ -662,13 +674,13 @@ def _oracle_enhance_4d_store_and_portal(resp):
                 '<a class="o4d-btn alt" href="/go/pro_node?utm_source=store_hero&utm_medium=card&utm_campaign=store_v14">Reserve Pro_Node ($49,999)</a></div>'
                 '</div></section>'
             )
-            if re.search(r'<body[^>]*>', body, flags=re.IGNORECASE):
-                body = re.sub(r'(<body[^>]*>)', r'\1' + hero, body, count=1, flags=re.IGNORECASE)
+            if _re.search(r'<body[^>]*>', body, flags=_re.IGNORECASE):
+                body = _re.sub(r'(<body[^>]*>)', r'' + hero, body, count=1, flags=_re.IGNORECASE)
             else:
                 body = hero + body
             resp.set_data(body)
 
-        if request.path == "/portal" and "oracle-portal-upsell" not in body and "</body>" in body.lower():
+        if _req.path == "/portal" and "oracle-portal-upsell" not in body and "</body>" in body.lower():
             banner = (
                 '<div id="oracle-portal-upsell" style="max-width:780px;margin:24px auto;padding:22px;'
                 'background:linear-gradient(135deg,#070d1f,#111827);border:1.5px solid #f59e0b;border-radius:12px;'
@@ -683,13 +695,12 @@ def _oracle_enhance_4d_store_and_portal(resp):
                 'style="display:inline-block;margin:6px;padding:10px 16px;background:#0284c7;color:#fff;text-decoration:none;border-radius:7px;font-weight:bold;">Pro_Node ($49,999)</a>'
                 '</div></body>'
             )
-            body = re.sub(r'</body>', banner, body, count=1, flags=re.IGNORECASE)
+            body = _re.sub(r'</body>', banner, body, count=1, flags=_re.IGNORECASE)
             resp.set_data(body)
     except Exception:
         pass
     return resp
 # === ORACLE_4D_STOREFRONT_HOOK_END ===
-
 
 if __name__ == "__main__":
     p = int(os.environ.get("PORT", 8000))
