@@ -19,7 +19,7 @@ function Show-Header {
     $pubUrl = if (Test-Path "$ProjectDir\config\public_url.txt") { (Get-Content "$ProjectDir\config\public_url.txt" -Raw).Trim() } else { "LOCAL ONLY" }
 
     Write-Host "============================================================================" -ForegroundColor Cyan
-    Write-Host "  ORACLE SYSTEMS LLC // SOVEREIGNCORE EXECUTIVE HUB (v11 COMPLETE)" -ForegroundColor White
+    Write-Host "  ORACLE SYSTEMS LLC // SOVEREIGNCORE EXECUTIVE HUB (v13 COMPLETE)" -ForegroundColor White
     Write-Host "============================================================================" -ForegroundColor Cyan
     Write-Host ("  Port 8000: {0,-7} | RAM: {1}% ({2}GB free) | 4D Vault: {3}/52F {4}/52S {5}T" -f $(if ($portUp) { "ONLINE" } else { "OFFLINE" }), $ramPct, $freeGB, $f4d, $s4d, $t3d) -ForegroundColor $(if ($portUp -and $ramPct -lt 85) { "Green" } else { "Yellow" })
     Write-Host ("  Public Funnel: {0}" -f $pubUrl) -ForegroundColor Cyan
@@ -49,6 +49,9 @@ function Show-Header {
     Write-Host "  [O] Schedule Automatic YouTube Uploads (Daily 12PM + Fri 6PM + 7:45PM)"
     Write-Host "  [P] Pull Live YouTube Views/Likes -> Feed Into UCB1 Learning Curve"
     Write-Host "  [W] Open Visual Showcase (Live 4D Store, Portal, 3D Thumbs & GitHub)"
+    Write-Host "  [X] Custom $49 AuraVideo49 4D Order Generator (Manual or Poll Stripe)"
+    Write-Host "  [Y] Generate Weekly Executive PDF + Markdown Report & Sync to Drive"
+    Write-Host "  [Z] Sync Live Stripe Webhook Endpoint & Verify Tracked UTM Click"
     Write-Host "  [0] Safe Secret-Scanned GitHub Commit & Push (Toomer1980/monday_project)"
     Write-Host "  [Q] Quit"
     Write-Host "============================================================================" -ForegroundColor Cyan
@@ -66,7 +69,7 @@ function Run-SafeGitPush {
         "Modules/youtube_api_uploader.py","Modules/youtube_analytics_puller.py",
         "Modules/verify_youtube_oauth.py","Modules/pronode_lead_formatter.py",
         "Modules/funnel_dashboard_engine.py","Modules/pronode_sprint_engine.py",
-        "Modules/storefront_4d_patcher.py",
+        "Modules/storefront_4d_patcher.py","Modules/aura49_custom_renderer.py","Modules/weekly_exec_pdf_engine.py","Modules/smtp_test_sender.py",
         "sovereign_daemon.py","autonomous_youtube_bot.py","templates/oracle_3d_stage.html",
         "sovereign_supervisor.ps1","run_block10_treasury.ps1","setup_gdrive_sync.ps1",
         "publish_youtube_vault.ps1","send_pronode_invoice.ps1","deploy_digitalocean_tier1.ps1",
@@ -80,7 +83,7 @@ function Run-SafeGitPush {
         "build_pronode_leads.ps1","preflight_nov27_payout.ps1","funnel_dashboard.ps1",
         "setup_gmail_smtp.ps1","run_pronode_sprint.ps1","preview_next_4d_upload.ps1",
         "open_visual_showcase.ps1","upgrade_storefront_4d.ps1","sovereign_health_autopilot.ps1",
-        "activate_missing_gates.ps1","test_stripe_webhook.ps1","oracle_hub.ps1",
+        "activate_missing_gates.ps1","fulfill_aura49_order.ps1","generate_weekly_exec_report.ps1","sync_stripe_webhook.ps1","test_live_store_utm.ps1","test_stripe_webhook.ps1","oracle_hub.ps1",
         "Launch_OracleHub.cmd","Run_MorningBriefing.cmd",
         "deploy_bundle/sovereigncore.service","deploy_bundle/nginx_sovereigncore.conf",
         "deploy_bundle/.env.production.template","deploy_bundle/deploy_do_tier1.sh"
@@ -157,6 +160,13 @@ while ($true) {
         "O" { .\schedule_youtube_uploads.ps1 }
         "P" { .\pull_youtube_analytics.ps1 }
         "W" { .\open_visual_showcase.ps1 }
+        "X" {
+            $am = (Read-Host "Mode [POLL = Poll Stripe $49 Orders / CUSTOM = Render Custom Name]").Trim().ToUpper()
+            if ($am -eq "POLL") { .\fulfill_aura49_order.ps1 -PollStripeOrders -RegisterAutoTask }
+            else { $cn = Read-Host "Customer Name"; $ft = Read-Host "Focus Topic"; .\fulfill_aura49_order.ps1 -CustomerName $cn -FocusTopic $ft }
+        }
+        "Y" { .\generate_weekly_exec_report.ps1 -RegisterWeeklyTask -OpenPdf }
+        "Z" { .\sync_stripe_webhook.ps1 -CreateIfMissing; .\test_live_store_utm.ps1 }
         "0" { Run-SafeGitPush }
         "Q" { break }
         default { Write-Host "Invalid option." -ForegroundColor Yellow }

@@ -99,3 +99,8 @@ reports/Nov27_Payout_Preflight_*.md
 reports/Funnel_Conversion_Dashboard.md
 reports/ProNode_Sprint_Report.md
 config/stripe_webhook_id.txt
+deliverables/aura49_fulfilled/
+deliverables/*.mp4
+data/aura49_fulfillment_state.json
+reports/Executive_Weekly_Report_*
+audit_inbox/stripe_live_charges_for_aura49.json
