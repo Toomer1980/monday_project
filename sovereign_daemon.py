@@ -570,6 +570,9 @@ def _oracle_inject_store_router(resp):
 
 
 
+
+
+
 # === ORACLE_4D_STOREFRONT_HOOK_START ===
 @app.before_request
 def _oracle_handle_fast_cash_tiers():
@@ -603,15 +606,15 @@ def _oracle_handle_fast_cash_tiers():
                     }
                     use_cols = [col for col in cols if col in vals_map]
                     if use_cols:
-                        q = f"INSERT INTO utm_clicks ({','.join(use_cols)}) VALUES ({','.join(['?']*len(use_cols))})"
+                        q = "INSERT INTO utm_clicks (" + ",".join(use_cols) + ") VALUES (" + ",".join(["?"] * len(use_cols)) + ")"
                         c.execute(q, [vals_map[col] for col in use_cols])
                         c.commit()
                     c.close()
                 except Exception:
                     pass
             return _redir(target, code=302)
-    except Exception:
-        pass
+    except Exception as _ex:
+        open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs", "store_hook_err.log"), "a", encoding="utf-8").write(str(_ex) + "\n")
 
 
 @app.after_request
@@ -625,7 +628,6 @@ def _oracle_enhance_4d_store_and_portal(resp):
         if _req.path not in ("/store", "/portal"):
             return resp
         body = resp.get_data(as_text=True)
-
         if _req.path == "/store" and "oracle-4d-hero" not in body:
             hero = (
                 '<style>'
@@ -675,11 +677,10 @@ def _oracle_enhance_4d_store_and_portal(resp):
                 '</div></section>'
             )
             if _re.search(r'<body[^>]*>', body, flags=_re.IGNORECASE):
-                body = _re.sub(r'(<body[^>]*>)', r'' + hero, body, count=1, flags=_re.IGNORECASE)
+                body = _re.sub(r'(<body[^>]*>)', lambda m: m.group(1) + hero, body, count=1, flags=_re.IGNORECASE)
             else:
                 body = hero + body
             resp.set_data(body)
-
         if _req.path == "/portal" and "oracle-portal-upsell" not in body and "</body>" in body.lower():
             banner = (
                 '<div id="oracle-portal-upsell" style="max-width:780px;margin:24px auto;padding:22px;'
@@ -697,8 +698,8 @@ def _oracle_enhance_4d_store_and_portal(resp):
             )
             body = _re.sub(r'</body>', banner, body, count=1, flags=_re.IGNORECASE)
             resp.set_data(body)
-    except Exception:
-        pass
+    except Exception as _ex:
+        open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs", "store_hook_err.log"), "a", encoding="utf-8").write(str(_ex) + "\n")
     return resp
 # === ORACLE_4D_STOREFRONT_HOOK_END ===
 
