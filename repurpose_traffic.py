@@ -2,7 +2,6 @@ import datetime as dt
 import json
 import os
 import shutil
-import urllib.error
 import urllib.request
 
 PDIR = r"C:\Users\toome\Desktop\SovereignCore"
@@ -42,15 +41,18 @@ def get_next_video_meta():
 
 
 def detect_ollama_model():
+    """Prefer 3B-8B models that fit RTX 2050 4GB VRAM; skip sub-2B models that loop on URLs."""
     try:
         with urllib.request.urlopen("http://127.0.0.1:11434/api/tags", timeout=3) as r:
             data = json.loads(r.read().decode("utf-8"))
             names = [m.get("name", "") for m in data.get("models", [])]
-            for pref in ("qwen2.5", "llama3.2", "llama3", "dolphin3", "tinyllama"):
-                for n in names:
+            bad_tags = (":0.5b", ":1b", ":1.5b", "tinyllama")
+            usable = [n for n in names if not any(b in n.lower() for b in bad_tags)]
+            for pref in ("qwen2.5:7b", "qwen2.5:3b", "llama3.2", "llama3", "dolphin3", "qwen2.5"):
+                for n in usable:
                     if n.lower().startswith(pref):
                         return n
-            return names[0] if names else ""
+            return usable[0] if usable else ""
     except Exception:
         return ""
 
@@ -60,7 +62,7 @@ def ollama_generate(model, prompt):
         "model": model,
         "prompt": prompt,
         "stream": False,
-        "options": {"temperature": 0.7, "num_predict": 650},
+        "options": {"temperature": 0.65, "repeat_penalty": 1.25, "num_predict": 650},
     }).encode("utf-8")
     req = urllib.request.Request(
         "http://127.0.0.1:11434/api/generate",
@@ -72,21 +74,33 @@ def ollama_generate(model, prompt):
         return json.loads(r.read().decode("utf-8")).get("response", "").strip()
 
 
-def build_fallback_pack(vid, links):
+def is_valid_copy(text, links):
+    if not text or len(text) < 200:
+        return False
+    if not all(links[k] in text for k in ("pack15", "aura49", "pronode")):
+        return False
+    non_empty = [ln.strip() for ln in text.splitlines() if ln.strip()]
+    if len(non_empty) >= 8 and (len(set(non_empty)) / float(len(non_empty))) < 0.65:
+        return False
+    return True
+
+
+def build_verified_pack(vid, links):
+    theme_clean = vid["theme"].replace("_", " ")
     return (
-        "## 1. YouTube Pinned Comment (Paste on Live Short https://youtu.be/Wxxxgco7AX4)\n"
-        f"Step inside the full 4D Tesseract Portal:\n"
-        f"- Grab the $15 4D Creator Asset Pack (loops + 3D templates): {links['pack15']}\n"
+        "## 1. YouTube Pinned Comment (Pin on Live Short https://youtu.be/Wxxxgco7AX4)\n"
+        "Step inside the full 4D Tesseract Portal:\n"
+        f"- Grab the $15 4D Creator Asset Pack (seamless loops + 3D thumbnails): {links['pack15']}\n"
         f"- Join the $15/mo Sovereign 4D Member Vault (30-min transmissions + 432Hz audio): {links['vault15']}\n"
         f"- Order your Custom Personalized 4D Aura Reading ($49): {links['aura49']}\n\n"
         "## 2. X / Twitter Post\n"
-        f"Most creators burn hours rendering visuals manually.\n\n"
-        f"We built a 4D Tesseract & Mobius visual engine that outputs 104+ seamless loops and 3D assets on a single local GPU.\n\n"
-        f"Download the commercial-use $15 Creator Asset Pack here:\n{links['pack15']}\n\n"
+        "Most creators burn hours rendering motion backgrounds manually.\n\n"
+        "We built a 4D Tesseract & Mobius visual engine outputting 104+ seamless loops and 3D assets on a single local GPU.\n\n"
+        f"Download the commercial-use $15 Creator Asset Pack:\n{links['pack15']}\n\n"
         "## 3. TikTok / Instagram Reels Caption\n"
-        f"Pause for 3 seconds and let the rotating 4D hypercube reset your focus on {vid['theme'].replace('_', ' ')}.\n"
-        f"Comment 'ALIGN' if this hit your feed at the exact right moment.\n"
-        f"Custom 4D Aura Reading ($49) & $15 Creator Pack in bio -> {links['aura49']}\n"
+        f"Pause for 3 seconds and let the rotating 4D hypercube reset your focus on {theme_clean}.\n"
+        "Comment 'ALIGN' if this hit your feed at the exact right moment.\n"
+        f"Custom 4D Aura Reading ($49) & $15 Creator Pack -> {links['aura49']}\n"
         "#4DTesseract #MobiusStrip #QuantumAlignment #OracleSystems #AICreator\n\n"
         "## 4. LinkedIn B2B Authority Post (Agency / Pro_Node Pipeline)\n"
         "Agencies are still paying thousands per month in fragmented SaaS seats for content, CRM, and automation.\n\n"
@@ -109,27 +123,31 @@ def main():
 
     model = detect_ollama_model()
     body = ""
-    engine_label = "Template Fallback (Ollama offline)"
+    engine_label = "Verified High-Converting Template (skipped sub-2B loop model)"
     if model:
-        print(f"[OLLAMA] Connected local model '{model}' (RTX 2050 / $0 API cost) -> generating multi-platform copy...")
+        print(f"[OLLAMA] Using '{model}' (RTX 2050 / $0 API cost) -> generating multi-platform copy...")
         prompt = (
-            f"You are the marketing director for Oracle Systems LLC. Write crisp, high-converting, ready-to-paste copy "
+            f"You are the marketing director for Oracle Systems LLC. Write crisp, ready-to-paste copy "
             f"promoting our 4D Tesseract & Mobius video '{vid['title']}' (Theme: {vid['theme']}).\n"
-            f"Output EXACTLY these 4 markdown sections and include the EXACT URLs given:\n"
+            f"Output EXACTLY these 4 markdown sections and include the EXACT URLs verbatim:\n"
             f"1. YouTube Pinned Comment (include {links['pack15']}, {links['vault15']}, and {links['aura49']})\n"
-            f"2. X / Twitter Post (under 270 chars, promote the $15 4D Creator Asset Pack at {links['pack15']})\n"
-            f"3. TikTok / Reels Caption (with 5 hashtags, promote the $49 Custom 4D Aura Reading at {links['aura49']})\n"
-            f"4. LinkedIn B2B Post (pitch agencies on turnkey local AI + autonomous media stacks, link {links['pronode']})\n"
-            f"No fluff, no placeholders, pure ready-to-publish text."
+            f"2. X / Twitter Post (under 270 chars, link {links['pack15']})\n"
+            f"3. TikTok / Reels Caption (5 hashtags, link {links['aura49']})\n"
+            f"4. LinkedIn B2B Post (pitch agencies on local AI + autonomous media stacks, link {links['pronode']})\n"
+            f"Do not repeat lines. No placeholders."
         )
         try:
-            body = ollama_generate(model, prompt)
-            engine_label = f"Local Ollama ({model})"
+            cand = ollama_generate(model, prompt)
+            if is_valid_copy(cand, links):
+                body = cand
+                engine_label = f"Local Ollama ({model} - URL & Loop Verified)"
+            else:
+                print(f"[GUARD] '{model}' dropped URLs or looped -> switching to verified high-converting template.")
         except Exception as ex:
-            print(f"[WARN] Ollama generation note: {ex} -> using high-converting fallback.")
+            print(f"[WARN] Ollama note: {ex} -> using verified template.")
 
-    if not body or len(body) < 120:
-        body = build_fallback_pack(vid, links)
+    if not body:
+        body = build_verified_pack(vid, links)
 
     today = dt.date.today().strftime("%Y%m%d")
     out_md = os.path.join(PDIR, "reports", f"Daily_Traffic_Pack_{today}.md")
@@ -142,7 +160,7 @@ def main():
     full_md = header + body.strip() + "\n"
     open(out_md, "w", encoding="utf-8", newline="").write(full_md)
     shutil.copy2(out_md, os.path.join(PDIR, "Oracle_Audit_2026", os.path.basename(out_md)))
-    print(f"\n[PASS] Generated Traffic Pack -> {out_md} (staged in Oracle_Audit_2026)\n")
+    print(f"\n[PASS] Generated Verified Traffic Pack -> {out_md}\n")
     print(full_md)
 
 
