@@ -583,6 +583,8 @@ def _oracle_handle_fast_cash_tiers():
         from flask import request as _req, redirect as _redir, jsonify as _jfy, send_from_directory as _sfd
         import json as _j, os as _o, sqlite3 as _sq, datetime as _dt
         base_dir = _o.path.dirname(_o.path.abspath(__file__))
+        if _req.path.startswith("/assets/tarot_deck/"):
+            return _sfd(_o.path.join(base_dir, "assets", "tarot_deck"), _req.path.rsplit("/", 1)[-1])
         if _req.path == "/static/omega_card_spread.js":
             return _sfd(_o.path.join(base_dir, "static"), "omega_card_spread.js", mimetype="application/javascript")
         if _req.path.startswith("/static/card_voices/"):
@@ -675,7 +677,7 @@ def _oracle_enhance_4d_store_and_portal(resp):
                 '<div id="omega-live-pulse" class="o4d-pulse">LIVE TELEMETRY: 104 4D ASSETS RENDERED  |  STRIPE-VERIFIED INSTANT FULFILLMENT ACTIVE</div>'
                 '<div class="o4d-kicker">ORACLE SYSTEMS LLC // INTERACTIVE 5D PENTERACT &amp; 4D TESSERACT ARCHITECTURE</div>'
                 '<h1 class="o4d-title">Step Into Sovereign 4D/5D Media, Custom Aura Readings &amp; Autonomous AI Compute</h1>'
-                '<p class="o4d-sub">Move your cursor to rotate the live 5D hypercube field. Every tier unlocks instant Stripe-verified fulfillment, member portal delivery, and zero-lock-in ownership.</p>'
+                '<p class="o4d-sub">Explore the live illustrated tarot spread below or select a tier for instant Stripe-verified digital fulfillment and member portal access.</p>'
                 '<div class="o4d-grid">'
                 '<div class="o4d-card featured"><div><span class="o4d-badge">FASTEST START</span><div class="o4d-kicker">CREATOR ASSET PACK</div><div class="o4d-price">$15<span class="o4d-anchor">$49 value</span></div>'
                 '<p class="o4d-desc">Instant commercial-use ZIP: seamless 16:9 + 9:16 4D Tesseract/Mobius video loops &amp; 3D pop-out templates for YouTube, TikTok &amp; OBS.</p></div>'
