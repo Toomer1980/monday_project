@@ -12,12 +12,24 @@
   .nav-links a{color:#cbd5e1;text-decoration:none;margin-left:22px;font-size:13px;font-weight:600;transition:color .2s;}
   .nav-links a:hover{color:#facc15;}
   .stage-wrap{position:relative;width:100%;height:780px;background:radial-gradient(ellipse at 50% 45%,#0f1a3d 0%,#030612 58%,#010205 100%);border-bottom:1px solid rgba(250,204,21,0.35);overflow:hidden;user-select:none;}
-  #webgl-stage{position:absolute;inset:0;width:100%;height:100%;cursor:grab;display:block;}
+  #webgl-stage,#canvas2d-4d5d{position:absolute;inset:0;width:100%;height:100%;display:block;}
+  #webgl-stage{cursor:grab;z-index:2;}
   #webgl-stage:active{cursor:grabbing;}
-  #fallback-stage{position:absolute;inset:135px 20px 120px 20px;display:none;align-items:center;justify-content:center;gap:28px;z-index:5;perspective:1200px;}
-  .fb-card{width:230px;height:365px;border-radius:16px;overflow:hidden;border:2px solid #facc15;box-shadow:0 16px 42px rgba(250,204,21,0.28);cursor:pointer;transition:transform .45s ease;position:relative;background:#060a18;}
-  .fb-card:hover{transform:translateY(-12px) scale(1.06);}
+  #canvas2d-4d5d{z-index:1;pointer-events:none;}
+  #fallback-stage{position:absolute;inset:140px 20px 115px 20px;display:none;align-items:center;justify-content:center;gap:34px;z-index:5;perspective:1300px;}
+  @keyframes floatCardA{0%,100%{transform:translateY(0px) rotateY(15deg) rotateX(2deg);}50%{transform:translateY(-14px) rotateY(11deg) rotateX(-2deg);}}
+  @keyframes floatCardB{0%,100%{transform:translateY(-8px) scale(1.06) rotateY(0deg);}50%{transform:translateY(8px) scale(1.09) rotateY(3deg);}}
+  @keyframes floatCardC{0%,100%{transform:translateY(0px) rotateY(-15deg) rotateX(2deg);}50%{transform:translateY(-14px) rotateY(-11deg) rotateX(-2deg);}}
+  @keyframes holoSweep{0%{transform:translateX(-160%) skewX(-22deg);}100%{transform:translateX(240%) skewX(-22deg);}}
+  @keyframes auraPulse{0%,100%{box-shadow:0 18px 46px rgba(250,204,21,0.34),0 0 28px rgba(56,189,248,0.24);}50%{box-shadow:0 24px 62px rgba(250,204,21,0.58),0 0 46px rgba(168,85,247,0.42);}}
+  .fb-card{width:236px;height:374px;border-radius:16px;overflow:hidden;border:2px solid #facc15;cursor:pointer;position:relative;background:#060a18;transform-style:preserve-3d;transition:transform .38s ease,border-color .3s ease;animation:auraPulse 3.6s ease-in-out infinite;}
+  .fb-card.slot-0{animation:floatCardA 5.2s ease-in-out infinite, auraPulse 3.6s ease-in-out infinite;}
+  .fb-card.slot-1{animation:floatCardB 4.6s ease-in-out infinite, auraPulse 3.2s ease-in-out infinite;z-index:3;}
+  .fb-card.slot-2{animation:floatCardC 5.2s ease-in-out infinite, auraPulse 3.6s ease-in-out infinite;}
+  .fb-card:hover{border-color:#38bdf8;transform:translateY(-18px) scale(1.13) rotateY(0deg) !important;animation-play-state:paused;}
+  .fb-card.active-pop{border-color:#fef08a;transform:translateY(-22px) scale(1.16) rotateY(0deg) !important;box-shadow:0 0 65px rgba(250,204,21,0.75),0 0 38px rgba(56,189,248,0.65) !important;}
   .fb-card img{width:100%;height:100%;object-fit:cover;display:block;}
+  .fb-card::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(254,240,138,0.24) 47%,rgba(56,189,248,0.26) 53%,transparent 70%);width:65%;animation:holoSweep 4.2s linear infinite;pointer-events:none;}
   .stage-hud-top{position:absolute;top:14px;left:0;right:0;text-align:center;pointer-events:none;z-index:10;padding:0 16px;}
   .pulse-pill{display:inline-block;padding:5px 14px;border-radius:999px;background:rgba(16,185,129,0.16);border:1px solid rgba(16,185,129,0.50);color:#6ee7b7;font-size:11px;font-weight:700;letter-spacing:1.5px;margin-bottom:6px;}
   .stage-hud-top h1{font-size:33px;font-weight:900;letter-spacing:-0.4px;background:linear-gradient(90deg,#fef08a,#facc15,#38bdf8,#a855f7,#fef08a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
@@ -59,10 +71,11 @@
 
 <section class="stage-wrap" id="oracle-4d-hero">
   <div class="stage-hud-top">
-    <div id="omega-live-pulse" class="pulse-pill">LIVE 4D TESSERACT + 5D MOBIUS GPU ENGINE // 10/10 RAY-TRACED DECK</div>
+    <div id="omega-live-pulse" class="pulse-pill">LIVE 4D TESSERACT + 5D MOBIUS ENGINE // 10/10 RAY-TRACED DECK</div>
     <h1>4D Tesseract &amp; 5D Mobius Living Tarot Portal</h1>
-    <p>Real-time 4D hypercube projection (XW/YW/ZW rotation), parametric 5D Mobius plasma ribbon &amp; live holographic shader cards. Drag to orbit &amp; click any card for warm studio narration.</p>
+    <p>Real-time 4D hypercube projection (XW/YW/ZW rotation), parametric 5D Mobius plasma ribbon &amp; live holographic cards. Drag to orbit &amp; click any card for warm studio narration.</p>
   </div>
+  <canvas id="canvas2d-4d5d"></canvas>
   <canvas id="webgl-stage"></canvas>
   <div id="fallback-stage"></div>
   <div id="active-card-caption">LIVE 4D TESSERACT + 5D MOBIUS ACTIVE // CLICK ANY CARD TO POP FORWARD &amp; HEAR WARM STUDIO READING</div>
@@ -167,236 +180,275 @@
     else if (document.exitFullscreen) document.exitFullscreen();
   };
 
-  function mountFallbackCSSCards(reason){
-    var fb = document.getElementById("fallback-stage");
-    fb.style.display = "flex"; fb.innerHTML = "";
-    ACTIVE_DECK.slice(0, 3).forEach(function(cd){
-      var d = document.createElement("div");
-      d.className = "fb-card";
-      d.innerHTML = '<img src="' + cd.img + '?v=' + Date.now() + '" alt="' + cd.title + '">';
-      d.onclick = function(){
-        capEl.textContent = cd.title + " // STUDIO READING ACTIVE";
-        audioPlayer.src = cd.audio + "?v=" + Date.now();
-        audioPlayer.play().catch(function(){});
-      };
-      fb.appendChild(d);
+  // ===========================================================================
+  // ZERO-BLACKOUT 60FPS 4D TESSERACT + 5D MOBIUS 2D CANVAS ENGINE
+  // Runs seamlessly whenever Edge WebGL contexts are saturated — ZERO static fallback!
+  // ===========================================================================
+  var canvas2dActive = false;
+  function bootLive2D4D5DEngine(){
+    if (canvas2dActive) return;
+    canvas2dActive = true;
+    var wgl = document.getElementById("webgl-stage");
+    if (wgl) wgl.style.display = "none";
+
+    var c2 = document.getElementById("canvas2d-4d5d");
+    var ctx = c2.getContext("2d");
+    var wrap = c2.parentElement;
+
+    function resize2d(){
+      c2.width = Math.max(320, wrap.clientWidth);
+      c2.height = Math.max(320, wrap.clientHeight);
+    }
+    resize2d(); window.addEventListener("resize", resize2d);
+
+    var verts4 = [];
+    for (var bx = -1; bx <= 1; bx += 2)
+      for (var by = -1; by <= 1; by += 2)
+        for (var bz = -1; bz <= 1; bz += 2)
+          for (var bw = -1; bw <= 1; bw += 2)
+            verts4.push([bx, by, bz, bw]);
+    var edges4 = [];
+    for (var i = 0; i < 16; i++)
+      for (var j = i + 1; j < 16; j++) {
+        var diff = 0;
+        for (var k = 0; k < 4; k++) if (verts4[i][k] !== verts4[j][k]) diff++;
+        if (diff === 1) edges4.push([i, j]);
+      }
+
+    var sparks = [];
+    for (var s = 0; s < 130; s++) {
+      sparks.push({x: Math.random(), y: Math.random(), vx: (Math.random() - 0.5) * 0.0012, vy: -0.0008 - Math.random() * 0.0022, r: 1.4 + Math.random() * 2.6, col: s % 3 === 0 ? "#38bdf8" : (s % 5 === 0 ? "#c084fc" : "#facc15")});
+    }
+
+    var mx = 0, my = 0;
+    window.addEventListener("mousemove", function(e){
+      var r = wrap.getBoundingClientRect();
+      mx = ((e.clientX - r.left) / Math.max(1, r.width) - 0.5) * 2;
+      my = ((e.clientY - r.top) / Math.max(1, r.height) - 0.5) * 2;
     });
-    if (reason) capEl.textContent = "INTERACTIVE CARD STAGE (" + reason + ") // CLICK ANY CARD";
+
+    function mountHolographicCards(){
+      var fb = document.getElementById("fallback-stage");
+      fb.style.display = "flex"; fb.innerHTML = "";
+      var slotNames = ["I. PAST CATALYST", "II. PRESENT SHIFT", "III. 5D QUANTUM OUTCOME"];
+      ACTIVE_DECK.slice(0, 3).forEach(function(cd, idx){
+        var d = document.createElement("div");
+        d.className = "fb-card slot-" + idx;
+        d.innerHTML = '<img src="' + cd.img + '?v=' + Date.now() + '" alt="' + cd.title + '">';
+        d.onclick = function(){
+          document.querySelectorAll(".fb-card").forEach(function(el){ el.classList.remove("active-pop"); });
+          d.classList.add("active-pop");
+          capEl.textContent = slotNames[idx] + " // " + cd.title + " // LIVE 4D/5D STUDIO READING";
+          audioPlayer.pause(); audioPlayer.src = cd.audio + "?v=" + Date.now();
+          audioPlayer.play().catch(function(){});
+          if (typeof window.p32PlayChime === "function") window.p32PlayChime();
+        };
+        fb.appendChild(d);
+      });
+      capEl.textContent = "LIVE 4D TESSERACT + 5D MOBIUS ACTIVE // CLICK ANY CARD TO POP FORWARD & HEAR WARM STUDIO READING";
+    }
+
+    mountHolographicCards();
+    fetch("/api/deck-manifest").then(function(r){ return r.json(); }).then(function(list){
+      if (Array.isArray(list) && list.length > 0) { ACTIVE_DECK = list; mountHolographicCards(); }
+    }).catch(function(){});
+
+    window.revealAll3DCards = function(){
+      var cards = document.querySelectorAll(".fb-card");
+      var q = ACTIVE_DECK.slice(0, 3), qi = 0;
+      function nextV(){
+        if (qi >= q.length) return;
+        cards.forEach(function(el, i){ el.classList.toggle("active-pop", i === qi); });
+        var c = q[qi++];
+        capEl.textContent = c.title + " // LIVE 4D/5D STUDIO READING";
+        audioPlayer.src = c.audio + "?v=" + Date.now();
+        audioPlayer.onended = nextV;
+        audioPlayer.play().catch(function(){});
+      }
+      nextV();
+    };
+    window.shuffleAndDraw3D = function(){
+      try { audioPlayer.pause(); } catch(e){}
+      for (var i = ACTIVE_DECK.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = ACTIVE_DECK[i]; ACTIVE_DECK[i] = ACTIVE_DECK[j]; ACTIVE_DECK[j] = tmp;
+      }
+      mountHolographicCards();
+      capEl.textContent = "SHUFFLED " + ACTIVE_DECK.length + "/10 RAY-TRACED 4D/5D CARDS // CLICK ANY CARD TO HEAR READING";
+    };
+
+    var t = 0, lastNow = performance.now();
+    function loop2d(now){
+      requestAnimationFrame(loop2d);
+      var dt = Math.min(0.05, (now - lastNow) / 1000); lastNow = now;
+      t += dt * hyperSpeed;
+      var W = c2.width, H = c2.height, cx = W * 0.5 + mx * 28, cy = H * 0.50 + my * 18;
+      ctx.clearRect(0, 0, W, H);
+
+      // 1) Radiant 5D cosmic nebula pulse
+      var rg = ctx.createRadialGradient(cx, cy, 20, cx, cy, Math.max(W, H) * 0.52);
+      rg.addColorStop(0, "rgba(56,189,248,0.20)");
+      rg.addColorStop(0.45, "rgba(168,85,247,0.10)");
+      rg.addColorStop(1, "rgba(2,4,10,0)");
+      ctx.fillStyle = rg; ctx.fillRect(0, 0, W, H);
+
+      // 2) Parametric 5D Mobius multi-strand glowing plasma ribbon
+      var strands = [[-0.36, "rgba(56,189,248,0.68)", 2.5], [0.0, "rgba(250,204,21,0.78)", 3.2], [0.36, "rgba(192,132,252,0.66)", 2.5]];
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      strands.forEach(function(st){
+        var vv = st[0]; ctx.strokeStyle = st[1]; ctx.lineWidth = st[2]; ctx.beginPath();
+        for (var u = 0; u <= Math.PI * 2 + 0.08; u += 0.07) {
+          var uu = u + t * 0.65;
+          var rm = 2.05 + vv * Math.cos(uu * 0.5);
+          var xm = rm * Math.cos(uu), ym = rm * Math.sin(uu), zm = vv * Math.sin(uu * 0.5);
+          var tilt = 0.58 + Math.sin(t * 0.35) * 0.25;
+          var yt = ym * tilt - zm * 0.82, zt = ym * 0.82 + zm * tilt;
+          var sc = (Math.min(W, H) * 0.42) / (3.8 - zt * 0.45);
+          var px = cx + xm * sc, py = cy + yt * sc;
+          if (u === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+      });
+
+      // 3) True Mathematical 4D Tesseract (16 vertices, 32 glowing hyper-edges rotating in XW/YW/ZW/XY)
+      var aXW = t * 0.78, aYW = t * 0.52, aZW = t * 0.39, aXY = t * 0.26;
+      var cXW = Math.cos(aXW), sXW = Math.sin(aXW), cYW = Math.cos(aYW), sYW = Math.sin(aYW);
+      var cZW = Math.cos(aZW), sZW = Math.sin(aZW), cXY = Math.cos(aXY), sXY = Math.sin(aXY);
+      var pts = [];
+      for (var i = 0; i < 16; i++) {
+        var x = verts4[i][0], y = verts4[i][1], z = verts4[i][2], w = verts4[i][3];
+        var nx = x*cXW - w*sXW, nw = x*sXW + w*cXW; x = nx; w = nw;
+        var ny = y*cYW - w*sYW; nw = y*sYW + w*cYW; y = ny; w = nw;
+        var nz = z*cZW - w*sZW; nw = z*sZW + w*cZW; z = nz; w = nw;
+        nx = x*cXY - y*sXY; ny = x*sXY + y*cXY; x = nx; y = ny;
+        var p4 = 2.85 / (3.2 - w * 0.76);
+        var x3 = x * p4, y3 = y * p4, z3 = z * p4;
+        var sc3 = (Math.min(W, H) * 0.34) / (4.1 - z3 * 0.55);
+        pts.push([cx + x3 * sc3, cy + y3 * sc3, w]);
+      }
+      ctx.lineWidth = 2.6;
+      for (var e = 0; e < edges4.length; e++) {
+        var pA = pts[edges4[e][0]], pB = pts[edges4[e][1]];
+        var isGold = (pA[2] + pB[2]) > 0;
+        ctx.strokeStyle = isGold ? "rgba(250,204,21,0.82)" : "rgba(56,228,255,0.78)";
+        ctx.beginPath(); ctx.moveTo(pA[0], pA[1]); ctx.lineTo(pB[0], pB[1]); ctx.stroke();
+      }
+      for (var n = 0; n < 16; n++) {
+        ctx.fillStyle = "rgba(254,240,138,0.95)";
+        ctx.beginPath(); ctx.arc(pts[n][0], pts[n][1], 4.2, 0, Math.PI * 2); ctx.fill();
+      }
+
+      // 4) Rising 4D sparks & golden cosmic embers
+      for (var s = 0; s < sparks.length; s++) {
+        var sp = sparks[s];
+        sp.x += sp.vx * hyperSpeed; sp.y += sp.vy * hyperSpeed;
+        if (sp.y < -0.05) { sp.y = 1.05; sp.x = Math.random(); }
+        if (sp.x < -0.05 || sp.x > 1.05) sp.x = Math.random();
+        ctx.fillStyle = sp.col; ctx.globalAlpha = 0.72;
+        ctx.beginPath(); ctx.arc(sp.x * W, sp.y * H, sp.r, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.restore();
+    }
+    requestAnimationFrame(loop2d);
   }
 
   function bootWebGL(){
-    if (typeof THREE === "undefined") { mountFallbackCSSCards("3D fallback"); return; }
+    if (typeof THREE === "undefined") { bootLive2D4D5DEngine(); return; }
     var canvas = document.getElementById("webgl-stage");
     var wrap = canvas.parentElement;
     var renderer;
     try {
-      renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true, alpha: true, powerPreference: "high-performance"});
-    } catch(e) { mountFallbackCSSCards("WebGL busy"); return; }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: false, alpha: true, powerPreference: "default", failIfMajorPerformanceCaveat: false});
+    } catch(e) { bootLive2D4D5DEngine(); return; }
+    canvas.addEventListener("webglcontextlost", function(ev){ ev.preventDefault(); bootLive2D4D5DEngine(); });
+    window.addEventListener("pagehide", function(){ try { renderer.dispose(); renderer.forceContextLoss(); } catch(e){} });
+
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.outputEncoding = THREE.sRGBEncoding;
 
     var scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x02040b, 0.026);
-
     var camera = new THREE.PerspectiveCamera(44, Math.max(1, wrap.clientWidth) / Math.max(1, wrap.clientHeight), 0.1, 120);
     camera.position.set(0, 0.25, 9.2);
 
     function resize(){
       var w = Math.max(320, wrap.clientWidth), h = Math.max(320, wrap.clientHeight);
-      renderer.setSize(w, h, false);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
+      renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
     }
     resize(); window.addEventListener("resize", resize);
 
     scene.add(new THREE.AmbientLight(0x94a3b8, 0.75));
-    var keyLight = new THREE.DirectionalLight(0xfff6dc, 1.05);
-    keyLight.position.set(2.5, 5.5, 6.5); scene.add(keyLight);
+    var keyLight = new THREE.DirectionalLight(0xfff6dc, 1.05); keyLight.position.set(2.5, 5.5, 6.5); scene.add(keyLight);
     var goldLight = new THREE.PointLight(0xfacc15, 2.0, 26); scene.add(goldLight);
     var cyanLight = new THREE.PointLight(0x38bdf8, 1.8, 26); scene.add(cyanLight);
-    var violetLight = new THREE.PointLight(0xa855f7, 1.4, 24); scene.add(violetLight);
 
-    // =========================================================================
-    // 1) TRUE MATHEMATICAL 4D TESSERACT (HYPERCUBE IN R^4 -> R^3 PROJECTION)
-    //    16 vertices in {-1,+1}^4, 32 glowing hyper-edges, XW/YW/ZW 4D rotation!
-    // =========================================================================
     var tVerts4 = [];
     for (var bx = -1; bx <= 1; bx += 2)
       for (var by = -1; by <= 1; by += 2)
         for (var bz = -1; bz <= 1; bz += 2)
-          for (var bw = -1; bw <= 1; bw += 2)
-            tVerts4.push([bx, by, bz, bw]);
-
+          for (var bw = -1; bw <= 1; bw += 2) tVerts4.push([bx, by, bz, bw]);
     var tEdges = [];
-    for (var i = 0; i < 16; i++) {
+    for (var i = 0; i < 16; i++)
       for (var j = i + 1; j < 16; j++) {
-        var diff = 0;
-        for (var k = 0; k < 4; k++) if (tVerts4[i][k] !== tVerts4[j][k]) diff++;
+        var diff = 0; for (var k = 0; k < 4; k++) if (tVerts4[i][k] !== tVerts4[j][k]) diff++;
         if (diff === 1) tEdges.push([i, j]);
       }
-    }
 
-    var tessGroup = new THREE.Group();
-    tessGroup.position.set(0, -0.1, -2.4);
-    scene.add(tessGroup);
-
-    var tessLinePos = new Float32Array(tEdges.length * 2 * 3);
-    var tessLineCol = new Float32Array(tEdges.length * 2 * 3);
+    var tessGroup = new THREE.Group(); tessGroup.position.set(0, -0.1, -2.4); scene.add(tessGroup);
     var tessLineGeo = new THREE.BufferGeometry();
-    tessLineGeo.setAttribute("position", new THREE.BufferAttribute(tessLinePos, 3));
-    tessLineGeo.setAttribute("color", new THREE.BufferAttribute(tessLineCol, 3));
-    var tessLines = new THREE.LineSegments(
-      tessLineGeo,
-      new THREE.LineBasicMaterial({vertexColors: true, transparent: true, opacity: 0.92, blending: THREE.AdditiveBlending})
-    );
-    tessGroup.add(tessLines);
-
-    var tessNodePos = new Float32Array(16 * 3);
+    tessLineGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(tEdges.length * 6), 3));
+    tessLineGeo.setAttribute("color", new THREE.BufferAttribute(new Float32Array(tEdges.length * 6), 3));
+    tessGroup.add(new THREE.LineSegments(tessLineGeo, new THREE.LineBasicMaterial({vertexColors: true, transparent: true, opacity: 0.92, blending: THREE.AdditiveBlending})));
     var tessNodeGeo = new THREE.BufferGeometry();
-    tessNodeGeo.setAttribute("position", new THREE.BufferAttribute(tessNodePos, 3));
-    var tessNodes = new THREE.Points(
-      tessNodeGeo,
-      new THREE.PointsMaterial({color: 0xfef08a, size: 0.22, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false})
-    );
-    tessGroup.add(tessNodes);
+    tessNodeGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(48), 3));
+    tessGroup.add(new THREE.Points(tessNodeGeo, new THREE.PointsMaterial({color: 0xfef08a, size: 0.22, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false})));
 
-    // =========================================================================
-    // 2) TRUE PARAMETRIC 5D MOBIUS STRIP WITH ANIMATED GLSL PLASMA SHADER
-    // =========================================================================
-    var uSegs = 128, vSegs = 18;
-    var mPositions = [], mUvs = [], mIndices = [];
+    var uSegs = 110, vSegs = 14, mPos = [], mUvs = [], mIdx = [];
     for (var iu = 0; iu <= uSegs; iu++) {
       var u = (iu / uSegs) * Math.PI * 2;
       for (var iv = 0; iv <= vSegs; iv++) {
         var v = ((iv / vSegs) - 0.5) * 0.95;
         var rad = 3.85 + v * Math.cos(u * 0.5);
-        var mx = rad * Math.cos(u);
-        var my = rad * Math.sin(u);
-        var mz = v * Math.sin(u * 0.5);
-        mPositions.push(mx, my, mz);
+        mPos.push(rad * Math.cos(u), rad * Math.sin(u), v * Math.sin(u * 0.5));
         mUvs.push(iu / uSegs, iv / vSegs);
       }
     }
-    for (var iu = 0; iu < uSegs; iu++) {
+    for (var iu = 0; iu < uSegs; iu++)
       for (var iv = 0; iv < vSegs; iv++) {
-        var a = iu * (vSegs + 1) + iv;
-        var b = (iu + 1) * (vSegs + 1) + iv;
-        var c = (iu + 1) * (vSegs + 1) + (iv + 1);
-        var d = iu * (vSegs + 1) + (iv + 1);
-        mIndices.push(a, b, d, b, c, d);
+        var a = iu*(vSegs+1)+iv, b = (iu+1)*(vSegs+1)+iv, c = (iu+1)*(vSegs+1)+(iv+1), d = iu*(vSegs+1)+(iv+1);
+        mIdx.push(a, b, d, b, c, d);
       }
-    }
     var mobiusGeo = new THREE.BufferGeometry();
-    mobiusGeo.setAttribute("position", new THREE.Float32BufferAttribute(mPositions, 3));
+    mobiusGeo.setAttribute("position", new THREE.Float32BufferAttribute(mPos, 3));
     mobiusGeo.setAttribute("uv", new THREE.Float32BufferAttribute(mUvs, 2));
-    mobiusGeo.setIndex(mIndices);
-    mobiusGeo.computeVertexNormals();
-
+    mobiusGeo.setIndex(mIdx);
     var mobiusUnif = {uTime: {value: 0.0}};
-    var mobiusMat = new THREE.ShaderMaterial({
-      uniforms: mobiusUnif,
-      side: THREE.DoubleSide,
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-      vertexShader: [
-        "varying vec2 vUv;",
-        "void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }"
-      ].join("\n"),
-      fragmentShader: [
-        "precision mediump float;",
-        "uniform float uTime;",
-        "varying vec2 vUv;",
-        "void main(){",
-        "  float flow = 0.5 + 0.5 * sin(vUv.x * 37.699 - uTime * 3.2 + sin(vUv.y * 6.283 + uTime));",
-        "  float grid = smoothstep(0.82, 0.98, abs(sin(vUv.x * 94.247 - uTime * 2.0))) + smoothstep(0.84, 0.98, abs(sin(vUv.y * 12.566)));",
-        "  float edgeGlow = smoothstep(0.32, 0.50, abs(vUv.y - 0.5));",
-        "  vec3 gold = vec3(1.0, 0.82, 0.20);",
-        "  vec3 cyan = vec3(0.22, 0.82, 1.0);",
-        "  vec3 violet = vec3(0.68, 0.35, 1.0);",
-        "  vec3 col = mix(cyan, gold, flow) + violet * (0.35 * sin(vUv.x * 18.84 + uTime) + 0.35);",
-        "  col += vec3(1.0, 0.94, 0.65) * (edgeGlow * 0.85 + grid * 0.32);",
-        "  float alpha = clamp(0.18 + edgeGlow * 0.62 + flow * 0.22 + grid * 0.20, 0.0, 0.85);",
-        "  gl_FragColor = vec4(col, alpha);",
-        "}"
-      ].join("\n")
-    });
-    var mobiusMesh = new THREE.Mesh(mobiusGeo, mobiusMat);
-    mobiusMesh.position.set(0, -0.15, -2.5);
-    scene.add(mobiusMesh);
+    var mobiusMesh = new THREE.Mesh(mobiusGeo, new THREE.ShaderMaterial({
+      uniforms: mobiusUnif, side: THREE.DoubleSide, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
+      fragmentShader: "precision mediump float; uniform float uTime; varying vec2 vUv; void main(){ float flow = 0.5 + 0.5 * sin(vUv.x * 37.699 - uTime * 3.2); float edgeGlow = smoothstep(0.32, 0.50, abs(vUv.y - 0.5)); vec3 col = mix(vec3(0.22,0.82,1.0), vec3(1.0,0.82,0.20), flow) + vec3(1.0,0.94,0.65) * edgeGlow * 0.85; gl_FragColor = vec4(col, clamp(0.20 + edgeGlow * 0.62 + flow * 0.22, 0.0, 0.85)); }"
+    }));
+    mobiusMesh.position.set(0, -0.15, -2.5); scene.add(mobiusMesh);
 
-    // Reflective obsidian cosmic floor + 720 4D starfield vortex particles
-    var floor = new THREE.Mesh(
-      new THREE.CircleGeometry(18, 64),
-      new THREE.MeshStandardMaterial({color:0x050918, metalness:0.86, roughness:0.22})
-    );
-    floor.rotation.x = -Math.PI / 2; floor.position.y = -2.65; scene.add(floor);
-
-    var pCount = 720;
-    var pGeo = new THREE.BufferGeometry();
-    var pPos = new Float32Array(pCount * 3);
-    var pCol = new Float32Array(pCount * 3);
-    for (var i = 0; i < pCount; i++) {
-      pPos[i*3]   = (Math.random() - 0.5) * 20;
-      pPos[i*3+1] = (Math.random() - 0.5) * 10;
-      pPos[i*3+2] = (Math.random() - 0.35) * 13;
-      var pick = Math.random();
-      pCol[i*3]   = pick > 0.45 ? 1.0 : (pick > 0.15 ? 0.22 : 0.72);
-      pCol[i*3+1] = pick > 0.45 ? 0.84 : (pick > 0.15 ? 0.82 : 0.38);
-      pCol[i*3+2] = pick > 0.45 ? 0.22 : 1.0;
-    }
-    pGeo.setAttribute("position", new THREE.BufferAttribute(pPos, 3));
-    pGeo.setAttribute("color", new THREE.BufferAttribute(pCol, 3));
-    var embers = new THREE.Points(
-      pGeo,
-      new THREE.PointsMaterial({size: 0.095, vertexColors: true, transparent: true, opacity: 0.90, blending: THREE.AdditiveBlending, depthWrite: false})
-    );
-    scene.add(embers);
-
-    // =========================================================================
-    // 3) HIGH-VISIBILITY 4D/5D LIVING-CARD GLSL SHADER (UNMISTAKABLE MOTION!)
-    //    Swirling plasma core, concentric 4D shockwave rings, dynamic iridescent
-    //    foil sweep & parallax micro-depth while keeping text/border crystal sharp
-    // =========================================================================
-    var CARD_VERT = [
-      "varying vec2 vUv;",
-      "void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }"
-    ].join("\n");
-
+    var CARD_VERT = "varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }";
     var CARD_FRAG = [
       "precision mediump float;",
-      "uniform sampler2D uMap;",
-      "uniform float uTime;",
-      "uniform vec2 uTilt;",
-      "uniform float uSeed;",
-      "varying vec2 vUv;",
+      "uniform sampler2D uMap; uniform float uTime; uniform vec2 uTilt; uniform float uSeed; varying vec2 vUv;",
       "void main(){",
-      "  vec2 uv = vUv;",
-      "  vec4 baseCol = texture2D(uMap, uv);",
+      "  vec2 uv = vUv; vec4 baseCol = texture2D(uMap, uv);",
       "  float lum = dot(baseCol.rgb, vec3(0.299, 0.587, 0.114));",
       "  vec2 dCore = vec2((uv.x - 0.5) / 0.36, (uv.y - 0.53) / 0.30);",
-      "  float innerMask = clamp(1.0 - dot(dCore, dCore), 0.0, 1.0);",
-      "  innerMask = pow(innerMask, 1.15);",
+      "  float innerMask = pow(clamp(1.0 - dot(dCore, dCore), 0.0, 1.0), 1.15);",
       "  float energyMask = innerMask * smoothstep(0.10, 0.55, lum);",
-      "  float t = uTime + uSeed * 4.3;",
-      "  vec2 toC = uv - vec2(0.5, 0.53);",
-      "  float r = length(toC);",
-      "  float ang = atan(toC.y, toC.x);",
-      "  // Vivid fluid 4D plasma swirl inside artwork core",
+      "  float t = uTime + uSeed * 4.3; vec2 toC = uv - vec2(0.5, 0.53); float r = length(toC); float ang = atan(toC.y, toC.x);",
       "  vec2 swirl = vec2(sin(uv.y * 22.0 - t * 3.1) + cos(ang * 5.0 + t * 2.4), cos(uv.x * 20.0 + t * 2.8) + sin(r * 28.0 - t * 3.8)) * 0.015 * energyMask;",
-      "  vec2 parallax = uTilt * 0.022 * innerMask;",
-      "  vec2 liveUv = clamp(uv + swirl + parallax, vec2(0.002), vec2(0.998));",
-      "  vec3 col = texture2D(uMap, liveUv).rgb;",
-      "  // Expanding concentric 5D energy shockwaves + rotating golden sunbeams",
+      "  vec3 col = texture2D(uMap, clamp(uv + swirl + uTilt * 0.022 * innerMask, vec2(0.002), vec2(0.998))).rgb;",
       "  float ringPulse = pow(0.5 + 0.5 * sin(r * 38.0 - t * 4.6), 3.0) * innerMask;",
-      "  float radialFade = 1.0 - smoothstep(0.04, 0.44, r);",
-      "  float rays = pow(0.5 + 0.5 * sin(ang * 10.0 + t * 1.9), 4.0) * innerMask * radialFade;",
+      "  float rays = pow(0.5 + 0.5 * sin(ang * 10.0 + t * 1.9), 4.0) * innerMask * (1.0 - smoothstep(0.04, 0.44, r));",
       "  col += mix(vec3(1.0, 0.82, 0.28), vec3(0.25, 0.85, 1.0), 0.5 + 0.5 * sin(t + r * 8.0)) * (ringPulse * 0.30 + rays * 0.28);",
-      "  // Iridescent holographic metallic foil sheen sweeping across frame & gold highlights",
-      "  float sweepCoord = uv.x * 0.85 + uv.y * 0.55 + uTilt.x * 0.45 - fract(t * 0.22) * 2.4 + 0.65;",
-      "  float foilSheen = exp(-sweepCoord * sweepCoord * 28.0) * smoothstep(0.25, 0.72, lum);",
-      "  vec3 holo = mix(vec3(1.0, 0.90, 0.42), vec3(0.32, 0.88, 1.0), 0.5 + 0.5 * sin(t * 1.6 + uv.y * 6.0));",
-      "  col += holo * foilSheen * 0.42;",
+      "  float sc = uv.x * 0.85 + uv.y * 0.55 + uTilt.x * 0.45 - fract(t * 0.22) * 2.4 + 0.65;",
+      "  col += mix(vec3(1.0, 0.90, 0.42), vec3(0.32, 0.88, 1.0), 0.5 + 0.5 * sin(t * 1.6 + uv.y * 6.0)) * exp(-sc * sc * 28.0) * smoothstep(0.25, 0.72, lum) * 0.42;",
       "  gl_FragColor = vec4(col, 1.0);",
       "}"
     ].join("\n");
@@ -406,263 +458,103 @@
       {slotLabel:"II. PRESENT SHIFT", x:0.0,   ry:0.0,  baseZ:0.95},
       {slotLabel:"III. 5D QUANTUM OUTCOME", x:2.95, ry:-0.28, baseZ:0.25}
     ];
-
-    function makeBackTexture(slotLabel){
-      var bc = document.createElement("canvas");
-      bc.width = 512; bc.height = 820;
-      var g = bc.getContext("2d");
-      var grd = g.createRadialGradient(256, 410, 25, 256, 410, 440);
-      grd.addColorStop(0, "#172045"); grd.addColorStop(0.55, "#080d1e"); grd.addColorStop(1, "#02040a");
-      g.fillStyle = grd; g.fillRect(0, 0, 512, 820);
-      g.strokeStyle = "#eab308"; g.lineWidth = 10; g.strokeRect(20, 20, 472, 780);
-      g.strokeStyle = "rgba(56,189,248,0.65)"; g.lineWidth = 3; g.strokeRect(42, 42, 428, 736);
-      g.beginPath(); g.arc(256, 405, 145, 0, Math.PI*2); g.strokeStyle = "#eab308"; g.lineWidth = 5; g.stroke();
-      g.beginPath(); g.arc(256, 405, 105, 0, Math.PI*2); g.strokeStyle = "#38bdf8"; g.lineWidth = 3; g.stroke();
-      g.fillStyle = "#facc15"; g.font = "bold 36px Georgia,serif"; g.textAlign = "center";
-      g.fillText("ORACLE 5D", 256, 400);
-      g.fillStyle = "#38bdf8"; g.font = "bold 20px Segoe UI,sans-serif";
-      g.fillText(slotLabel, 256, 442);
-      var tex = new THREE.CanvasTexture(bc);
-      tex.encoding = THREE.sRGBEncoding;
-      return tex;
-    }
-
     var loader = new THREE.TextureLoader();
     var edgeMat = new THREE.MeshStandardMaterial({color:0xfacc15, metalness:0.95, roughness:0.18, emissive:0x663800, emissiveIntensity:0.45});
     var cardGeo = new THREE.BoxGeometry(2.08, 3.32, 0.10);
     var cardMeshes = [], livingUniforms = [];
 
-    function makeCardSparks(){
-      var n = 60;
-      var sg = new THREE.BufferGeometry();
-      var sp = new Float32Array(n * 3);
-      for (var i = 0; i < n; i++) {
-        sp[i*3]   = (Math.random() - 0.5) * 1.55;
-        sp[i*3+1] = (Math.random() - 0.5) * 2.05;
-        sp[i*3+2] = -0.07 - Math.random() * 1.25;
-      }
-      sg.setAttribute("position", new THREE.BufferAttribute(sp, 3));
-      return new THREE.Points(sg, new THREE.PointsMaterial({color:0xfef08a, size:0.08, transparent:true, opacity:0.92, blending:THREE.AdditiveBlending, depthWrite:false}));
-    }
-
-    function buildSpreadMeshes(cards3, startFaceUp){
-      cardMeshes.forEach(function(m){ scene.remove(m); });
-      cardMeshes = []; livingUniforms = [];
-      var list = cards3.slice();
-      while (list.length < 3) list.push(list[list.length - 1] || FALLBACK_DECK[0]);
-      list.slice(0, 3).forEach(function(cd, idx){
+    function buildSpreadMeshes(cards3){
+      cardMeshes.forEach(function(m){ scene.remove(m); }); cardMeshes = []; livingUniforms = [];
+      cards3.slice(0, 3).forEach(function(cd, idx){
         var sl = SLOT_POS[idx];
-        var unif = {
-          uMap:  {value: loader.load(cd.img + "?v=" + Date.now())},
-          uTime: {value: 0.0},
-          uTilt: {value: new THREE.Vector2(0, 0)},
-          uSeed: {value: idx + 1.0}
-        };
+        var unif = {uMap:{value:loader.load(cd.img + "?v=" + Date.now())}, uTime:{value:0}, uTilt:{value:new THREE.Vector2(0,0)}, uSeed:{value:idx+1}};
         livingUniforms.push(unif);
         var frontMat = new THREE.ShaderMaterial({uniforms: unif, vertexShader: CARD_VERT, fragmentShader: CARD_FRAG});
-        var backMat  = new THREE.MeshStandardMaterial({map: makeBackTexture(sl.slotLabel), metalness:0.35, roughness:0.35});
-        var mesh = new THREE.Mesh(cardGeo, [edgeMat, edgeMat, edgeMat, edgeMat, backMat, frontMat]);
-        var isUp = !!startFaceUp;
-        mesh.position.set(sl.x, -0.18, isUp ? (sl.baseZ + 0.55) : sl.baseZ);
-        mesh.rotation.y = sl.ry + (isUp ? Math.PI : 0);
-        var sparks = makeCardSparks();
-        sparks.visible = isUp;
-        mesh.add(sparks);
-        mesh.userData = {idx:idx, card:cd, slot:sl, flipped:isUp, targetFlip:(isUp ? Math.PI : 0), targetZ:(isUp ? (sl.baseZ + 0.55) : sl.baseZ), baseY:-0.18, sparks:sparks};
-        scene.add(mesh);
-        cardMeshes.push(mesh);
+        var mesh = new THREE.Mesh(cardGeo, [edgeMat, edgeMat, edgeMat, edgeMat, edgeMat, frontMat]);
+        mesh.position.set(sl.x, -0.18, sl.baseZ + 0.55);
+        mesh.rotation.y = sl.ry + Math.PI;
+        mesh.userData = {idx:idx, card:cd, slot:sl, targetFlip:Math.PI, targetZ:sl.baseZ + 0.55, baseY:-0.18};
+        scene.add(mesh); cardMeshes.push(mesh);
       });
     }
-
-    buildSpreadMeshes(ACTIVE_DECK.slice(0, 3), true);
+    buildSpreadMeshes(ACTIVE_DECK.slice(0, 3));
     fetch("/api/deck-manifest").then(function(r){ return r.json(); }).then(function(list){
-      if (Array.isArray(list) && list.length > 0) {
-        ACTIVE_DECK = list;
-        buildSpreadMeshes(ACTIVE_DECK.slice(0, 3), true);
-      }
+      if (Array.isArray(list) && list.length > 0) { ACTIVE_DECK = list; buildSpreadMeshes(ACTIVE_DECK.slice(0, 3)); }
     }).catch(function(){});
 
-    var raycaster = new THREE.Raycaster();
-    var mouse = new THREE.Vector2(0, 0);
-    var dragging = false, movedDist = 0, lastX = 0, lastY = 0;
-    var orbitYaw = 0, orbitPitch = 0.05, targetYaw = 0, targetPitch = 0.05;
-
+    var raycaster = new THREE.Raycaster(), mouse = new THREE.Vector2(0,0);
+    var dragging = false, movedDist = 0, lastX = 0, lastY = 0, orbitYaw = 0, orbitPitch = 0.05, targetYaw = 0, targetPitch = 0.05;
     canvas.addEventListener("mousedown", function(e){ dragging = true; movedDist = 0; lastX = e.clientX; lastY = e.clientY; });
     window.addEventListener("mouseup", function(){ dragging = false; });
     window.addEventListener("mousemove", function(e){
       var rect = canvas.getBoundingClientRect();
       mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-      if (dragging) {
-        var dx = e.clientX - lastX, dy = e.clientY - lastY;
-        movedDist += Math.abs(dx) + Math.abs(dy);
-        targetYaw = Math.max(-0.95, Math.min(0.95, targetYaw - dx * 0.005));
-        targetPitch = Math.max(-0.38, Math.min(0.48, targetPitch + dy * 0.004));
-        lastX = e.clientX; lastY = e.clientY;
-      } else {
-        targetYaw = mouse.x * 0.25;
-        targetPitch = 0.05 + mouse.y * 0.14;
-      }
+      if (dragging) { movedDist += Math.abs(e.clientX - lastX) + Math.abs(e.clientY - lastY); targetYaw = Math.max(-0.95, Math.min(0.95, targetYaw - (e.clientX - lastX) * 0.005)); targetPitch = Math.max(-0.38, Math.min(0.48, targetPitch + (e.clientY - lastY) * 0.004)); lastX = e.clientX; lastY = e.clientY; }
+      else { targetYaw = mouse.x * 0.25; targetPitch = 0.05 + mouse.y * 0.14; }
     });
-
-    function activateCard(mesh, playSound){
-      var u = mesh.userData;
-      if (!u.flipped) { u.flipped = true; u.targetFlip = Math.PI; u.targetZ = 2.35; u.sparks.visible = true; }
-      else if (u.targetZ < 1.9) { u.targetZ = 2.35; }
-      else { u.targetZ = u.slot.baseZ + 0.55; }
-      capEl.textContent = u.slot.slotLabel + " // " + u.card.title + " // LIVE 4D/5D STUDIO READING";
-      if (playSound) { try { audioPlayer.pause(); audioPlayer.src = u.card.audio + "?v=" + Date.now(); audioPlayer.play(); } catch(e){} }
-    }
-
     canvas.addEventListener("click", function(){
       if (movedDist > 8) return;
       raycaster.setFromCamera(mouse, camera);
       var hits = raycaster.intersectObjects(cardMeshes);
-      if (hits.length > 0) activateCard(hits[0].object, true);
-    });
-
-    window.revealAll3DCards = function(){
-      cardMeshes.forEach(function(m, i){
-        setTimeout(function(){ var u = m.userData; u.flipped = true; u.targetFlip = Math.PI; u.targetZ = 2.10; u.sparks.visible = true; }, i * 300);
-      });
-      var q = [0, 1, 2], qi = 0;
-      function nextVoice(){
-        if (qi >= q.length) return;
-        var u = cardMeshes[q[qi++]].userData;
-        capEl.textContent = u.slot.slotLabel + " // " + u.card.title + " // WARM STUDIO READING";
-        audioPlayer.src = u.card.audio + "?v=" + Date.now();
-        audioPlayer.onended = nextVoice;
-        audioPlayer.play().catch(function(){});
+      if (hits.length > 0) {
+        var u = hits[0].object.userData;
+        u.targetZ = u.targetZ < 1.9 ? 2.35 : (u.slot.baseZ + 0.55);
+        capEl.textContent = u.slot.slotLabel + " // " + u.card.title + " // LIVE 4D/5D STUDIO READING";
+        audioPlayer.pause(); audioPlayer.src = u.card.audio + "?v=" + Date.now(); audioPlayer.play().catch(function(){});
       }
-      nextVoice();
+    });
+    window.revealAll3DCards = function(){
+      var q = [0, 1, 2], qi = 0;
+      function nv(){ if (qi >= q.length) return; var u = cardMeshes[q[qi++]].userData; u.targetZ = 2.15; capEl.textContent = u.slot.slotLabel + " // " + u.card.title + " // WARM STUDIO READING"; audioPlayer.src = u.card.audio + "?v=" + Date.now(); audioPlayer.onended = nv; audioPlayer.play().catch(function(){}); }
+      nv();
     };
-
     window.shuffleAndDraw3D = function(){
       try { audioPlayer.pause(); } catch(e){}
-      var pool = ACTIVE_DECK.slice();
-      for (var i = pool.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
-      }
-      buildSpreadMeshes(pool.slice(0, 3), false);
-      cardMeshes.forEach(function(m, idx){
-        m.rotation.y += Math.PI * 2; m.position.z = -3.6;
-        setTimeout(function(){ var u = m.userData; u.flipped = true; u.targetFlip = Math.PI; u.targetZ = u.slot.baseZ + 0.55; u.sparks.visible = true; }, 380 + idx * 260);
-      });
+      for (var i = ACTIVE_DECK.length - 1; i > 0; i--) { var j = Math.floor(Math.random()*(i+1)); var tmp = ACTIVE_DECK[i]; ACTIVE_DECK[i] = ACTIVE_DECK[j]; ACTIVE_DECK[j] = tmp; }
+      buildSpreadMeshes(ACTIVE_DECK.slice(0, 3));
+      cardMeshes.forEach(function(m){ m.rotation.y += Math.PI * 2; m.position.z = -3.4; });
       capEl.textContent = "SHUFFLED " + ACTIVE_DECK.length + "/10 RAY-TRACED 4D/5D CARDS // CLICK ANY CARD TO HEAR READING";
     };
 
-    var clock = new THREE.Clock();
-    var proj3 = new Array(16);
-    var simTime = 0.0;
-
+    var clock = new THREE.Clock(), proj3 = new Array(16), simTime = 0;
     function animate(){
+      if (canvas2dActive) return;
       requestAnimationFrame(animate);
-      var dt = Math.min(clock.getDelta(), 0.05);
-      simTime += dt * hyperSpeed;
+      simTime += Math.min(clock.getDelta(), 0.05) * hyperSpeed;
       var t = simTime;
+      orbitYaw += (targetYaw - orbitYaw) * 0.07; orbitPitch += (targetPitch - orbitPitch) * 0.07;
+      camera.position.set(Math.sin(orbitYaw)*9.2, 0.25 + orbitPitch*3.1, Math.cos(orbitYaw)*9.2); camera.lookAt(0, -0.12, 0.35);
 
-      orbitYaw += (targetYaw - orbitYaw) * 0.07;
-      orbitPitch += (targetPitch - orbitPitch) * 0.07;
-      var radius = 9.2;
-      camera.position.x = Math.sin(orbitYaw) * radius;
-      camera.position.z = Math.cos(orbitYaw) * radius;
-      camera.position.y = 0.25 + orbitPitch * 3.1;
-      camera.lookAt(0, -0.12, 0.35);
-
-      // Live 4D Tesseract rotation across XW, YW, ZW, and XY hyperplanes!
-      var aXW = t * 0.72, aYW = t * 0.48, aZW = t * 0.36, aXY = t * 0.28;
-      var cXW = Math.cos(aXW), sXW = Math.sin(aXW);
-      var cYW = Math.cos(aYW), sYW = Math.sin(aYW);
-      var cZW = Math.cos(aZW), sZW = Math.sin(aZW);
-      var cXY = Math.cos(aXY), sXY = Math.sin(aXY);
-
+      var cXW=Math.cos(t*0.72), sXW=Math.sin(t*0.72), cYW=Math.cos(t*0.48), sYW=Math.sin(t*0.48), cZW=Math.cos(t*0.36), sZW=Math.sin(t*0.36), cXY=Math.cos(t*0.28), sXY=Math.sin(t*0.28);
       var nArr = tessNodeGeo.attributes.position.array;
       for (var i = 0; i < 16; i++) {
-        var x = tVerts4[i][0], y = tVerts4[i][1], z = tVerts4[i][2], w = tVerts4[i][3];
-        var nx = x * cXW - w * sXW, nw = x * sXW + w * cXW; x = nx; w = nw;
-        var ny = y * cYW - w * sYW; nw = y * sYW + w * cYW; y = ny; w = nw;
-        var nz = z * cZW - w * sZW; nw = z * sZW + w * cZW; z = nz; w = nw;
-        nx = x * cXY - y * sXY; ny = x * sXY + y * cXY; x = nx; y = ny;
-
-        var persp4 = 3.1 / (3.1 - w * 0.75);
-        var px = x * persp4 * 1.45, py = y * persp4 * 1.45, pz = z * persp4 * 1.45;
-        proj3[i] = [px, py, pz, w];
-        nArr[i*3] = px; nArr[i*3+1] = py; nArr[i*3+2] = pz;
+        var x=tVerts4[i][0], y=tVerts4[i][1], z=tVerts4[i][2], w=tVerts4[i][3];
+        var nx=x*cXW-w*sXW, nw=x*sXW+w*cXW; x=nx; w=nw; var ny=y*cYW-w*sYW; nw=y*sYW+w*cYW; y=ny; w=nw; var nz=z*cZW-w*sZW; nw=z*sZW+w*cZW; z=nz; w=nw;
+        nx=x*cXY-y*sXY; ny=x*sXY+y*cXY; x=nx; y=ny;
+        var p4 = 3.1 / (3.1 - w * 0.75);
+        proj3[i] = [x*p4*1.45, y*p4*1.45, z*p4*1.45, w];
+        nArr[i*3]=proj3[i][0]; nArr[i*3+1]=proj3[i][1]; nArr[i*3+2]=proj3[i][2];
       }
       tessNodeGeo.attributes.position.needsUpdate = true;
-
-      var lPos = tessLineGeo.attributes.position.array;
-      var lCol = tessLineGeo.attributes.color.array;
+      var lPos = tessLineGeo.attributes.position.array, lCol = tessLineGeo.attributes.color.array;
       for (var e = 0; e < tEdges.length; e++) {
-        var pA = proj3[tEdges[e][0]], pB = proj3[tEdges[e][1]];
-        var base = e * 6;
-        lPos[base] = pA[0]; lPos[base+1] = pA[1]; lPos[base+2] = pA[2];
-        lPos[base+3] = pB[0]; lPos[base+4] = pB[1]; lPos[base+5] = pB[2];
-        // 4th-dimension W depth shifts edge color between liquid gold & electric cyan!
-        var wMixA = 0.5 + 0.5 * pA[3], wMixB = 0.5 + 0.5 * pB[3];
-        lCol[base]   = 0.22 + 0.78 * wMixA; lCol[base+1] = 0.78 + 0.06 * wMixA; lCol[base+2] = 1.0 - 0.78 * wMixA;
-        lCol[base+3] = 0.22 + 0.78 * wMixB; lCol[base+4] = 0.78 + 0.06 * wMixB; lCol[base+5] = 1.0 - 0.78 * wMixB;
+        var pA = proj3[tEdges[e][0]], pB = proj3[tEdges[e][1]], b = e * 6;
+        lPos[b]=pA[0]; lPos[b+1]=pA[1]; lPos[b+2]=pA[2]; lPos[b+3]=pB[0]; lPos[b+4]=pB[1]; lPos[b+5]=pB[2];
+        var wA = 0.5 + 0.5*pA[3], wB = 0.5 + 0.5*pB[3];
+        lCol[b]=0.22+0.78*wA; lCol[b+1]=0.78+0.06*wA; lCol[b+2]=1.0-0.78*wA;
+        lCol[b+3]=0.22+0.78*wB; lCol[b+4]=0.78+0.06*wB; lCol[b+5]=1.0-0.78*wB;
       }
-      tessLineGeo.attributes.position.needsUpdate = true;
-      tessLineGeo.attributes.color.needsUpdate = true;
-
-      // Animate 5D Mobius Strip ribbon & GLSL plasma flow
-      mobiusUnif.uTime.value = t;
-      mobiusMesh.rotation.x = 0.55 + Math.sin(t * 0.35) * 0.28;
-      mobiusMesh.rotation.y = t * 0.24;
-      mobiusMesh.rotation.z = Math.cos(t * 0.22) * 0.35;
-
-      // Drive living card internal plasma shaders
-      for (var u_i = 0; u_i < livingUniforms.length; u_i++) {
-        livingUniforms[u_i].uTime.value = t;
-        livingUniforms[u_i].uTilt.value.set(orbitYaw, orbitPitch);
-      }
-
-      goldLight.position.set(Math.cos(t * 0.8) * 6.0, 1.8 + Math.sin(t * 0.6) * 2.4, 4.5);
-      cyanLight.position.set(Math.sin(t * 0.7) * 6.0, -1.4 + Math.cos(t * 0.5) * 2.0, 4.5);
-      violetLight.position.set(Math.cos(t * 0.5) * 4.5, Math.sin(t * 0.9) * 3.0, -1.0);
-
-      var arr = embers.geometry.attributes.position.array;
-      for (var i = 0; i < pCount; i++) {
-        arr[i*3+1] += 0.007 * hyperSpeed;
-        arr[i*3+2] += 0.014 * hyperSpeed;
-        if (arr[i*3+2] > 8.5 || arr[i*3+1] > 5.4) {
-          arr[i*3+1] = -4.8; arr[i*3+2] = -4.5;
-        }
-      }
-      embers.geometry.attributes.position.needsUpdate = true;
-
-      raycaster.setFromCamera(mouse, camera);
-      var hits = raycaster.intersectObjects(cardMeshes);
-      var hoverObj = hits.length ? hits[0].object : null;
-
+      tessLineGeo.attributes.position.needsUpdate = true; tessLineGeo.attributes.color.needsUpdate = true;
+      mobiusUnif.uTime.value = t; mobiusMesh.rotation.set(0.55 + Math.sin(t*0.35)*0.28, t*0.24, Math.cos(t*0.22)*0.35);
+      for (var u_i = 0; u_i < livingUniforms.length; u_i++) { livingUniforms[u_i].uTime.value = t; livingUniforms[u_i].uTilt.value.set(orbitYaw, orbitPitch); }
+      goldLight.position.set(Math.cos(t*0.8)*6, 1.8+Math.sin(t*0.6)*2.4, 4.5); cyanLight.position.set(Math.sin(t*0.7)*6, -1.4, 4.5);
       cardMeshes.forEach(function(m, i){
         var u = m.userData;
-        var isH = (m === hoverObj);
-        var goalZ = u.targetZ + (isH ? 0.52 : 0);
-        m.position.z += (goalZ - m.position.z) * 0.095;
-        m.position.y = u.baseY + Math.sin(t * 1.65 + i * 1.45) * 0.14;
-        var goalRy = u.slot.ry + u.targetFlip + Math.sin(t * 0.9 + i) * 0.05;
-        m.rotation.y += (goalRy - m.rotation.y) * 0.10;
-        var goalRx = isH ? -mouse.y * 0.22 : Math.cos(t * 0.8 + i) * 0.04;
-        m.rotation.x += (goalRx - m.rotation.x) * 0.08;
-
-        if (u.sparks.visible) {
-          var sp = u.sparks.geometry.attributes.position.array;
-          for (var k = 0; k < sp.length; k += 3) {
-            sp[k+1] += 0.010 * hyperSpeed;
-            sp[k+2] -= 0.017 * hyperSpeed;
-            if (sp[k+2] < -1.55 || sp[k+1] > 1.45) {
-              sp[k] = (Math.random() - 0.5) * 1.25;
-              sp[k+1] = (Math.random() - 0.5) * 1.35;
-              sp[k+2] = -0.07;
-            }
-          }
-          u.sparks.geometry.attributes.position.needsUpdate = true;
-        }
+        m.position.z += (u.targetZ - m.position.z) * 0.095;
+        m.position.y = u.baseY + Math.sin(t*1.65 + i*1.45)*0.14;
+        m.rotation.y += ((u.slot.ry + u.targetFlip + Math.sin(t*0.9 + i)*0.05) - m.rotation.y) * 0.10;
       });
-
       renderer.render(scene, camera);
     }
     animate();
