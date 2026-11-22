@@ -1,4 +1,4 @@
-import datetime as dt
+﻿import datetime as dt
 import os
 import re
 import sqlite3
@@ -98,7 +98,7 @@ def main():
     built = []
     if os.path.exists(CRM_DB):
         c = sqlite3.connect(CRM_DB)
-        rows = c.execute("SELECT company, contact, email FROM prospects ORDER BY id ASC LIMIT 10").fetchall()
+        rows = c.execute("SELECT company, contact, email FROM prospects ORDER BY id ASC LIMIT 1000").fetchall()
         c.close()
         for comp, cont, em in rows:
             built.append(generate_proposal_pdf(comp or "Partner", cont or "Executive Team", em or ""))
@@ -111,3 +111,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
