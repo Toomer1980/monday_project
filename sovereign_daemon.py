@@ -576,31 +576,43 @@ def _oracle_inject_store_router(resp):
 
 
 
+
+
+
+
+
+
+
+
+
 # === ORACLE_4D_STOREFRONT_HOOK_START ===
 @app.before_request
-def _oracle_handle_fast_cash_tiers():
+def _oracle_webgl_v19_router():
     try:
-        from flask import request as _req, redirect as _redir, jsonify as _jfy, send_from_directory as _sfd
+        from flask import request as _req, redirect as _redir, jsonify as _jfy, send_from_directory as _sfd, Response as _Resp
         import json as _j, os as _o, sqlite3 as _sq, datetime as _dt
         base_dir = _o.path.dirname(_o.path.abspath(__file__))
+        if _req.path == "/store":
+            html_p = _o.path.join(base_dir, "static", "oracle_webgl_store.html")
+            if _o.path.exists(html_p):
+                return _Resp(open(html_p, "r", encoding="utf-8").read(), mimetype="text/html")
         if _req.path.startswith("/assets/tarot_deck/"):
             return _sfd(_o.path.join(base_dir, "assets", "tarot_deck"), _req.path.rsplit("/", 1)[-1])
-        if _req.path == "/static/omega_card_spread.js":
-            return _sfd(_o.path.join(base_dir, "static"), "omega_card_spread.js", mimetype="application/javascript")
         if _req.path.startswith("/static/card_voices/"):
             return _sfd(_o.path.join(base_dir, "static", "card_voices"), _req.path.rsplit("/", 1)[-1], mimetype="audio/mpeg")
-        if _req.path == "/static/omega_5d_engine.js":
-            return _sfd(_o.path.join(base_dir, "static"), "omega_5d_engine.js", mimetype="application/javascript")
+        if _req.path == "/api/deck-manifest":
+            mp = _o.path.join(base_dir, "data", "verified_deck_manifest.json")
+            return _jfy(_j.load(open(mp, "r", encoding="utf-8")) if _o.path.exists(mp) else [])
         if _req.path == "/api/live-pulse":
             clicks, views = 0, 0
             udb = _o.path.join(base_dir, "data", "utm_analytics.db")
             if _o.path.exists(udb):
                 try:
-                    c = _sq.connect(udb); clicks = int(c.execute('SELECT COUNT(*) FROM utm_clicks').fetchone()[0]); c.close()
+                    c = _sq.connect(udb); clicks = int(c.execute("SELECT COUNT(*) FROM utm_clicks").fetchone()[0]); c.close()
                 except Exception: pass
             ya = _o.path.join(base_dir, "data", "youtube_analytics.json")
             if _o.path.exists(ya):
-                try: views = int((_j.load(open(ya, 'r', encoding='utf-8')).get('totals') or {}).get('views', 0))
+                try: views = int((_j.load(open(ya, "r", encoding="utf-8")).get("totals") or {}).get("views", 0))
                 except Exception: pass
             return _jfy({"vault_videos": 104, "utm_clicks": clicks, "yt_views": views, "status": "LIVE"})
         if _req.path in ("/go/assetpack15", "/go/vaultsub15"):
@@ -616,12 +628,9 @@ def _oracle_handle_fast_cash_tiers():
                     c = _sq.connect(udb)
                     cols = [r[1] for r in c.execute("PRAGMA table_info(utm_clicks)").fetchall()]
                     vals_map = {
-                        "tier": tier_key,
-                        "utm_source": _req.args.get("utm_source", "store_hero"),
-                        "utm_medium": _req.args.get("utm_medium", "card"),
-                        "utm_campaign": _req.args.get("utm_campaign", "omega_5d_v16"),
-                        "target_url": target,
-                        "ip": _req.remote_addr or "",
+                        "tier": tier_key, "utm_source": _req.args.get("utm_source", "webgl_store"),
+                        "utm_medium": _req.args.get("utm_medium", "card"), "utm_campaign": _req.args.get("utm_campaign", "v19"),
+                        "target_url": target, "ip": _req.remote_addr or "",
                         "user_agent": (_req.headers.get("User-Agent") or "")[:200],
                         "timestamp_utc": _dt.datetime.utcnow().isoformat() + "Z",
                         "created_utc": _dt.datetime.utcnow().isoformat() + "Z",
@@ -638,90 +647,25 @@ def _oracle_handle_fast_cash_tiers():
 
 
 @app.after_request
-def _oracle_enhance_4d_store_and_portal(resp):
+def _oracle_portal_upsell_v19(resp):
     try:
         from flask import request as _req
         import re as _re
-        ct = (resp.content_type or "").lower()
-        if resp.status_code != 200 or "text/html" not in ct: return resp
-        if _req.path not in ("/store", "/portal"): return resp
-        body = resp.get_data(as_text=True)
-        if _req.path == "/store" and "oracle-4d-hero" not in body:
-            hero = (
-                '<style>'
-                'body{background:#040712 !important;color:#e2e8f0 !important;font-family:"Segoe UI",system-ui,sans-serif !important;position:relative;}'
-                'body > *:not(#omega-5d-canvas){position:relative;z-index:2;}'
-                '#oracle-4d-hero{max-width:1180px;margin:22px auto 28px auto;padding:30px 26px;backdrop-filter:blur(10px);'
-                'background:linear-gradient(135deg,rgba(7,13,31,0.86) 0%,rgba(15,23,42,0.82) 55%,rgba(9,19,38,0.88) 100%);'
-                'border:1px solid rgba(56,189,248,0.52);border-radius:16px;box-shadow:0 0 48px rgba(14,165,233,0.24),inset 0 0 24px rgba(250,204,21,0.06);}'
-                '.o4d-pulse{display:inline-block;padding:6px 12px;border-radius:999px;background:rgba(16,185,129,0.14);border:1px solid rgba(16,185,129,0.45);color:#6ee7b7;font-size:11px;font-weight:700;letter-spacing:1.4px;margin-bottom:10px;}'
-                '.o4d-kicker{color:#38bdf8;font-size:11px;letter-spacing:2.2px;font-weight:700;text-transform:uppercase;}'
-                '.o4d-title{margin:8px 0 10px 0;font-size:34px;line-height:1.15;'
-                'background:linear-gradient(90deg,#facc15,#38bdf8,#c084fc,#fef08a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}'
-                '.o4d-sub{color:#cbd5e1;font-size:15px;max-width:860px;margin:0 0 22px 0;line-height:1.5;}'
-                '.o4d-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:15px;}'
-                '.o4d-card{background:rgba(10,16,34,0.92);border:1px solid rgba(250,204,21,0.32);border-radius:12px;padding:18px;'
-                'display:flex;flex-direction:column;justify-content:space-between;transition:transform 0.2s ease,box-shadow 0.2s ease;}'
-                '.o4d-card:hover{transform:translateY(-4px);box-shadow:0 10px 30px rgba(56,189,248,0.28);}'
-                '.o4d-card.featured{border:1.5px solid #38bdf8;box-shadow:0 0 26px rgba(56,189,248,0.28);}'
-                '.o4d-badge{display:inline-block;font-size:10px;font-weight:800;padding:3px 8px;border-radius:4px;background:#facc15;color:#050814;margin-bottom:6px;letter-spacing:1px;}'
-                '.o4d-price{font-size:26px;font-weight:800;color:#facc15;margin:4px 0;}'
-                '.o4d-anchor{font-size:12px;color:#64748b;text-decoration:line-through;margin-left:6px;font-weight:500;}'
-                '.o4d-desc{font-size:13px;color:#94a3b8;margin:6px 0 14px 0;line-height:1.45;}'
-                '.o4d-btn{display:block;text-align:center;padding:11px 14px;border-radius:8px;font-weight:800;text-decoration:none;color:#050814;'
-                'background:linear-gradient(90deg,#facc15,#38bdf8);letter-spacing:0.4px;}'
-                '.o4d-btn.alt{background:linear-gradient(90deg,#0284c7,#059669);color:#f8fafc;}'
-                '.o4d-ref{margin-top:20px;padding:16px 18px;border-radius:12px;background:rgba(15,23,42,0.88);border:1px dashed rgba(250,204,21,0.55);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;}'
-                '</style>'
-                '<section id="oracle-4d-hero">'
-                '<div id="omega-live-pulse" class="o4d-pulse">LIVE TELEMETRY: 104 4D ASSETS RENDERED  |  STRIPE-VERIFIED INSTANT FULFILLMENT ACTIVE</div>'
-                '<div class="o4d-kicker">ORACLE SYSTEMS LLC // INTERACTIVE 5D PENTERACT &amp; 4D TESSERACT ARCHITECTURE</div>'
-                '<h1 class="o4d-title">Step Into Sovereign 4D/5D Media, Custom Aura Readings &amp; Autonomous AI Compute</h1>'
-                '<p class="o4d-sub">Explore the live illustrated tarot spread below or select a tier for instant Stripe-verified digital fulfillment and member portal access.</p>'
-                '<div class="o4d-grid">'
-                '<div class="o4d-card featured"><div><span class="o4d-badge">FASTEST START</span><div class="o4d-kicker">CREATOR ASSET PACK</div><div class="o4d-price">$15<span class="o4d-anchor">$49 value</span></div>'
-                '<p class="o4d-desc">Instant commercial-use ZIP: seamless 16:9 + 9:16 4D Tesseract/Mobius video loops &amp; 3D pop-out templates for YouTube, TikTok &amp; OBS.</p></div>'
-                '<a class="o4d-btn" href="/go/assetpack15?utm_source=store_hero&utm_medium=card&utm_campaign=omega_v16">Unlock Instant Pack ($15)</a></div>'
-                '<div class="o4d-card featured"><div><span class="o4d-badge">RECURRING VAULT</span><div class="o4d-kicker">SOVEREIGN MEMBER VAULT</div><div class="o4d-price">$15/mo<span class="o4d-anchor">$39/mo</span></div>'
-                '<p class="o4d-desc">Unlimited 30-min 4D transmissions, ad-free 432Hz harmonic downloads, early drops &amp; priority member upgrades. Cancel anytime.</p></div>'
-                '<a class="o4d-btn" href="/go/vaultsub15?utm_source=store_hero&utm_medium=card&utm_campaign=omega_v16">Join 4D Vault ($15/mo)</a></div>'
-                '<div class="o4d-card"><div><div class="o4d-kicker">TIER 1 // BLUEPRINT</div><div class="o4d-price">$29</div>'
-                '<p class="o4d-desc">Complete 52-Week Collective Reading &amp; Media Blueprint with immediate portal access and monetization schedules.</p></div>'
-                '<a class="o4d-btn" href="/go/tier29?utm_source=store_hero&utm_medium=card&utm_campaign=omega_v16">Unlock Blueprint ($29)</a></div>'
-                '<div class="o4d-card featured"><div><span class="o4d-badge">MOST POPULAR</span><div class="o4d-kicker">PERSONALIZED 4D AURA</div><div class="o4d-price">$49<span class="o4d-anchor">$129 value</span></div>'
-                '<p class="o4d-desc">Bespoke 4D Tesseract &amp; Mobius Aura Reading MP4 custom-rendered with your name, focus topic &amp; 432Hz audio—auto-delivered to your inbox.</p></div>'
-                '<a class="o4d-btn" href="/go/auravideo49?utm_source=store_hero&utm_medium=card&utm_campaign=omega_v16">Claim Custom 4D Aura ($49)</a></div>'
-                '<div class="o4d-card"><div><div class="o4d-kicker">TURNKEY CREATOR STACK</div><div class="o4d-price">$1,500</div>'
-                '<p class="o4d-desc">Full Oracle Systems Storefront Bundle: autonomous 52-week 4D pipeline, Stripe webhook automation, YouTube API bot &amp; B2B CRM.</p></div>'
-                '<a class="o4d-btn alt" href="/go/fullstorefront?utm_source=store_hero&utm_medium=card&utm_campaign=omega_v16">Deploy Full Stack ($1,500)</a></div>'
-                '<div class="o4d-card"><div><div class="o4d-kicker">ENTERPRISE DEDICATED NODE</div><div class="o4d-price">$49,999</div>'
-                '<p class="o4d-desc">Dedicated turnkey Pro_Node AI compute infrastructure for agencies &amp; studios (50% ACH Milestone 1 deposit / zero per-seat SaaS fees).</p></div>'
-                '<a class="o4d-btn alt" href="/go/pro_node?utm_source=store_hero&utm_medium=card&utm_campaign=omega_v16">Reserve Pro_Node ($49,999)</a></div>'
-                '</div>'
-                '<div class="o4d-ref">'
-                '<div><strong style="color:#facc15;">Share the 5D Portal &amp; Unlock Bonus Loops:</strong> <span style="color:#cbd5e1;font-size:13px;">Send your personal creator link to 2 friends or post it on X/TikTok.</span></div>'
-                '<div style="display:flex;gap:8px;align-items:center;"><input id="omega-ref-url" readonly value="Click Copy to generate your tracked referral link" style="background:#050814;color:#38bdf8;border:1px solid #334155;border-radius:6px;padding:7px 10px;width:270px;font-size:12px;">'
-                '<button id="omega-ref-btn" onclick="omegaCopyRef()" style="cursor:pointer;padding:8px 14px;border:none;border-radius:6px;background:linear-gradient(90deg,#facc15,#38bdf8);color:#050814;font-weight:800;font-size:12px;">Copy Referral Link</button></div>'
-                '</div></section><script src="/static/omega_5d_engine.js"></script>'
-            )
-            if _re.search(r'<body[^>]*>', body, flags=_re.IGNORECASE):
-                body = _re.sub(r'(<body[^>]*>)', lambda m: m.group(1) + hero, body, count=1, flags=_re.IGNORECASE)
-            else: body = hero + body
-            resp.set_data(body)
-        if _req.path == "/portal" and "oracle-portal-upsell" not in body and "</body>" in body.lower():
-            banner = (
-                '<div id="oracle-portal-upsell" style="position:relative;z-index:2;max-width:820px;margin:24px auto;padding:24px;'
-                'background:linear-gradient(135deg,rgba(7,13,31,0.94),rgba(17,24,39,0.94));border:1.5px solid #f59e0b;border-radius:14px;'
-                'box-shadow:0 0 32px rgba(245,158,11,0.22);font-family:sans-serif;color:#f8fafc;text-align:center;">'
-                '<div style="color:#38bdf8;font-size:12px;letter-spacing:2px;font-weight:bold;">VERIFIED MEMBER ASCENSION // ORACLE SYSTEMS LLC</div>'
-                '<h3 style="margin:8px 0;color:#facc15;">Scale Your Stack: $15/mo Vault, $1,500 Full Bundle, or Dedicated Pro_Node</h3>'
-                '<a href="/go/vaultsub15?utm_source=portal_upsell&utm_medium=banner&utm_campaign=omega_v16" target="_blank" rel="noopener" style="display:inline-block;margin:6px;padding:10px 16px;background:#f59e0b;color:#050814;text-decoration:none;border-radius:7px;font-weight:bold;">Join 4D Vault ($15/mo)</a>'
-                '<a href="/go/fullstorefront?utm_source=portal_upsell&utm_medium=banner&utm_campaign=omega_v16" target="_blank" rel="noopener" style="display:inline-block;margin:6px;padding:10px 16px;background:#059669;color:#fff;text-decoration:none;border-radius:7px;font-weight:bold;">Full Storefront ($1,500)</a>'
-                '<a href="/go/pro_node?utm_source=portal_upsell&utm_medium=banner&utm_campaign=omega_v16" target="_blank" rel="noopener" style="display:inline-block;margin:6px;padding:10px 16px;background:#0284c7;color:#fff;text-decoration:none;border-radius:7px;font-weight:bold;">Pro_Node ($49,999)</a>'
-                '</div><script src="/static/omega_5d_engine.js"></script></body>'
-            )
-            body = _re.sub(r'</body>', banner, body, count=1, flags=_re.IGNORECASE)
-            resp.set_data(body)
+        if resp.status_code == 200 and "text/html" in (resp.content_type or "").lower() and _req.path == "/portal":
+            body = resp.get_data(as_text=True)
+            if "oracle-portal-upsell" not in body and "</body>" in body.lower():
+                banner = (
+                    '<div id="oracle-portal-upsell" style="max-width:820px;margin:24px auto;padding:24px;'
+                    'background:linear-gradient(135deg,#070d1f,#111827);border:1.5px solid #f59e0b;border-radius:14px;'
+                    'font-family:sans-serif;color:#f8fafc;text-align:center;">'
+                    '<div style="color:#38bdf8;font-size:12px;letter-spacing:2px;font-weight:bold;">VERIFIED MEMBER ASCENSION // ORACLE SYSTEMS LLC</div>'
+                    '<h3 style="margin:8px 0;color:#facc15;">Scale Your Stack: $15/mo Vault, $1,500 Full Bundle, or Dedicated Pro_Node</h3>'
+                    '<a href="/go/vaultsub15?utm_source=portal_upsell&utm_medium=banner&utm_campaign=v19" target="_blank" style="display:inline-block;margin:6px;padding:10px 16px;background:#f59e0b;color:#050814;text-decoration:none;border-radius:7px;font-weight:bold;">Join 4D Vault ($15/mo)</a>'
+                    '<a href="/go/fullstorefront?utm_source=portal_upsell&utm_medium=banner&utm_campaign=v19" target="_blank" style="display:inline-block;margin:6px;padding:10px 16px;background:#059669;color:#fff;text-decoration:none;border-radius:7px;font-weight:bold;">Full Storefront ($1,500)</a>'
+                    '<a href="/go/pro_node?utm_source=portal_upsell&utm_medium=banner&utm_campaign=v19" target="_blank" style="display:inline-block;margin:6px;padding:10px 16px;background:#0284c7;color:#fff;text-decoration:none;border-radius:7px;font-weight:bold;">Pro_Node ($49,999)</a>'
+                    '</div></body>'
+                )
+                resp.set_data(_re.sub(r'</body>', banner, body, count=1, flags=_re.IGNORECASE))
     except Exception: pass
     return resp
 # === ORACLE_4D_STOREFRONT_HOOK_END ===

@@ -115,3 +115,7 @@ reports/Daily_Traffic_Pack_*.md
 reports/Omega_Bandit_Strategy.md
 reports/AI_Self_Heal_Log.md
 logs/daemon_boot.log
+data/verified_deck_manifest.json
+reports/Deep_QA_Audit.md
+logs/cinema_shorts_work/
+logs/real_reading_work/

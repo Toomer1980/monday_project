@@ -7,11 +7,11 @@
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:#02040a;color:#e2e8f0;font-family:"Segoe UI",system-ui,-apple-system,sans-serif;overflow-x:hidden;}
-  .top-nav{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:14px 32px;background:rgba(2,4,10,0.84);backdrop-filter:blur(16px);border-bottom:1px solid rgba(250,204,21,0.24);}
+  .top-nav{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:14px 32px;background:rgba(2,4,10,0.88);backdrop-filter:blur(16px);border-bottom:1px solid rgba(250,204,21,0.24);}
   .brand{font-weight:900;letter-spacing:2.4px;font-size:13px;color:#facc15;}
   .nav-links a{color:#cbd5e1;text-decoration:none;margin-left:22px;font-size:13px;font-weight:600;transition:color .2s;}
   .nav-links a:hover{color:#facc15;}
-  .stage-wrap{position:relative;width:100%;height:720px;background:radial-gradient(ellipse at 50% 45%,#101733 0%,#040712 58%,#010206 100%);border-bottom:1px solid rgba(250,204,21,0.32);overflow:hidden;user-select:none;}
+  .stage-wrap{position:relative;width:100%;height:730px;background:radial-gradient(ellipse at 50% 45%,#0c1328 0%,#030610 58%,#010205 100%);border-bottom:1px solid rgba(250,204,21,0.30);overflow:hidden;user-select:none;}
   #webgl-stage{position:absolute;inset:0;width:100%;height:100%;cursor:grab;}
   #webgl-stage:active{cursor:grabbing;}
   .stage-hud-top{position:absolute;top:16px;left:0;right:0;text-align:center;pointer-events:none;z-index:10;padding:0 16px;}
@@ -19,11 +19,11 @@
   .stage-hud-top h1{font-size:32px;font-weight:900;letter-spacing:-0.4px;background:linear-gradient(90deg,#fef08a,#facc15,#38bdf8,#fef08a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
   .stage-hud-top p{color:#94a3b8;font-size:13px;margin-top:4px;}
   .stage-hud-bottom{position:absolute;bottom:18px;left:0;right:0;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;z-index:10;padding:0 16px;}
-  .cta-gold{cursor:pointer;padding:11px 20px;border:none;border-radius:9px;font-weight:800;font-size:13px;background:linear-gradient(90deg,#facc15,#f59e0b,#38bdf8);color:#040712;box-shadow:0 8px 28px rgba(250,204,21,0.36);text-decoration:none;transition:transform .18s;}
+  .cta-gold{cursor:pointer;padding:11px 20px;border:none;border-radius:9px;font-weight:800;font-size:13px;background:linear-gradient(90deg,#facc15,#f59e0b,#38bdf8);color:#040712;box-shadow:0 8px 26px rgba(250,204,21,0.32);text-decoration:none;transition:transform .18s;}
   .cta-gold:hover{transform:translateY(-2px);}
-  .cta-glass{cursor:pointer;padding:11px 18px;border:1px solid rgba(56,189,248,0.55);border-radius:9px;font-weight:700;font-size:13px;background:rgba(8,14,30,0.82);color:#e2e8f0;backdrop-filter:blur(8px);text-decoration:none;transition:all .18s;}
+  .cta-glass{cursor:pointer;padding:11px 18px;border:1px solid rgba(56,189,248,0.55);border-radius:9px;font-weight:700;font-size:13px;background:rgba(8,14,30,0.84);color:#e2e8f0;backdrop-filter:blur(8px);text-decoration:none;transition:all .18s;}
   .cta-glass:hover{border-color:#facc15;color:#facc15;}
-  #active-card-caption{position:absolute;bottom:70px;left:50%;transform:translateX(-50%);z-index:10;padding:7px 20px;border-radius:999px;background:rgba(4,7,18,0.88);border:1px solid rgba(250,204,21,0.5);color:#fef08a;font-size:12.5px;font-weight:700;letter-spacing:0.6px;white-space:nowrap;pointer-events:none;max-width:92vw;overflow:hidden;text-overflow:ellipsis;}
+  #active-card-caption{position:absolute;bottom:70px;left:50%;transform:translateX(-50%);z-index:10;padding:7px 20px;border-radius:999px;background:rgba(4,7,18,0.90);border:1px solid rgba(250,204,21,0.5);color:#fef08a;font-size:12.5px;font-weight:700;letter-spacing:0.6px;white-space:nowrap;pointer-events:none;max-width:92vw;overflow:hidden;text-overflow:ellipsis;}
   .container{max-width:1200px;margin:0 auto;padding:44px 24px 64px 24px;}
   .sec-kicker{color:#38bdf8;font-size:11px;font-weight:800;letter-spacing:2.4px;text-transform:uppercase;text-align:center;}
   .sec-title{text-align:center;font-size:30px;font-weight:800;margin:8px 0 28px 0;color:#f8fafc;}
@@ -53,19 +53,20 @@
   </div>
 </nav>
 
-<section class="stage-wrap">
+<section class="stage-wrap" id="stage-box">
   <div class="stage-hud-top">
-    <div id="omega-live-pulse" class="pulse-pill">LIVE GPU WEBGL + UNREAL BLOOM 3D ENGINE // STRIPE LIVE</div>
+    <div id="omega-live-pulse" class="pulse-pill">CALIBRATED GPU 3D STAGE // STRIPE LIVE FULFILLMENT</div>
     <h1>Live 3D Ray-Lit Tarot Portal &amp; Sovereign AI Compute</h1>
-    <p>Drag to orbit in 3D space. Click any floating card to pop it forward with bloom lighting &amp; studio neural voice.</p>
+    <p>Drag to orbit in 3D space. Click any floating card to bring it forward, flip with true obsidian contrast &amp; hear studio neural narration.</p>
   </div>
   <canvas id="webgl-stage"></canvas>
   <div id="active-card-caption">DRAG TO ORBIT 3D STAGE  |  CLICK ANY CARD TO POP OUT &amp; REVEAL</div>
   <div class="stage-hud-bottom">
     <button class="cta-gold" onclick="window.revealAll3DCards()">Reveal 3D Spread + Studio Voice</button>
-    <button class="cta-glass" onclick="window.shuffleAndDraw3D()">Shuffle Deck &amp; Draw 3 New Cards</button>
-    <a class="cta-glass" href="/go/auravideo49?utm_source=webgl_bloom&utm_medium=hero&utm_campaign=cinema_v20">Order Custom 4D Aura ($49)</a>
-    <a class="cta-glass" href="/go/assetpack15?utm_source=webgl_bloom&utm_medium=hero&utm_campaign=cinema_v20">Instant Asset Pack ($15)</a>
+    <button class="cta-glass" onclick="window.shuffleAndDraw3D()">Shuffle Verified Deck &amp; Draw 3</button>
+    <button class="cta-glass" onclick="window.toggle3DFullscreen()">Fullscreen 3D</button>
+    <a class="cta-glass" href="/go/auravideo49?utm_source=webgl_v22&utm_medium=hero&utm_campaign=cinema_v22">Order Custom 4D Aura ($49)</a>
+    <a class="cta-glass" href="/go/assetpack15?utm_source=webgl_v22&utm_medium=hero&utm_campaign=cinema_v22">Asset Pack ($15)</a>
   </div>
 </section>
 
@@ -74,63 +75,39 @@
   <h2 class="sec-title">Select Your Sovereign Tier</h2>
   <div class="tier-grid">
     <div class="tier-card featured">
-      <div>
-        <span class="badge">FASTEST START</span>
-        <div class="t-name">Creator Asset Pack</div>
-        <div class="t-price">$15<span class="t-anchor">$49 value</span></div>
-        <p class="t-desc">Commercial-use instant ZIP: seamless 16:9 &amp; 9:16 4D motion loops, celestial overlays &amp; high-res templates for YouTube, TikTok &amp; OBS.</p>
-      </div>
-      <a class="t-btn" href="/go/assetpack15?utm_source=store_v20&utm_medium=card&utm_campaign=tier15">Unlock Instant Pack ($15)</a>
+      <div><span class="badge">FASTEST START</span><div class="t-name">Creator Asset Pack</div><div class="t-price">$15<span class="t-anchor">$49 value</span></div>
+      <p class="t-desc">Commercial-use instant ZIP: seamless 16:9 &amp; 9:16 4D motion loops, ray-traced 3D spread templates &amp; overlays for YouTube, TikTok &amp; OBS.</p></div>
+      <a class="t-btn" href="/go/assetpack15?utm_source=store_v22&utm_medium=card&utm_campaign=tier15">Unlock Instant Pack ($15)</a>
     </div>
     <div class="tier-card featured">
-      <div>
-        <span class="badge">RECURRING VAULT</span>
-        <div class="t-name">Sovereign Member Vault</div>
-        <div class="t-price">$15/mo<span class="t-anchor">$39/mo</span></div>
-        <p class="t-desc">Unlimited access to full multi-chapter collective readings, ad-free 432Hz studio audio drops &amp; priority member portal releases.</p>
-      </div>
-      <a class="t-btn" href="/go/vaultsub15?utm_source=store_v20&utm_medium=card&utm_campaign=vault15">Join Member Vault ($15/mo)</a>
+      <div><span class="badge">RECURRING VAULT</span><div class="t-name">Sovereign Member Vault</div><div class="t-price">$15/mo<span class="t-anchor">$39/mo</span></div>
+      <p class="t-desc">Unlimited access to full multi-chapter collective readings, ad-free 432Hz studio audio drops &amp; priority member portal releases.</p></div>
+      <a class="t-btn" href="/go/vaultsub15?utm_source=store_v22&utm_medium=card&utm_campaign=vault15">Join Member Vault ($15/mo)</a>
     </div>
     <div class="tier-card">
-      <div>
-        <div class="t-name">Tier 1 // Blueprint</div>
-        <div class="t-price">$29</div>
-        <p class="t-desc">Complete 52-Week Collective Reading &amp; Media Automation Blueprint with viral hooks, publishing schedules &amp; portal access.</p>
-      </div>
-      <a class="t-btn" href="/go/tier29?utm_source=store_v20&utm_medium=card&utm_campaign=tier29">Unlock Blueprint ($29)</a>
+      <div><div class="t-name">Tier 1 // Blueprint</div><div class="t-price">$29</div>
+      <p class="t-desc">Complete 52-Week Collective Reading &amp; Media Automation Blueprint with viral hooks, publishing schedules &amp; portal access.</p></div>
+      <a class="t-btn" href="/go/tier29?utm_source=store_v22&utm_medium=card&utm_campaign=tier29">Unlock Blueprint ($29)</a>
     </div>
     <div class="tier-card featured">
-      <div>
-        <span class="badge">MOST POPULAR</span>
-        <div class="t-name">Personalized 4D Aura Reading</div>
-        <div class="t-price">$49<span class="t-anchor">$129 value</span></div>
-        <p class="t-desc">Custom-rendered cinema reading MP4 personalized with your name, focus topic &amp; studio-mastered neural narration delivered straight to your inbox.</p>
-      </div>
-      <a class="t-btn" href="/go/auravideo49?utm_source=store_v20&utm_medium=card&utm_campaign=aura49">Claim Custom Reading ($49)</a>
+      <div><span class="badge">MOST POPULAR</span><div class="t-name">Personalized 4D Aura Reading</div><div class="t-price">$49<span class="t-anchor">$129 value</span></div>
+      <p class="t-desc">Custom-rendered cinema reading MP4 personalized with your name, focus topic &amp; studio-mastered neural narration delivered straight to your inbox.</p></div>
+      <a class="t-btn" href="/go/auravideo49?utm_source=store_v22&utm_medium=card&utm_campaign=aura49">Claim Custom Reading ($49)</a>
     </div>
     <div class="tier-card">
-      <div>
-        <div class="t-name">Turnkey Creator Stack</div>
-        <div class="t-price">$1,500</div>
-        <p class="t-desc">Complete Oracle Systems storefront, Stripe webhook fulfillment engine, autonomous YouTube API pipeline &amp; local AI CRM.</p>
-      </div>
-      <a class="t-btn ent" href="/go/fullstorefront?utm_source=store_v20&utm_medium=card&utm_campaign=stack1500">Deploy Full Stack ($1,500)</a>
+      <div><div class="t-name">Turnkey Creator Stack</div><div class="t-price">$1,500</div>
+      <p class="t-desc">Complete Oracle Systems storefront, Stripe webhook fulfillment engine, autonomous YouTube API pipeline &amp; local AI CRM.</p></div>
+      <a class="t-btn ent" href="/go/fullstorefront?utm_source=store_v22&utm_medium=card&utm_campaign=stack1500">Deploy Full Stack ($1,500)</a>
     </div>
     <div class="tier-card">
-      <div>
-        <div class="t-name">Enterprise Dedicated Pro_Node</div>
-        <div class="t-price">$49,999</div>
-        <p class="t-desc">Turnkey private AI &amp; autonomous media hardware deployment for agencies &amp; studios (50% ACH Milestone 1 deposit / zero SaaS lock-in).</p>
-      </div>
-      <a class="t-btn ent" href="/go/pro_node?utm_source=store_v20&utm_medium=card&utm_campaign=pronode">Reserve Pro_Node ($49,999)</a>
+      <div><div class="t-name">Enterprise Dedicated Pro_Node</div><div class="t-price">$49,999</div>
+      <p class="t-desc">Turnkey private AI &amp; autonomous media hardware deployment for agencies &amp; studios (50% ACH Milestone 1 deposit / zero SaaS lock-in).</p></div>
+      <a class="t-btn ent" href="/go/pro_node?utm_source=store_v22&utm_medium=card&utm_campaign=pronode">Reserve Pro_Node ($49,999)</a>
     </div>
   </div>
-
   <div class="ref-bar">
-    <div>
-      <strong style="color:#facc15;">Share the 3D Portal &amp; Unlock Bonus Assets:</strong>
-      <span style="color:#94a3b8;font-size:13px;display:block;margin-top:4px;">Generate your tracked referral link to share on YouTube, X, or TikTok.</span>
-    </div>
+    <div><strong style="color:#facc15;">Share the 3D Portal &amp; Unlock Bonus Assets:</strong>
+    <span style="color:#94a3b8;font-size:13px;display:block;margin-top:4px;">Generate your tracked referral link to share on YouTube, X, or TikTok.</span></div>
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
       <input id="omega-ref-url" readonly value="Click Copy to generate your tracked link">
       <button id="omega-ref-btn" class="cta-gold" onclick="omegaCopyRef()">Copy Referral Link</button>
@@ -149,7 +126,7 @@
 (function(){
   fetch("/api/live-pulse").then(function(r){return r.json();}).then(function(d){
     var el = document.getElementById("omega-live-pulse");
-    if(el && d) el.textContent = "LIVE GPU 3D + UNREAL BLOOM  |  " + d.vault_videos + " STUDIO ASSETS  |  " + d.yt_views + " YT VIEWS  |  " + d.utm_clicks + " VERIFIED CLICKS";
+    if(el && d) el.textContent = "LIVE 3D RAY-LIT PORTAL  |  " + d.vault_videos + " ASSETS  |  " + d.yt_views + " YT VIEWS  |  " + d.utm_clicks + " VERIFIED CLICKS";
   }).catch(function(){});
 
   window.omegaCopyRef = function(){
@@ -161,17 +138,24 @@
     document.getElementById("omega-ref-btn").textContent = "Copied!";
   };
 
+  window.toggle3DFullscreen = function(){
+    var el = document.getElementById("stage-box");
+    if (!document.fullscreenElement && el.requestFullscreen) el.requestFullscreen();
+    else if (document.exitFullscreen) document.exitFullscreen();
+  };
+
   if (typeof THREE === "undefined") return;
   var canvas = document.getElementById("webgl-stage");
   var wrap = canvas.parentElement;
   var renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true, powerPreference: "high-performance"});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.outputEncoding = THREE.sRGBEncoding;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.15;
+  renderer.toneMappingExposure = 0.96;
 
   var scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x03050d);
-  scene.fog = new THREE.FogExp2(0x03050d, 0.038);
+  scene.background = new THREE.Color(0x02040b);
+  scene.fog = new THREE.FogExp2(0x02040b, 0.036);
 
   var camera = new THREE.PerspectiveCamera(42, wrap.clientWidth / wrap.clientHeight, 0.1, 100);
   camera.position.set(0, 0.25, 8.8);
@@ -181,7 +165,7 @@
     if (THREE.EffectComposer && THREE.RenderPass && THREE.UnrealBloomPass) {
       composer = new THREE.EffectComposer(renderer);
       composer.addPass(new THREE.RenderPass(scene, camera));
-      bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(wrap.clientWidth, wrap.clientHeight), 0.62, 0.48, 0.34);
+      bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(wrap.clientWidth, wrap.clientHeight), 0.24, 0.35, 0.86);
       composer.addPass(bloomPass);
     }
   } catch(e) { composer = null; }
@@ -196,46 +180,42 @@
   }
   resize(); window.addEventListener("resize", resize);
 
-  scene.add(new THREE.AmbientLight(0x475569, 1.45));
-  var keyLight = new THREE.DirectionalLight(0xfff4d2, 2.0);
-  keyLight.position.set(2.5, 5.5, 6.5);
+  scene.add(new THREE.AmbientLight(0x94a3b8, 0.52));
+  var keyLight = new THREE.DirectionalLight(0xfff6dc, 0.78);
+  keyLight.position.set(2.0, 5.0, 6.0);
   scene.add(keyLight);
 
-  var goldLight = new THREE.PointLight(0xfacc15, 4.2, 22);
-  goldLight.position.set(-4.5, 2.2, 4.8);
+  var goldLight = new THREE.PointLight(0xfacc15, 1.35, 20);
+  goldLight.position.set(-4.5, 2.0, 4.5);
   scene.add(goldLight);
 
-  var cyanLight = new THREE.PointLight(0x38bdf8, 3.6, 22);
-  cyanLight.position.set(4.5, -1.6, 4.8);
+  var cyanLight = new THREE.PointLight(0x38bdf8, 1.15, 20);
+  cyanLight.position.set(4.5, -1.2, 4.5);
   scene.add(cyanLight);
 
-  var violetLight = new THREE.PointLight(0xa855f7, 2.2, 20);
-  violetLight.position.set(0, 3.5, -2.5);
-  scene.add(violetLight);
-
   var portalGroup = new THREE.Group();
-  portalGroup.position.set(0, -0.15, -2.8);
-  var matGold = new THREE.MeshStandardMaterial({color:0xfacc15, metalness:0.95, roughness:0.16, emissive:0x854d0e, emissiveIntensity:0.55});
-  var matCyan = new THREE.MeshStandardMaterial({color:0x38bdf8, metalness:0.90, roughness:0.20, emissive:0x0284c7, emissiveIntensity:0.65});
-  var r1 = new THREE.Mesh(new THREE.TorusGeometry(3.45, 0.045, 20, 140), matGold);
-  var r2 = new THREE.Mesh(new THREE.TorusGeometry(2.75, 0.030, 18, 120), matCyan);
-  var r3 = new THREE.Mesh(new THREE.TorusGeometry(2.05, 0.025, 16, 100), matGold);
+  portalGroup.position.set(0, -0.15, -3.0);
+  var matGold = new THREE.MeshStandardMaterial({color:0xfacc15, metalness:0.94, roughness:0.18, emissive:0xd97706, emissiveIntensity:1.15});
+  var matCyan = new THREE.MeshStandardMaterial({color:0x38bdf8, metalness:0.88, roughness:0.22, emissive:0x0284c7, emissiveIntensity:1.10});
+  var r1 = new THREE.Mesh(new THREE.TorusGeometry(3.45, 0.04, 20, 140), matGold);
+  var r2 = new THREE.Mesh(new THREE.TorusGeometry(2.75, 0.026, 18, 120), matCyan);
+  var r3 = new THREE.Mesh(new THREE.TorusGeometry(2.05, 0.022, 16, 100), matGold);
   var coreOrb = new THREE.Mesh(
-    new THREE.IcosahedronGeometry(0.42, 2),
-    new THREE.MeshStandardMaterial({color:0xfef08a, emissive:0xf59e0b, emissiveIntensity:1.7, roughness:0.15, metalness:0.4})
+    new THREE.IcosahedronGeometry(0.36, 2),
+    new THREE.MeshStandardMaterial({color:0xfef08a, emissive:0xf59e0b, emissiveIntensity:2.2, roughness:0.15, metalness:0.3})
   );
   portalGroup.add(r1, r2, r3, coreOrb);
   scene.add(portalGroup);
 
   var floor = new THREE.Mesh(
     new THREE.CircleGeometry(15, 64),
-    new THREE.MeshStandardMaterial({color:0x050918, metalness:0.85, roughness:0.22})
+    new THREE.MeshStandardMaterial({color:0x050916, metalness:0.82, roughness:0.24})
   );
   floor.rotation.x = -Math.PI / 2;
   floor.position.y = -2.55;
   scene.add(floor);
 
-  var pCount = 650;
+  var pCount = 520;
   var pGeo = new THREE.BufferGeometry();
   var pPos = new Float32Array(pCount * 3);
   var pCol = new Float32Array(pCount * 3);
@@ -243,31 +223,30 @@
     pPos[i*3]   = (Math.random() - 0.5) * 18;
     pPos[i*3+1] = (Math.random() - 0.5) * 9.5;
     pPos[i*3+2] = (Math.random() - 0.30) * 11.0;
-    var isGold = Math.random() > 0.32;
-    pCol[i*3]   = isGold ? 1.0 : 0.20;
-    pCol[i*3+1] = isGold ? 0.84 : 0.80;
-    pCol[i*3+2] = isGold ? 0.22 : 1.0;
+    var isGold = Math.random() > 0.35;
+    pCol[i*3]   = isGold ? 1.0 : 0.22;
+    pCol[i*3+1] = isGold ? 0.84 : 0.78;
+    pCol[i*3+2] = isGold ? 0.24 : 1.0;
   }
   pGeo.setAttribute("position", new THREE.BufferAttribute(pPos, 3));
   pGeo.setAttribute("color", new THREE.BufferAttribute(pCol, 3));
   var embers = new THREE.Points(
     pGeo,
-    new THREE.PointsMaterial({size: 0.085, vertexColors: true, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending, depthWrite: false})
+    new THREE.PointsMaterial({size: 0.075, vertexColors: true, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false})
   );
   scene.add(embers);
 
-  var FULL_DECK = [
-    {slug:"the_magician", title:"I // THE MAGICIAN", msg:"Sovereign creation and skill convergence activated.", audio:"/static/card_voices/card_past.mp3"},
-    {slug:"wheel_of_fortune", title:"X // WHEEL OF FORTUNE", msg:"Sudden upward cycle shift and windfall opening.", audio:"/static/card_voices/card_present.mp3"},
-    {slug:"the_sun", title:"XIX // THE SUN", msg:"Unstoppable abundance, clarity, and magnetic power.", audio:"/static/card_voices/card_future.mp3"},
-    {slug:"the_star", title:"XVII // THE STAR", msg:"Divine alignment, vision, and restored momentum.", audio:"/static/card_voices/card_past.mp3"},
-    {slug:"the_world", title:"XXI // THE WORLD", msg:"Complete realm expansion and cycle mastery.", audio:"/static/card_voices/card_future.mp3"}
+  var FALLBACK_DECK = [
+    {slug:"the_magician", title:"I // THE MAGICIAN", img:"/assets/tarot_deck/the_magician.png", audio:"/static/card_voices/the_magician.mp3"},
+    {slug:"the_star", title:"XVII // THE STAR", img:"/assets/tarot_deck/the_star.png", audio:"/static/card_voices/the_star.mp3"},
+    {slug:"the_world", title:"XXI // THE WORLD", img:"/assets/tarot_deck/the_world.png", audio:"/static/card_voices/the_world.mp3"}
   ];
+  var ACTIVE_DECK = FALLBACK_DECK.slice();
 
   var SLOT_POS = [
-    {slotLabel:"I. PAST CATALYST", x:-2.85, ry:0.28, baseZ:0.0},
+    {slotLabel:"I. PAST CATALYST", x:-2.85, ry:0.26, baseZ:0.0},
     {slotLabel:"II. PRESENT SHIFT", x:0.0,   ry:0.0,  baseZ:0.65},
-    {slotLabel:"III. QUANTUM OUTCOME", x:2.85, ry:-0.28, baseZ:0.0}
+    {slotLabel:"III. QUANTUM OUTCOME", x:2.85, ry:-0.26, baseZ:0.0}
   ];
 
   function makeBackTexture(slotLabel){
@@ -275,12 +254,12 @@
     bc.width = 512; bc.height = 820;
     var g = bc.getContext("2d");
     var grd = g.createRadialGradient(256, 410, 25, 256, 410, 440);
-    grd.addColorStop(0, "#1e295a"); grd.addColorStop(0.55, "#090f24"); grd.addColorStop(1, "#02040a");
+    grd.addColorStop(0, "#172045"); grd.addColorStop(0.55, "#080d1e"); grd.addColorStop(1, "#02040a");
     g.fillStyle = grd; g.fillRect(0, 0, 512, 820);
-    g.strokeStyle = "#facc15"; g.lineWidth = 12; g.strokeRect(20, 20, 472, 780);
-    g.strokeStyle = "rgba(56,189,248,0.75)"; g.lineWidth = 3; g.strokeRect(42, 42, 428, 736);
-    g.beginPath(); g.arc(256, 405, 150, 0, Math.PI*2); g.strokeStyle = "#facc15"; g.lineWidth = 5; g.stroke();
-    g.beginPath(); g.arc(256, 405, 108, 0, Math.PI*2); g.strokeStyle = "#38bdf8"; g.lineWidth = 3; g.stroke();
+    g.strokeStyle = "#eab308"; g.lineWidth = 10; g.strokeRect(20, 20, 472, 780);
+    g.strokeStyle = "rgba(56,189,248,0.65)"; g.lineWidth = 3; g.strokeRect(42, 42, 428, 736);
+    g.beginPath(); g.arc(256, 405, 145, 0, Math.PI*2); g.strokeStyle = "#eab308"; g.lineWidth = 5; g.stroke();
+    g.beginPath(); g.arc(256, 405, 105, 0, Math.PI*2); g.strokeStyle = "#38bdf8"; g.lineWidth = 3; g.stroke();
     g.fillStyle = "#facc15"; g.font = "bold 36px Georgia,serif"; g.textAlign = "center";
     g.fillText("ORACLE", 256, 400);
     g.fillStyle = "#38bdf8"; g.font = "bold 20px Segoe UI,sans-serif";
@@ -288,17 +267,19 @@
     g.fillStyle = "#fef08a"; g.font = "bold 19px Segoe UI,sans-serif";
     g.fillText("CLICK TO POP OUT & REVEAL", 256, 735);
     var tex = new THREE.CanvasTexture(bc);
+    tex.encoding = THREE.sRGBEncoding;
     tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
     return tex;
   }
 
   var loader = new THREE.TextureLoader();
-  var edgeMat = new THREE.MeshStandardMaterial({color:0xfacc15, metalness:0.98, roughness:0.12, emissive:0x78350f, emissiveIntensity:0.55});
+  var edgeMat = new THREE.MeshStandardMaterial({color:0xd97706, metalness:0.92, roughness:0.22, emissive:0x451a03, emissiveIntensity:0.25});
   var cardGeo = new THREE.BoxGeometry(2.05, 3.28, 0.095);
   var cardMeshes = [];
 
-  function loadCardTexture(slug){
-    var tex = loader.load("/assets/tarot_deck/" + slug + ".png?v=" + Date.now());
+  function loadCardTexture(imgUrl){
+    var tex = loader.load(imgUrl + "?v=" + Date.now());
+    tex.encoding = THREE.sRGBEncoding;
     tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
     return tex;
   }
@@ -306,25 +287,26 @@
   function buildSpreadMeshes(cards3){
     cardMeshes.forEach(function(m){ scene.remove(m); });
     cardMeshes = [];
-    cards3.forEach(function(cd, idx){
+    while (cards3.length < 3) cards3.push(cards3[cards3.length - 1] || FALLBACK_DECK[0]);
+    cards3.slice(0, 3).forEach(function(cd, idx){
       var sl = SLOT_POS[idx];
-      var frontMat = new THREE.MeshStandardMaterial({map: loadCardTexture(cd.slug), metalness:0.20, roughness:0.24});
-      var backMat  = new THREE.MeshStandardMaterial({map: makeBackTexture(sl.slotLabel), metalness:0.45, roughness:0.25});
+      var frontMat = new THREE.MeshBasicMaterial({map: loadCardTexture(cd.img), toneMapped: false});
+      var backMat  = new THREE.MeshStandardMaterial({map: makeBackTexture(sl.slotLabel), metalness:0.35, roughness:0.35});
       var mesh = new THREE.Mesh(cardGeo, [edgeMat, edgeMat, edgeMat, edgeMat, backMat, frontMat]);
       mesh.position.set(sl.x, -0.22, sl.baseZ);
       mesh.rotation.y = sl.ry;
-      var aura = new THREE.Mesh(
-        new THREE.PlaneGeometry(2.34, 3.58),
-        new THREE.MeshBasicMaterial({color: idx === 1 ? 0xfacc15 : 0x38bdf8, transparent:true, opacity:0.16, side:THREE.DoubleSide, blending:THREE.AdditiveBlending})
-      );
-      aura.position.z = -0.06;
-      mesh.add(aura);
       mesh.userData = {idx:idx, card:cd, slot:sl, flipped:false, targetFlip:0, targetZ:sl.baseZ, baseY:-0.22};
       scene.add(mesh);
       cardMeshes.push(mesh);
     });
   }
-  buildSpreadMeshes([FULL_DECK[0], FULL_DECK[1], FULL_DECK[2]]);
+
+  fetch("/api/deck-manifest").then(function(r){ return r.json(); }).then(function(list){
+    if (Array.isArray(list) && list.length > 0) ACTIVE_DECK = list;
+    buildSpreadMeshes(ACTIVE_DECK.slice(0, 3));
+  }).catch(function(){
+    buildSpreadMeshes(ACTIVE_DECK.slice(0, 3));
+  });
 
   var raycaster = new THREE.Raycaster();
   var mouse = new THREE.Vector2(0, 0);
@@ -344,8 +326,8 @@
       targetPitch = Math.max(-0.35, Math.min(0.45, targetPitch + dy * 0.004));
       lastX = e.clientX; lastY = e.clientY;
     } else {
-      targetYaw = mouse.x * 0.24;
-      targetPitch = 0.04 + mouse.y * 0.14;
+      targetYaw = mouse.x * 0.22;
+      targetPitch = 0.04 + mouse.y * 0.12;
     }
   });
 
@@ -356,9 +338,9 @@
     var u = mesh.userData;
     u.flipped = !u.flipped;
     u.targetFlip = u.flipped ? Math.PI : 0;
-    u.targetZ = u.flipped ? 2.10 : u.slot.baseZ;
+    u.targetZ = u.flipped ? 2.15 : u.slot.baseZ;
     if (u.flipped) {
-      capEl.textContent = u.slot.slotLabel + "  //  " + u.card.title + " — " + u.card.msg;
+      capEl.textContent = u.slot.slotLabel + "  //  " + u.card.title + " — STUDIO NEURAL READING";
       if (playSound) { try { audioPlayer.pause(); audioPlayer.src = u.card.audio; audioPlayer.play(); } catch(e){} }
     }
   }
@@ -378,7 +360,7 @@
     function nextVoice(){
       if (qi >= q.length) return;
       var u = cardMeshes[q[qi++]].userData;
-      capEl.textContent = u.slot.slotLabel + "  //  " + u.card.title + " — " + u.card.msg;
+      capEl.textContent = u.slot.slotLabel + "  //  " + u.card.title + " — STUDIO NEURAL READING";
       audioPlayer.src = u.card.audio;
       audioPlayer.onended = nextVoice;
       audioPlayer.play().catch(function(){});
@@ -388,14 +370,14 @@
 
   window.shuffleAndDraw3D = function(){
     try { audioPlayer.pause(); } catch(e){}
-    var pool = FULL_DECK.slice();
+    var pool = ACTIVE_DECK.slice();
     for (var i = pool.length - 1; i > 0; i--) {
       var j = Math.floor(Math.random() * (i + 1));
       var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
     }
     buildSpreadMeshes(pool.slice(0, 3));
     cardMeshes.forEach(function(m){ m.rotation.y += Math.PI * 2; m.position.z = -3.2; });
-    capEl.textContent = "SHUFFLED RAY-TRACED DECK — CLICK ANY FLOATING 3D CARD TO REVEAL";
+    capEl.textContent = "SHUFFLED " + ACTIVE_DECK.length + " VERIFIED RAY-TRACED CARDS — CLICK ANY CARD TO REVEAL";
   };
 
   var clock = new THREE.Clock();
@@ -443,7 +425,7 @@
       m.position.y = u.baseY + Math.sin(t * 1.5 + i * 1.4) * 0.11;
       var goalRy = u.slot.ry + u.targetFlip;
       m.rotation.y += (goalRy - m.rotation.y) * 0.10;
-      var goalRx = isH ? -mouse.y * 0.20 : 0;
+      var goalRx = isH ? -mouse.y * 0.18 : 0;
       m.rotation.x += (goalRx - m.rotation.x) * 0.08;
     });
 
