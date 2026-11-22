@@ -598,6 +598,8 @@ def _oracle_webgl_v19_router():
                 return _Resp(open(html_p, "r", encoding="utf-8").read(), mimetype="text/html")
         if _req.path.startswith("/assets/tarot_deck/"):
             return _sfd(_o.path.join(base_dir, "assets", "tarot_deck"), _req.path.rsplit("/", 1)[-1])
+        if _req.path.startswith("/static/vendor/"):
+            return _sfd(_o.path.join(base_dir, "static", "vendor"), _req.path.rsplit("/", 1)[-1], mimetype="application/javascript")
         if _req.path.startswith("/static/card_voices/"):
             return _sfd(_o.path.join(base_dir, "static", "card_voices"), _req.path.rsplit("/", 1)[-1], mimetype="audio/mpeg")
         if _req.path == "/api/deck-manifest":

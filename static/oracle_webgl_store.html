@@ -11,9 +11,13 @@
   .brand{font-weight:900;letter-spacing:2.4px;font-size:13px;color:#facc15;}
   .nav-links a{color:#cbd5e1;text-decoration:none;margin-left:22px;font-size:13px;font-weight:600;transition:color .2s;}
   .nav-links a:hover{color:#facc15;}
-  .stage-wrap{position:relative;width:100%;height:740px;background:radial-gradient(ellipse at 50% 45%,#0c1328 0%,#030610 58%,#010205 100%);border-bottom:1px solid rgba(250,204,21,0.32);overflow:hidden;user-select:none;}
-  #webgl-stage{position:absolute;inset:0;width:100%;height:100%;cursor:grab;}
+  .stage-wrap{position:relative;width:100%;height:740px;background:radial-gradient(ellipse at 50% 45%,#0e1733 0%,#030610 58%,#010205 100%);border-bottom:1px solid rgba(250,204,21,0.32);overflow:hidden;user-select:none;}
+  #webgl-stage{position:absolute;inset:0;width:100%;height:100%;cursor:grab;display:block;}
   #webgl-stage:active{cursor:grabbing;}
+  #fallback-stage{position:absolute;inset:125px 20px 115px 20px;display:none;align-items:center;justify-content:center;gap:28px;z-index:5;perspective:1200px;}
+  .fb-card{width:230px;height:365px;border-radius:16px;overflow:hidden;border:2px solid #facc15;box-shadow:0 16px 42px rgba(250,204,21,0.28);cursor:pointer;transition:transform .45s ease;position:relative;background:#060a18;}
+  .fb-card:hover{transform:translateY(-12px) scale(1.06);}
+  .fb-card img{width:100%;height:100%;object-fit:cover;display:block;}
   .stage-hud-top{position:absolute;top:16px;left:0;right:0;text-align:center;pointer-events:none;z-index:10;padding:0 16px;}
   .pulse-pill{display:inline-block;padding:5px 14px;border-radius:999px;background:rgba(16,185,129,0.14);border:1px solid rgba(16,185,129,0.45);color:#6ee7b7;font-size:11px;font-weight:700;letter-spacing:1.5px;margin-bottom:6px;}
   .stage-hud-top h1{font-size:32px;font-weight:900;letter-spacing:-0.4px;background:linear-gradient(90deg,#fef08a,#facc15,#38bdf8,#fef08a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
@@ -53,14 +57,14 @@
   </div>
 </nav>
 
-<!-- id="oracle-4d-hero" preserves Gate 2 100% Revenue Readiness audit compatibility -->
 <section class="stage-wrap" id="oracle-4d-hero">
   <div class="stage-hud-top">
-    <div id="omega-live-pulse" class="pulse-pill">LIVE GPU GLSL LIVING-CARD SHADER // STRIPE LIVE</div>
+    <div id="omega-live-pulse" class="pulse-pill">LIVING 3D GLSL PORTAL // STRIPE LIVE FULFILLMENT</div>
     <h1>Living 3D Ray-Lit Tarot Portal &amp; Sovereign AI Compute</h1>
     <p>Every card pulses with live GPU plasma shaders, volumetric light flares &amp; 3D sparks erupting toward you. Drag to orbit &amp; click to hear warm studio narration.</p>
   </div>
   <canvas id="webgl-stage"></canvas>
+  <div id="fallback-stage"></div>
   <div id="active-card-caption">CLICK ANY CARD TO POP FORWARD, ACTIVATE LIVING SHADER &amp; HEAR WARM STUDIO READING</div>
   <div class="stage-hud-bottom">
     <button class="cta-gold" onclick="window.revealAll3DCards()">Reveal Living 3D Spread + Studio Voice</button>
@@ -116,15 +120,21 @@
   </div>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<!-- Self-hosted local Three.js (zero CDN blackouts) with automatic cdnjs backup -->
+<script src="/static/vendor/three.min.js" onerror="var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';document.head.appendChild(s);"></script>
 <script>
 (function(){
+  var audioPlayer = new Audio();
+  var capEl = document.getElementById("active-card-caption");
+  var FALLBACK_DECK = [
+    {slug:"the_magician", title:"I // THE MAGICIAN", img:"/assets/tarot_deck/the_magician.png", audio:"/static/card_voices/the_magician.mp3"},
+    {slug:"wheel_of_fortune", title:"X // WHEEL OF FORTUNE", img:"/assets/tarot_deck/wheel_of_fortune.png", audio:"/static/card_voices/wheel_of_fortune.mp3"},
+    {slug:"the_sun", title:"XIX // THE SUN", img:"/assets/tarot_deck/the_sun.png", audio:"/static/card_voices/the_sun.mp3"},
+    {slug:"the_star", title:"XVII // THE STAR", img:"/assets/tarot_deck/the_star.png", audio:"/static/card_voices/the_star.mp3"},
+    {slug:"the_world", title:"XXI // THE WORLD", img:"/assets/tarot_deck/the_world.png", audio:"/static/card_voices/the_world.mp3"}
+  ];
+  var ACTIVE_DECK = FALLBACK_DECK.slice();
+
   fetch("/api/live-pulse").then(function(r){return r.json();}).then(function(d){
     var el = document.getElementById("omega-live-pulse");
     if(el && d) el.textContent = "LIVING 3D GLSL PORTAL  |  " + d.vault_videos + " ASSETS  |  " + d.yt_views + " YT VIEWS  |  " + d.utm_clicks + " VERIFIED CLICKS";
@@ -145,394 +155,404 @@
     else if (document.exitFullscreen) document.exitFullscreen();
   };
 
-  if (typeof THREE === "undefined") return;
-  var canvas = document.getElementById("webgl-stage");
-  var wrap = canvas.parentElement;
-  var renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true, powerPreference: "high-performance"});
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  renderer.outputEncoding = THREE.sRGBEncoding;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 0.96;
-
-  var scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x02040b);
-  scene.fog = new THREE.FogExp2(0x02040b, 0.036);
-
-  var camera = new THREE.PerspectiveCamera(42, wrap.clientWidth / wrap.clientHeight, 0.1, 100);
-  camera.position.set(0, 0.25, 8.8);
-
-  var composer = null, bloomPass = null;
-  try {
-    if (THREE.EffectComposer && THREE.RenderPass && THREE.UnrealBloomPass) {
-      composer = new THREE.EffectComposer(renderer);
-      composer.addPass(new THREE.RenderPass(scene, camera));
-      bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(wrap.clientWidth, wrap.clientHeight), 0.22, 0.36, 0.88);
-      composer.addPass(bloomPass);
-    }
-  } catch(e) { composer = null; }
-
-  function resize(){
-    var w = wrap.clientWidth, h = wrap.clientHeight;
-    renderer.setSize(w, h, false);
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-    if (composer) composer.setSize(w, h);
-    if (bloomPass) bloomPass.setSize(w, h);
-  }
-  resize(); window.addEventListener("resize", resize);
-
-  scene.add(new THREE.AmbientLight(0x94a3b8, 0.48));
-  var keyLight = new THREE.DirectionalLight(0xfff6dc, 0.72);
-  keyLight.position.set(2.0, 5.0, 6.0);
-  scene.add(keyLight);
-
-  var goldLight = new THREE.PointLight(0xfacc15, 1.25, 20);
-  goldLight.position.set(-4.5, 2.0, 4.5);
-  scene.add(goldLight);
-
-  var cyanLight = new THREE.PointLight(0x38bdf8, 1.05, 20);
-  cyanLight.position.set(4.5, -1.2, 4.5);
-  scene.add(cyanLight);
-
-  var portalGroup = new THREE.Group();
-  portalGroup.position.set(0, -0.15, -3.0);
-  var matGold = new THREE.MeshStandardMaterial({color:0xfacc15, metalness:0.94, roughness:0.18, emissive:0xd97706, emissiveIntensity:1.15});
-  var matCyan = new THREE.MeshStandardMaterial({color:0x38bdf8, metalness:0.88, roughness:0.22, emissive:0x0284c7, emissiveIntensity:1.10});
-  var r1 = new THREE.Mesh(new THREE.TorusGeometry(3.45, 0.04, 20, 140), matGold);
-  var r2 = new THREE.Mesh(new THREE.TorusGeometry(2.75, 0.026, 18, 120), matCyan);
-  var r3 = new THREE.Mesh(new THREE.TorusGeometry(2.05, 0.022, 16, 100), matGold);
-  var coreOrb = new THREE.Mesh(
-    new THREE.IcosahedronGeometry(0.36, 2),
-    new THREE.MeshStandardMaterial({color:0xfef08a, emissive:0xf59e0b, emissiveIntensity:2.1, roughness:0.15, metalness:0.3})
-  );
-  portalGroup.add(r1, r2, r3, coreOrb);
-  scene.add(portalGroup);
-
-  var floor = new THREE.Mesh(
-    new THREE.CircleGeometry(15, 64),
-    new THREE.MeshStandardMaterial({color:0x050916, metalness:0.82, roughness:0.24})
-  );
-  floor.rotation.x = -Math.PI / 2;
-  floor.position.y = -2.55;
-  scene.add(floor);
-
-  var pCount = 520;
-  var pGeo = new THREE.BufferGeometry();
-  var pPos = new Float32Array(pCount * 3);
-  var pCol = new Float32Array(pCount * 3);
-  for (var i = 0; i < pCount; i++) {
-    pPos[i*3]   = (Math.random() - 0.5) * 18;
-    pPos[i*3+1] = (Math.random() - 0.5) * 9.5;
-    pPos[i*3+2] = (Math.random() - 0.30) * 11.0;
-    var isGold = Math.random() > 0.35;
-    pCol[i*3]   = isGold ? 1.0 : 0.22;
-    pCol[i*3+1] = isGold ? 0.84 : 0.78;
-    pCol[i*3+2] = isGold ? 0.24 : 1.0;
-  }
-  pGeo.setAttribute("position", new THREE.BufferAttribute(pPos, 3));
-  pGeo.setAttribute("color", new THREE.BufferAttribute(pCol, 3));
-  var embers = new THREE.Points(
-    pGeo,
-    new THREE.PointsMaterial({size: 0.075, vertexColors: true, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false})
-  );
-  scene.add(embers);
-
-  // =========================================================================
-  // CUSTOM GLSL LIVING-CARD SHADER: REAL MOTION *INSIDE* THE 3D CARD ARTWORK!
-  // Animates fluid solar plasma, starlight ripples, radial energy pulses &
-  // holographic foil glints while keeping the embossed frame & text razor sharp.
-  // =========================================================================
-  var CARD_VERT = [
-    "varying vec2 vUv;",
-    "void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }"
-  ].join("\n");
-
-  var CARD_FRAG = [
-    "uniform sampler2D uMap;",
-    "uniform float uTime;",
-    "uniform vec2 uTilt;",
-    "uniform float uSeed;",
-    "varying vec2 vUv;",
-    "void main(){",
-    "  vec2 uv = vUv;",
-    "  vec4 baseCol = texture2D(uMap, uv);",
-    "  float lum = dot(baseCol.rgb, vec3(0.299, 0.587, 0.114));",
-    "  // Elliptical interior mask: animates living plasma/starlight/gears inside while keeping border & text crisp",
-    "  vec2 dCore = vec2((uv.x - 0.5) / 0.35, (uv.y - 0.53) / 0.29);",
-    "  float innerMask = clamp(1.0 - dot(dCore, dCore), 0.0, 1.0);",
-    "  innerMask = pow(innerMask, 1.25);",
-    "  float energyMask = innerMask * smoothstep(0.14, 0.58, lum);",
-    "  // Swirling turbulent fluid UV warp + breathing radial expansion inside the artwork core",
-    "  float t = uTime + uSeed * 4.7;",
-    "  vec2 toC = uv - vec2(0.5, 0.53);",
-    "  float r = length(toC);",
-    "  float ang = atan(toC.y, toC.x);",
-    "  vec2 swirl = vec2(sin(uv.y * 19.0 - t * 2.4) + cos(ang * 5.0 + t * 1.9), cos(uv.x * 17.0 + t * 2.1) + sin(r * 24.0 - t * 3.0)) * 0.0085 * energyMask;",
-    "  // Parallax micro-depth offset reacting to cursor orbit so inner art shifts behind the gold frame!",
-    "  vec2 parallax = uTilt * 0.016 * innerMask;",
-    "  vec2 liveUv = clamp(uv + swirl + parallax, vec2(0.002), vec2(0.998));",
-    "  vec3 col = texture2D(uMap, liveUv).rgb;",
-    "  // Live expanding radial plasma wave & volumetric god-rays inside the card",
-    "  float wave = (0.5 + 0.5 * sin(r * 34.0 - t * 3.6)) * energyMask;",
-    "  float rays = pow(0.5 + 0.5 * sin(ang * 8.0 + t * 1.3), 4.0) * innerMask * smoothstep(0.45, 0.05, r);",
-    "  col += vec3(1.0, 0.80, 0.32) * (wave * 0.16 + rays * 0.18);",
-    "  // Sweeping metallic gold/cyan foil sheen reacting to cursor angle across embossed borders",
-    "  float sweepCoord = uv.x * 0.9 + uv.y * 0.55 + uTilt.x * 0.35 - fract(t * 0.16) * 2.2 + 0.55;",
-    "  float foilSheen = exp(-sweepCoord * sweepCoord * 34.0) * smoothstep(0.32, 0.78, lum);",
-    "  col += mix(vec3(1.0, 0.88, 0.45), vec3(0.35, 0.85, 1.0), 0.5 + 0.5 * sin(t + uv.y * 4.0)) * foilSheen * 0.28;",
-    "  gl_FragColor = vec4(col, 1.0);",
-    "}"
-  ].join("\n");
-
-  var FALLBACK_DECK = [
-    {slug:"the_magician", title:"I // THE MAGICIAN", img:"/assets/tarot_deck/the_magician.png", audio:"/static/card_voices/the_magician.mp3"},
-    {slug:"wheel_of_fortune", title:"X // WHEEL OF FORTUNE", img:"/assets/tarot_deck/wheel_of_fortune.png", audio:"/static/card_voices/wheel_of_fortune.mp3"},
-    {slug:"the_sun", title:"XIX // THE SUN", img:"/assets/tarot_deck/the_sun.png", audio:"/static/card_voices/the_sun.mp3"}
-  ];
-  var ACTIVE_DECK = FALLBACK_DECK.slice();
-
-  var SLOT_POS = [
-    {slotLabel:"I. PAST CATALYST", x:-2.85, ry:0.26, baseZ:0.0},
-    {slotLabel:"II. PRESENT SHIFT", x:0.0,   ry:0.0,  baseZ:0.65},
-    {slotLabel:"III. QUANTUM OUTCOME", x:2.85, ry:-0.26, baseZ:0.0}
-  ];
-
-  function makeBackTexture(slotLabel){
-    var bc = document.createElement("canvas");
-    bc.width = 512; bc.height = 820;
-    var g = bc.getContext("2d");
-    var grd = g.createRadialGradient(256, 410, 25, 256, 410, 440);
-    grd.addColorStop(0, "#172045"); grd.addColorStop(0.55, "#080d1e"); grd.addColorStop(1, "#02040a");
-    g.fillStyle = grd; g.fillRect(0, 0, 512, 820);
-    g.strokeStyle = "#eab308"; g.lineWidth = 10; g.strokeRect(20, 20, 472, 780);
-    g.strokeStyle = "rgba(56,189,248,0.65)"; g.lineWidth = 3; g.strokeRect(42, 42, 428, 736);
-    g.beginPath(); g.arc(256, 405, 145, 0, Math.PI*2); g.strokeStyle = "#eab308"; g.lineWidth = 5; g.stroke();
-    g.beginPath(); g.arc(256, 405, 105, 0, Math.PI*2); g.strokeStyle = "#38bdf8"; g.lineWidth = 3; g.stroke();
-    g.fillStyle = "#facc15"; g.font = "bold 36px Georgia,serif"; g.textAlign = "center";
-    g.fillText("ORACLE", 256, 400);
-    g.fillStyle = "#38bdf8"; g.font = "bold 20px Segoe UI,sans-serif";
-    g.fillText(slotLabel, 256, 442);
-    g.fillStyle = "#fef08a"; g.font = "bold 19px Segoe UI,sans-serif";
-    g.fillText("CLICK TO ACTIVATE LIVING CARD", 256, 735);
-    var tex = new THREE.CanvasTexture(bc);
-    tex.encoding = THREE.sRGBEncoding;
-    tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
-    return tex;
-  }
-
-  var loader = new THREE.TextureLoader();
-  var edgeMat = new THREE.MeshStandardMaterial({color:0xd97706, metalness:0.94, roughness:0.20, emissive:0x451a03, emissiveIntensity:0.30});
-  var cardGeo = new THREE.BoxGeometry(2.05, 3.28, 0.095);
-  var cardMeshes = [];
-  var livingUniforms = [];
-
-  function loadCardTexture(imgUrl){
-    var tex = loader.load(imgUrl + "?v=" + Date.now());
-    tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
-    return tex;
-  }
-
-  function makeCardSparks(){
-    var n = 45;
-    var sg = new THREE.BufferGeometry();
-    var sp = new Float32Array(n * 3);
-    for (var i = 0; i < n; i++) {
-      sp[i*3]   = (Math.random() - 0.5) * 1.45;
-      sp[i*3+1] = (Math.random() - 0.5) * 1.85;
-      sp[i*3+2] = -0.06 - Math.random() * 0.95; // erupts outward from -Z front face toward viewer when flipped!
-    }
-    sg.setAttribute("position", new THREE.BufferAttribute(sp, 3));
-    return new THREE.Points(sg, new THREE.PointsMaterial({color:0xfef08a, size:0.065, transparent:true, opacity:0.85, blending:THREE.AdditiveBlending, depthWrite:false}));
-  }
-
-  function buildSpreadMeshes(cards3){
-    cardMeshes.forEach(function(m){ scene.remove(m); });
-    cardMeshes = [];
-    livingUniforms = [];
-    while (cards3.length < 3) cards3.push(cards3[cards3.length - 1] || FALLBACK_DECK[0]);
-    cards3.slice(0, 3).forEach(function(cd, idx){
-      var sl = SLOT_POS[idx];
-      var unif = {
-        uMap:  {value: loadCardTexture(cd.img)},
-        uTime: {value: 0.0},
-        uTilt: {value: new THREE.Vector2(0, 0)},
-        uSeed: {value: idx + 1.0}
+  function mountFallbackCSSCards(reason){
+    var fb = document.getElementById("fallback-stage");
+    fb.style.display = "flex";
+    fb.innerHTML = "";
+    ACTIVE_DECK.slice(0, 3).forEach(function(cd){
+      var d = document.createElement("div");
+      d.className = "fb-card";
+      d.innerHTML = '<img src="' + cd.img + '?v=' + Date.now() + '" alt="' + cd.title + '">';
+      d.onclick = function(){
+        capEl.textContent = cd.title + " — STUDIO READING ACTIVE";
+        audioPlayer.src = cd.audio + "?v=" + Date.now();
+        audioPlayer.play().catch(function(){});
       };
-      livingUniforms.push(unif);
-      var frontMat = new THREE.ShaderMaterial({
-        uniforms: unif,
-        vertexShader: CARD_VERT,
-        fragmentShader: CARD_FRAG
-      });
-      var backMat = new THREE.MeshStandardMaterial({map: makeBackTexture(sl.slotLabel), metalness:0.35, roughness:0.35});
-      var mesh = new THREE.Mesh(cardGeo, [edgeMat, edgeMat, edgeMat, edgeMat, backMat, frontMat]);
-      mesh.position.set(sl.x, -0.22, sl.baseZ);
-      mesh.rotation.y = sl.ry;
-
-      // Live 3D spark emitter attached right to the front of each card!
-      var sparks = makeCardSparks();
-      sparks.visible = false;
-      mesh.add(sparks);
-
-      mesh.userData = {idx:idx, card:cd, slot:sl, flipped:false, targetFlip:0, targetZ:sl.baseZ, baseY:-0.22, sparks:sparks};
-      scene.add(mesh);
-      cardMeshes.push(mesh);
+      fb.appendChild(d);
     });
+    if (reason) capEl.textContent = "INTERACTIVE CARD STAGE READY (" + reason + ") — CLICK ANY CARD TO HEAR READING";
   }
 
-  fetch("/api/deck-manifest").then(function(r){ return r.json(); }).then(function(list){
-    if (Array.isArray(list) && list.length > 0) ACTIVE_DECK = list;
-    buildSpreadMeshes(ACTIVE_DECK.slice(0, 3));
-  }).catch(function(){
-    buildSpreadMeshes(ACTIVE_DECK.slice(0, 3));
-  });
+  window.revealAll3DCards = function(){
+    var q = ACTIVE_DECK.slice(0, 3), qi = 0;
+    function next(){ if (qi >= q.length) return; var c = q[qi++]; capEl.textContent = c.title + " — STUDIO READING"; audioPlayer.src = c.audio + "?v=" + Date.now(); audioPlayer.onended = next; audioPlayer.play().catch(function(){}); }
+    next();
+  };
+  window.shuffleAndDraw3D = function(){
+    ACTIVE_DECK.sort(function(){ return Math.random() - 0.5; });
+    mountFallbackCSSCards("SHUFFLED");
+  };
 
-  var raycaster = new THREE.Raycaster();
-  var mouse = new THREE.Vector2(0, 0);
-  var dragging = false, movedDist = 0, lastX = 0, lastY = 0;
-  var orbitYaw = 0, orbitPitch = 0.04, targetYaw = 0, targetPitch = 0.04;
-
-  canvas.addEventListener("mousedown", function(e){ dragging = true; movedDist = 0; lastX = e.clientX; lastY = e.clientY; });
-  window.addEventListener("mouseup", function(){ dragging = false; });
-  window.addEventListener("mousemove", function(e){
-    var rect = canvas.getBoundingClientRect();
-    mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-    mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-    if (dragging) {
-      var dx = e.clientX - lastX, dy = e.clientY - lastY;
-      movedDist += Math.abs(dx) + Math.abs(dy);
-      targetYaw = Math.max(-0.85, Math.min(0.85, targetYaw - dx * 0.005));
-      targetPitch = Math.max(-0.35, Math.min(0.45, targetPitch + dy * 0.004));
-      lastX = e.clientX; lastY = e.clientY;
-    } else {
-      targetYaw = mouse.x * 0.22;
-      targetPitch = 0.04 + mouse.y * 0.12;
+  function bootWebGL(){
+    if (typeof THREE === "undefined") { mountFallbackCSSCards("3D fallback mode"); return; }
+    var canvas = document.getElementById("webgl-stage");
+    var wrap = canvas.parentElement;
+    var renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true, alpha: true, powerPreference: "high-performance"});
+    } catch(e) {
+      mountFallbackCSSCards("WebGL context busy - close extra tabs");
+      return;
     }
-  });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.outputEncoding = THREE.sRGBEncoding;
 
-  var audioPlayer = new Audio();
-  var capEl = document.getElementById("active-card-caption");
+    var scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x02040b, 0.032);
 
-  function flipCard(mesh, playSound){
-    var u = mesh.userData;
-    u.flipped = !u.flipped;
-    u.targetFlip = u.flipped ? Math.PI : 0;
-    u.targetZ = u.flipped ? 2.15 : u.slot.baseZ;
-    u.sparks.visible = u.flipped;
-    if (u.flipped) {
+    var camera = new THREE.PerspectiveCamera(42, Math.max(1, wrap.clientWidth) / Math.max(1, wrap.clientHeight), 0.1, 100);
+    camera.position.set(0, 0.22, 8.8);
+
+    function resize(){
+      var w = Math.max(320, wrap.clientWidth), h = Math.max(320, wrap.clientHeight);
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    resize(); window.addEventListener("resize", resize);
+
+    scene.add(new THREE.AmbientLight(0x94a3b8, 0.65));
+    var keyLight = new THREE.DirectionalLight(0xfff6dc, 0.95);
+    keyLight.position.set(2.0, 5.0, 6.0);
+    scene.add(keyLight);
+
+    var goldLight = new THREE.PointLight(0xfacc15, 1.55, 22);
+    goldLight.position.set(-4.5, 2.0, 4.5);
+    scene.add(goldLight);
+
+    var cyanLight = new THREE.PointLight(0x38bdf8, 1.35, 22);
+    cyanLight.position.set(4.5, -1.2, 4.5);
+    scene.add(cyanLight);
+
+    var portalGroup = new THREE.Group();
+    portalGroup.position.set(0, -0.15, -3.0);
+    var matGold = new THREE.MeshStandardMaterial({color:0xfacc15, metalness:0.92, roughness:0.18, emissive:0xd97706, emissiveIntensity:0.85});
+    var matCyan = new THREE.MeshStandardMaterial({color:0x38bdf8, metalness:0.88, roughness:0.22, emissive:0x0284c7, emissiveIntensity:0.85});
+    var r1 = new THREE.Mesh(new THREE.TorusGeometry(3.45, 0.042, 20, 128), matGold);
+    var r2 = new THREE.Mesh(new THREE.TorusGeometry(2.75, 0.028, 18, 112), matCyan);
+    var r3 = new THREE.Mesh(new THREE.TorusGeometry(2.05, 0.022, 16, 96), matGold);
+    var coreOrb = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(0.36, 2),
+      new THREE.MeshBasicMaterial({color:0xfef08a})
+    );
+    portalGroup.add(r1, r2, r3, coreOrb);
+    scene.add(portalGroup);
+
+    var floor = new THREE.Mesh(
+      new THREE.CircleGeometry(15, 64),
+      new THREE.MeshStandardMaterial({color:0x050916, metalness:0.82, roughness:0.24})
+    );
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = -2.55;
+    scene.add(floor);
+
+    var pCount = 520;
+    var pGeo = new THREE.BufferGeometry();
+    var pPos = new Float32Array(pCount * 3);
+    var pCol = new Float32Array(pCount * 3);
+    for (var i = 0; i < pCount; i++) {
+      pPos[i*3]   = (Math.random() - 0.5) * 18;
+      pPos[i*3+1] = (Math.random() - 0.5) * 9.5;
+      pPos[i*3+2] = (Math.random() - 0.30) * 11.0;
+      var isGold = Math.random() > 0.35;
+      pCol[i*3]   = isGold ? 1.0 : 0.22;
+      pCol[i*3+1] = isGold ? 0.84 : 0.78;
+      pCol[i*3+2] = isGold ? 0.24 : 1.0;
+    }
+    pGeo.setAttribute("position", new THREE.BufferAttribute(pPos, 3));
+    pGeo.setAttribute("color", new THREE.BufferAttribute(pCol, 3));
+    var embers = new THREE.Points(
+      pGeo,
+      new THREE.PointsMaterial({size: 0.085, vertexColors: true, transparent: true, opacity: 0.88, blending: THREE.AdditiveBlending, depthWrite: false})
+    );
+    scene.add(embers);
+
+    // GLSL ES 1.0 STRICT LIVING-CARD SHADER (edge0 < edge1 guaranteed in all smoothstep calls -> 100% ANGLE/D3D11 safe!)
+    var CARD_VERT = [
+      "varying vec2 vUv;",
+      "void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }"
+    ].join("\n");
+
+    var CARD_FRAG = [
+      "precision mediump float;",
+      "uniform sampler2D uMap;",
+      "uniform float uTime;",
+      "uniform vec2 uTilt;",
+      "uniform float uSeed;",
+      "varying vec2 vUv;",
+      "void main(){",
+      "  vec2 uv = vUv;",
+      "  vec4 baseCol = texture2D(uMap, uv);",
+      "  float lum = dot(baseCol.rgb, vec3(0.299, 0.587, 0.114));",
+      "  vec2 dCore = vec2((uv.x - 0.5) / 0.35, (uv.y - 0.53) / 0.29);",
+      "  float innerMask = clamp(1.0 - dot(dCore, dCore), 0.0, 1.0);",
+      "  innerMask = pow(innerMask, 1.25);",
+      "  float energyMask = innerMask * smoothstep(0.14, 0.58, lum);",
+      "  float t = uTime + uSeed * 4.7;",
+      "  vec2 toC = uv - vec2(0.5, 0.53);",
+      "  float r = length(toC);",
+      "  float ang = atan(toC.y, toC.x);",
+      "  vec2 swirl = vec2(sin(uv.y * 19.0 - t * 2.5) + cos(ang * 5.0 + t * 2.0), cos(uv.x * 17.0 + t * 2.2) + sin(r * 24.0 - t * 3.1)) * 0.0095 * energyMask;",
+      "  vec2 parallax = uTilt * 0.016 * innerMask;",
+      "  vec2 liveUv = clamp(uv + swirl + parallax, vec2(0.002), vec2(0.998));",
+      "  vec3 col = texture2D(uMap, liveUv).rgb;",
+      "  float wave = (0.5 + 0.5 * sin(r * 32.0 - t * 3.6)) * energyMask;",
+      "  float radialFade = 1.0 - smoothstep(0.05, 0.45, r);",
+      "  float rays = pow(0.5 + 0.5 * sin(ang * 8.0 + t * 1.4), 4.0) * innerMask * radialFade;",
+      "  col += vec3(1.0, 0.80, 0.32) * (wave * 0.18 + rays * 0.20);",
+      "  float sweepCoord = uv.x * 0.9 + uv.y * 0.55 + uTilt.x * 0.35 - fract(t * 0.16) * 2.2 + 0.55;",
+      "  float foilSheen = exp(-sweepCoord * sweepCoord * 34.0) * smoothstep(0.32, 0.78, lum);",
+      "  col += mix(vec3(1.0, 0.88, 0.45), vec3(0.35, 0.85, 1.0), 0.5 + 0.5 * sin(t + uv.y * 4.0)) * foilSheen * 0.28;",
+      "  gl_FragColor = vec4(col, 1.0);",
+      "}"
+    ].join("\n");
+
+    var SLOT_POS = [
+      {slotLabel:"I. PAST CATALYST", x:-2.85, ry:0.26, baseZ:0.0},
+      {slotLabel:"II. PRESENT SHIFT", x:0.0,   ry:0.0,  baseZ:0.65},
+      {slotLabel:"III. QUANTUM OUTCOME", x:2.85, ry:-0.26, baseZ:0.0}
+    ];
+
+    function makeBackTexture(slotLabel){
+      var bc = document.createElement("canvas");
+      bc.width = 512; bc.height = 820;
+      var g = bc.getContext("2d");
+      var grd = g.createRadialGradient(256, 410, 25, 256, 410, 440);
+      grd.addColorStop(0, "#172045"); grd.addColorStop(0.55, "#080d1e"); grd.addColorStop(1, "#02040a");
+      g.fillStyle = grd; g.fillRect(0, 0, 512, 820);
+      g.strokeStyle = "#eab308"; g.lineWidth = 10; g.strokeRect(20, 20, 472, 780);
+      g.strokeStyle = "rgba(56,189,248,0.65)"; g.lineWidth = 3; g.strokeRect(42, 42, 428, 736);
+      g.beginPath(); g.arc(256, 405, 145, 0, Math.PI*2); g.strokeStyle = "#eab308"; g.lineWidth = 5; g.stroke();
+      g.beginPath(); g.arc(256, 405, 105, 0, Math.PI*2); g.strokeStyle = "#38bdf8"; g.lineWidth = 3; g.stroke();
+      g.fillStyle = "#facc15"; g.font = "bold 36px Georgia,serif"; g.textAlign = "center";
+      g.fillText("ORACLE", 256, 400);
+      g.fillStyle = "#38bdf8"; g.font = "bold 20px Segoe UI,sans-serif";
+      g.fillText(slotLabel, 256, 442);
+      g.fillStyle = "#fef08a"; g.font = "bold 19px Segoe UI,sans-serif";
+      g.fillText("CLICK TO ACTIVATE LIVING CARD", 256, 735);
+      var tex = new THREE.CanvasTexture(bc);
+      tex.encoding = THREE.sRGBEncoding;
+      return tex;
+    }
+
+    var loader = new THREE.TextureLoader();
+    var edgeMat = new THREE.MeshStandardMaterial({color:0xd97706, metalness:0.92, roughness:0.20, emissive:0x451a03, emissiveIntensity:0.35});
+    var cardGeo = new THREE.BoxGeometry(2.05, 3.28, 0.095);
+    var cardMeshes = [];
+    var livingUniforms = [];
+
+    function makeCardSparks(){
+      var n = 45;
+      var sg = new THREE.BufferGeometry();
+      var sp = new Float32Array(n * 3);
+      for (var i = 0; i < n; i++) {
+        sp[i*3]   = (Math.random() - 0.5) * 1.45;
+        sp[i*3+1] = (Math.random() - 0.5) * 1.85;
+        sp[i*3+2] = -0.06 - Math.random() * 0.95;
+      }
+      sg.setAttribute("position", new THREE.BufferAttribute(sp, 3));
+      return new THREE.Points(sg, new THREE.PointsMaterial({color:0xfef08a, size:0.07, transparent:true, opacity:0.88, blending:THREE.AdditiveBlending, depthWrite:false}));
+    }
+
+    function buildSpreadMeshes(cards3, startFaceUp){
+      cardMeshes.forEach(function(m){ scene.remove(m); });
+      cardMeshes = [];
+      livingUniforms = [];
+      var list = cards3.slice();
+      while (list.length < 3) list.push(list[list.length - 1] || FALLBACK_DECK[0]);
+      list.slice(0, 3).forEach(function(cd, idx){
+        var sl = SLOT_POS[idx];
+        var tex = loader.load(cd.img + "?v=" + Date.now());
+        var unif = {
+          uMap:  {value: tex},
+          uTime: {value: 0.0},
+          uTilt: {value: new THREE.Vector2(0, 0)},
+          uSeed: {value: idx + 1.0}
+        };
+        livingUniforms.push(unif);
+        var frontMat = new THREE.ShaderMaterial({uniforms: unif, vertexShader: CARD_VERT, fragmentShader: CARD_FRAG});
+        var backMat  = new THREE.MeshStandardMaterial({map: makeBackTexture(sl.slotLabel), metalness:0.35, roughness:0.35});
+        var mesh = new THREE.Mesh(cardGeo, [edgeMat, edgeMat, edgeMat, edgeMat, backMat, frontMat]);
+        var isUp = !!startFaceUp;
+        mesh.position.set(sl.x, -0.22, isUp ? (sl.baseZ + 0.55) : sl.baseZ);
+        mesh.rotation.y = sl.ry + (isUp ? Math.PI : 0);
+
+        var sparks = makeCardSparks();
+        sparks.visible = isUp;
+        mesh.add(sparks);
+
+        mesh.userData = {idx:idx, card:cd, slot:sl, flipped:isUp, targetFlip:(isUp ? Math.PI : 0), targetZ:(isUp ? (sl.baseZ + 0.55) : sl.baseZ), baseY:-0.22, sparks:sparks};
+        scene.add(mesh);
+        cardMeshes.push(mesh);
+      });
+    }
+
+    // Start face-up immediately so visitor sees the living ray-traced 3D plasma cards on frame 1!
+    buildSpreadMeshes(ACTIVE_DECK.slice(0, 3), true);
+    fetch("/api/deck-manifest").then(function(r){ return r.json(); }).then(function(list){
+      if (Array.isArray(list) && list.length > 0) {
+        ACTIVE_DECK = list;
+        buildSpreadMeshes(ACTIVE_DECK.slice(0, 3), true);
+      }
+    }).catch(function(){});
+
+    var raycaster = new THREE.Raycaster();
+    var mouse = new THREE.Vector2(0, 0);
+    var dragging = false, movedDist = 0, lastX = 0, lastY = 0;
+    var orbitYaw = 0, orbitPitch = 0.04, targetYaw = 0, targetPitch = 0.04;
+
+    canvas.addEventListener("mousedown", function(e){ dragging = true; movedDist = 0; lastX = e.clientX; lastY = e.clientY; });
+    window.addEventListener("mouseup", function(){ dragging = false; });
+    window.addEventListener("mousemove", function(e){
+      var rect = canvas.getBoundingClientRect();
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      if (dragging) {
+        var dx = e.clientX - lastX, dy = e.clientY - lastY;
+        movedDist += Math.abs(dx) + Math.abs(dy);
+        targetYaw = Math.max(-0.85, Math.min(0.85, targetYaw - dx * 0.005));
+        targetPitch = Math.max(-0.35, Math.min(0.45, targetPitch + dy * 0.004));
+        lastX = e.clientX; lastY = e.clientY;
+      } else {
+        targetYaw = mouse.x * 0.22;
+        targetPitch = 0.04 + mouse.y * 0.12;
+      }
+    });
+
+    function activateCard(mesh, playSound){
+      var u = mesh.userData;
+      // Pop selected card forward & play its warm female studio reading (click again to flip back)
+      if (!u.flipped) {
+        u.flipped = true; u.targetFlip = Math.PI; u.targetZ = 2.15; u.sparks.visible = true;
+      } else if (u.targetZ < 1.8) {
+        u.targetZ = 2.15;
+      } else {
+        u.targetZ = u.slot.baseZ + 0.55;
+      }
       capEl.textContent = u.slot.slotLabel + "  //  " + u.card.title + " — LIVING 3D CARD ACTIVE";
       if (playSound) { try { audioPlayer.pause(); audioPlayer.src = u.card.audio + "?v=" + Date.now(); audioPlayer.play(); } catch(e){} }
     }
-  }
 
-  canvas.addEventListener("click", function(){
-    if (movedDist > 8) return;
-    raycaster.setFromCamera(mouse, camera);
-    var hits = raycaster.intersectObjects(cardMeshes);
-    if (hits.length > 0) flipCard(hits[0].object, true);
-  });
-
-  window.revealAll3DCards = function(){
-    cardMeshes.forEach(function(m, i){
-      if (!m.userData.flipped) setTimeout(function(){ flipCard(m, false); }, i * 380);
+    canvas.addEventListener("click", function(){
+      if (movedDist > 8) return;
+      raycaster.setFromCamera(mouse, camera);
+      var hits = raycaster.intersectObjects(cardMeshes);
+      if (hits.length > 0) activateCard(hits[0].object, true);
     });
-    var q = [0, 1, 2], qi = 0;
-    function nextVoice(){
-      if (qi >= q.length) return;
-      var u = cardMeshes[q[qi++]].userData;
-      capEl.textContent = u.slot.slotLabel + "  //  " + u.card.title + " — LIVING 3D CARD ACTIVE";
-      audioPlayer.src = u.card.audio + "?v=" + Date.now();
-      audioPlayer.onended = nextVoice;
-      audioPlayer.play().catch(function(){});
-    }
-    nextVoice();
-  };
 
-  window.shuffleAndDraw3D = function(){
-    try { audioPlayer.pause(); } catch(e){}
-    var pool = ACTIVE_DECK.slice();
-    for (var i = pool.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
-    }
-    buildSpreadMeshes(pool.slice(0, 3));
-    cardMeshes.forEach(function(m){ m.rotation.y += Math.PI * 2; m.position.z = -3.2; });
-    capEl.textContent = "SHUFFLED " + ACTIVE_DECK.length + " LIVING 3D CARDS — CLICK ANY CARD TO REVEAL";
-  };
-
-  var clock = new THREE.Clock();
-  function animate(){
-    requestAnimationFrame(animate);
-    var t = clock.getElapsedTime();
-
-    orbitYaw += (targetYaw - orbitYaw) * 0.07;
-    orbitPitch += (targetPitch - orbitPitch) * 0.07;
-    var radius = 8.8;
-    camera.position.x = Math.sin(orbitYaw) * radius;
-    camera.position.z = Math.cos(orbitYaw) * radius;
-    camera.position.y = 0.25 + orbitPitch * 3.0;
-    camera.lookAt(0, -0.15, 0.3);
-
-    // Drive every card's live internal GLSL plasma & parallax shader every frame!
-    for (var u_i = 0; u_i < livingUniforms.length; u_i++) {
-      livingUniforms[u_i].uTime.value = t;
-      livingUniforms[u_i].uTilt.value.set(orbitYaw, orbitPitch);
-    }
-
-    goldLight.position.x = Math.cos(t * 0.75) * 5.8;
-    goldLight.position.y = 1.6 + Math.sin(t * 0.55) * 2.2;
-    cyanLight.position.x = Math.sin(t * 0.65) * 5.8;
-    coreOrb.rotation.y = t * 0.8; coreOrb.rotation.x = t * 0.5;
-
-    r1.rotation.x = t * 0.22; r1.rotation.y = t * 0.26;
-    r2.rotation.x = -t * 0.28; r2.rotation.z = t * 0.16;
-    r3.rotation.y = -t * 0.36;
-
-    var arr = embers.geometry.attributes.position.array;
-    for (var i = 0; i < pCount; i++) {
-      arr[i*3+1] += 0.0055;
-      arr[i*3+2] += 0.011;
-      if (arr[i*3+2] > 7.8 || arr[i*3+1] > 5.0) {
-        arr[i*3+1] = -4.6;
-        arr[i*3+2] = -3.8;
+    window.revealAll3DCards = function(){
+      cardMeshes.forEach(function(m, i){
+        setTimeout(function(){
+          var u = m.userData;
+          u.flipped = true; u.targetFlip = Math.PI; u.targetZ = 1.95; u.sparks.visible = true;
+        }, i * 320);
+      });
+      var q = [0, 1, 2], qi = 0;
+      function nextVoice(){
+        if (qi >= q.length) return;
+        var u = cardMeshes[q[qi++]].userData;
+        capEl.textContent = u.slot.slotLabel + "  //  " + u.card.title + " — WARM STUDIO READING";
+        audioPlayer.src = u.card.audio + "?v=" + Date.now();
+        audioPlayer.onended = nextVoice;
+        audioPlayer.play().catch(function(){});
       }
-    }
-    embers.geometry.attributes.position.needsUpdate = true;
+      nextVoice();
+    };
 
-    raycaster.setFromCamera(mouse, camera);
-    var hits = raycaster.intersectObjects(cardMeshes);
-    var hoverObj = hits.length ? hits[0].object : null;
+    window.shuffleAndDraw3D = function(){
+      try { audioPlayer.pause(); } catch(e){}
+      var pool = ACTIVE_DECK.slice();
+      for (var i = pool.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
+      }
+      buildSpreadMeshes(pool.slice(0, 3), false);
+      cardMeshes.forEach(function(m, idx){
+        m.rotation.y += Math.PI * 2; m.position.z = -3.2;
+        setTimeout(function(){
+          var u = m.userData;
+          u.flipped = true; u.targetFlip = Math.PI; u.targetZ = u.slot.baseZ + 0.55; u.sparks.visible = true;
+        }, 420 + idx * 280);
+      });
+      capEl.textContent = "SHUFFLED " + ACTIVE_DECK.length + " LIVING 3D CARDS — CLICK ANY CARD TO HEAR READING";
+    };
 
-    cardMeshes.forEach(function(m, i){
-      var u = m.userData;
-      var isH = (m === hoverObj);
-      var goalZ = u.targetZ + (isH ? 0.55 : 0);
-      m.position.z += (goalZ - m.position.z) * 0.095;
-      m.position.y = u.baseY + Math.sin(t * 1.5 + i * 1.4) * 0.11;
-      var goalRy = u.slot.ry + u.targetFlip;
-      m.rotation.y += (goalRy - m.rotation.y) * 0.10;
-      var goalRx = isH ? -mouse.y * 0.18 : 0;
-      m.rotation.x += (goalRx - m.rotation.x) * 0.08;
+    var clock = new THREE.Clock();
+    function animate(){
+      requestAnimationFrame(animate);
+      var t = clock.getElapsedTime();
 
-      // Animate 3D sparks erupting straight out of each revealed card's surface!
-      if (u.sparks.visible) {
-        var sp = u.sparks.geometry.attributes.position.array;
-        for (var k = 0; k < sp.length; k += 3) {
-          sp[k+1] += 0.008;
-          sp[k+2] -= 0.014;
-          if (sp[k+2] < -1.35 || sp[k+1] > 1.35) {
-            sp[k]   = (Math.random() - 0.5) * 1.15;
-            sp[k+1] = (Math.random() - 0.5) * 1.25;
-            sp[k+2] = -0.06;
-          }
+      orbitYaw += (targetYaw - orbitYaw) * 0.07;
+      orbitPitch += (targetPitch - orbitPitch) * 0.07;
+      var radius = 8.8;
+      camera.position.x = Math.sin(orbitYaw) * radius;
+      camera.position.z = Math.cos(orbitYaw) * radius;
+      camera.position.y = 0.22 + orbitPitch * 3.0;
+      camera.lookAt(0, -0.15, 0.3);
+
+      for (var u_i = 0; u_i < livingUniforms.length; u_i++) {
+        livingUniforms[u_i].uTime.value = t;
+        livingUniforms[u_i].uTilt.value.set(orbitYaw, orbitPitch);
+      }
+
+      goldLight.position.x = Math.cos(t * 0.75) * 5.8;
+      goldLight.position.y = 1.6 + Math.sin(t * 0.55) * 2.2;
+      cyanLight.position.x = Math.sin(t * 0.65) * 5.8;
+      coreOrb.rotation.y = t * 0.8; coreOrb.rotation.x = t * 0.5;
+
+      r1.rotation.x = t * 0.22; r1.rotation.y = t * 0.26;
+      r2.rotation.x = -t * 0.28; r2.rotation.z = t * 0.16;
+      r3.rotation.y = -t * 0.36;
+
+      var arr = embers.geometry.attributes.position.array;
+      for (var i = 0; i < pCount; i++) {
+        arr[i*3+1] += 0.0055;
+        arr[i*3+2] += 0.011;
+        if (arr[i*3+2] > 7.8 || arr[i*3+1] > 5.0) {
+          arr[i*3+1] = -4.6;
+          arr[i*3+2] = -3.8;
         }
-        u.sparks.geometry.attributes.position.needsUpdate = true;
       }
-    });
+      embers.geometry.attributes.position.needsUpdate = true;
 
-    if (composer) composer.render(); else renderer.render(scene, camera);
+      raycaster.setFromCamera(mouse, camera);
+      var hits = raycaster.intersectObjects(cardMeshes);
+      var hoverObj = hits.length ? hits[0].object : null;
+
+      cardMeshes.forEach(function(m, i){
+        var u = m.userData;
+        var isH = (m === hoverObj);
+        var goalZ = u.targetZ + (isH ? 0.45 : 0);
+        m.position.z += (goalZ - m.position.z) * 0.095;
+        m.position.y = u.baseY + Math.sin(t * 1.5 + i * 1.4) * 0.11;
+        var goalRy = u.slot.ry + u.targetFlip;
+        m.rotation.y += (goalRy - m.rotation.y) * 0.10;
+        var goalRx = isH ? -mouse.y * 0.18 : 0;
+        m.rotation.x += (goalRx - m.rotation.x) * 0.08;
+
+        if (u.sparks.visible) {
+          var sp = u.sparks.geometry.attributes.position.array;
+          for (var k = 0; k < sp.length; k += 3) {
+            sp[k+1] += 0.008;
+            sp[k+2] -= 0.014;
+            if (sp[k+2] < -1.35 || sp[k+1] > 1.35) {
+              sp[k]   = (Math.random() - 0.5) * 1.15;
+              sp[k+1] = (Math.random() - 0.5) * 1.25;
+              sp[k+2] = -0.06;
+            }
+          }
+          u.sparks.geometry.attributes.position.needsUpdate = true;
+        }
+      });
+
+      renderer.render(scene, camera);
+    }
+    animate();
   }
-  animate();
+
+  // Boot after local three.min.js finishes loading
+  if (typeof THREE !== "undefined") bootWebGL();
+  else setTimeout(bootWebGL, 450);
 })();
 </script>
 </body>
