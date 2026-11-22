@@ -583,6 +583,10 @@ def _oracle_handle_fast_cash_tiers():
         from flask import request as _req, redirect as _redir, jsonify as _jfy, send_from_directory as _sfd
         import json as _j, os as _o, sqlite3 as _sq, datetime as _dt
         base_dir = _o.path.dirname(_o.path.abspath(__file__))
+        if _req.path == "/static/omega_card_spread.js":
+            return _sfd(_o.path.join(base_dir, "static"), "omega_card_spread.js", mimetype="application/javascript")
+        if _req.path.startswith("/static/card_voices/"):
+            return _sfd(_o.path.join(base_dir, "static", "card_voices"), _req.path.rsplit("/", 1)[-1], mimetype="audio/mpeg")
         if _req.path == "/static/omega_5d_engine.js":
             return _sfd(_o.path.join(base_dir, "static"), "omega_5d_engine.js", mimetype="application/javascript")
         if _req.path == "/api/live-pulse":
