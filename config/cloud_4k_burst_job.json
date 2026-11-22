@@ -1,0 +1,11 @@
+{
+  "profile": "Oracle_4K60_Flagship_Cloud_Burst",
+  "resolution": "3840x2160",
+  "fps": 60,
+  "encoder": "h264_nvenc",
+  "bitrate": "24000k",
+  "audio_lufs": -14.0,
+  "voice_default": "en-IE-EmilyNeural",
+  "recommended_gpu": "NVIDIA L4 / RTX 4090 Spot Instance",
+  "updated_utc": "2026-11-22T07:15:20.095091Z"
+}

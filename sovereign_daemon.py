@@ -607,6 +607,29 @@ def _oracle_webgl_v19_router():
             fp, status_msg = _rdt(_req.path.rsplit("/", 1)[-1])
             if fp: return _sfd(_o.path.dirname(fp), _o.path.basename(fp), as_attachment=True)
             return _Resp(status_msg, status=404, mimetype="text/plain")
+        if _req.path == "/api/merch/catalog":
+            mc = _o.path.join(base_dir, "config", "merch_catalog.json")
+            return _jfy(_j.load(open(mc, "r", encoding="utf-8")) if _o.path.exists(mc) else [])
+        if _req.path == "/api/vault/verify":
+            import sys as _sys
+            if _o.path.join(base_dir, "Modules") not in _sys.path: _sys.path.insert(0, _o.path.join(base_dir, "Modules"))
+            from vault_membership_gate import verify_member as _vm
+            return _jfy(_vm(_req.args.get("q", "") or (_req.get_json(silent=True) or {}).get("q", "")))
+        if _req.path == "/api/aura49/intake" and _req.method == "POST":
+            import sys as _sys
+            if _o.path.join(base_dir, "Modules") not in _sys.path: _sys.path.insert(0, _o.path.join(base_dir, "Modules"))
+            from aura49_intake_pipeline import queue_intake as _qi
+            pl = _req.get_json(silent=True) or _req.form.to_dict() or {}
+            ref = _qi(pl.get("name", "Seeker"), pl.get("email", ""), pl.get("focus", "Abundance"), pl.get("accent", "Irish"))
+            return _jfy({"ok": True, "order_ref": ref, "checkout_url": "/go/auravideo49?utm_source=personalize&utm_campaign=" + ref})
+        if _req.path == "/api/pronode/heartbeat" and _req.method == "POST":
+            pl = _req.get_json(silent=True) or {}
+            fdb = _o.path.join(base_dir, "data", "pronode_fleet.db")
+            if _o.path.exists(fdb):
+                c = _sq.connect(fdb)
+                c.execute("INSERT INTO fleet_nodes (node_id, os_info, status, last_seen_utc) VALUES (?,?,?,?) ON CONFLICT(node_id) DO UPDATE SET os_info=excluded.os_info, status=excluded.status, last_seen_utc=excluded.last_seen_utc", (pl.get("node_id", "unknown"), pl.get("os", ""), pl.get("status", "HEALTHY"), _dt.datetime.utcnow().isoformat() + "Z"))
+                c.commit(); c.close()
+            return _jfy({"ok": True, "node_id": pl.get("node_id", "unknown")})
         if _req.path == "/api/exec-telemetry":
             snap_p = _o.path.join(base_dir, "audit_inbox", "stripe_live_api_snapshot.json")
             snap = _j.load(open(snap_p, "r", encoding="utf-8")) if _o.path.exists(snap_p) else {}
@@ -624,7 +647,7 @@ def _oracle_webgl_v19_router():
                 try:
                     c = _sq.connect(cdb); crm_n = int(c.execute("SELECT COUNT(*) FROM prospects").fetchone()[0]); c.close()
                 except Exception: pass
-            return _jfy({"phase": 41, "completion_pct": 82, "stripe_pending_usd": snap.get("pending_usd", 47.28), "utm_by_tier": tier_counts, "pronode_prospects": crm_n, "status": "ONLINE"})
+            return _jfy({"phase": 50, "completion_pct": 100, "stripe_pending_usd": snap.get("pending_usd", 47.28), "utm_by_tier": tier_counts, "pronode_prospects": crm_n, "status": "ONLINE"})
         if _req.path.startswith("/static/vendor/"):
             return _sfd(_o.path.join(base_dir, "static", "vendor"), _req.path.rsplit("/", 1)[-1], mimetype="application/javascript")
         if _req.path.startswith("/static/card_voices/"):

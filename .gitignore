@@ -124,3 +124,10 @@ data/nurture_crm.db
 data/living_shorts_rendered.json
 backups/dr_snapshots/
 deliverables/proposals/*.pdf
+data/aura49_orders.db
+data/vault_members.db
+data/distribution_log.db
+data/merch_orders.db
+data/pronode_fleet.db
+deliverables/social_queue/
+deploy_bundle/*.tar.gz

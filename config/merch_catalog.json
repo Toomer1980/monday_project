@@ -1,0 +1,30 @@
+[
+  {
+    "sku": "ORCL-DECK-GOLD",
+    "name": "Oracle Systems Collector Gold-Foil 10-Card Physical Deck",
+    "price_usd": 49.0,
+    "provider": "printify",
+    "margin_est_usd": 31.0
+  },
+  {
+    "sku": "ORCL-HOODIE-5D",
+    "name": "Sovereign 5D Obsidian & Gold Heavyweight Hoodie",
+    "price_usd": 68.0,
+    "provider": "printful",
+    "margin_est_usd": 29.5
+  },
+  {
+    "sku": "ORCL-DESKMAT-3D",
+    "name": "Celestial Astrolabe XL Gaming & Studio Desk Mat",
+    "price_usd": 34.0,
+    "provider": "printful",
+    "margin_est_usd": 17.0
+  },
+  {
+    "sku": "ORCL-MUG-MATTE",
+    "name": "Oracle Systems Matte Black & Gold Ceramic Mug",
+    "price_usd": 22.0,
+    "provider": "printify",
+    "margin_est_usd": 11.5
+  }
+]
