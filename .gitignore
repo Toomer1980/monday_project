@@ -108,3 +108,10 @@ config/gmail_token.json
 config/stripe_new_tiers.json
 deliverables/*.zip
 p14.ps1
+data/yt_commented_ids.json
+data/omega_strategy_state.json
+data/tier1_gate_alert_sent.flag
+reports/Daily_Traffic_Pack_*.md
+reports/Omega_Bandit_Strategy.md
+reports/AI_Self_Heal_Log.md
+logs/daemon_boot.log
