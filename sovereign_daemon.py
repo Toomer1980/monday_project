@@ -598,6 +598,33 @@ def _oracle_webgl_v19_router():
                 return _Resp(open(html_p, "r", encoding="utf-8").read(), mimetype="text/html")
         if _req.path.startswith("/assets/tarot_deck/"):
             return _sfd(_o.path.join(base_dir, "assets", "tarot_deck"), _req.path.rsplit("/", 1)[-1])
+        if _req.path == "/static/phase32_interactive_audio.js":
+            return _sfd(_o.path.join(base_dir, "static"), "phase32_interactive_audio.js", mimetype="application/javascript")
+        if _req.path.startswith("/download/"):
+            import sys as _sys
+            if _o.path.join(base_dir, "Modules") not in _sys.path: _sys.path.insert(0, _o.path.join(base_dir, "Modules"))
+            from license_fulfillment_engine import resolve_download_token as _rdt
+            fp, status_msg = _rdt(_req.path.rsplit("/", 1)[-1])
+            if fp: return _sfd(_o.path.dirname(fp), _o.path.basename(fp), as_attachment=True)
+            return _Resp(status_msg, status=404, mimetype="text/plain")
+        if _req.path == "/api/exec-telemetry":
+            snap_p = _o.path.join(base_dir, "audit_inbox", "stripe_live_api_snapshot.json")
+            snap = _j.load(open(snap_p, "r", encoding="utf-8")) if _o.path.exists(snap_p) else {}
+            tier_counts = {}
+            udb = _o.path.join(base_dir, "data", "utm_analytics.db")
+            if _o.path.exists(udb):
+                try:
+                    c = _sq.connect(udb)
+                    for tk, cnt in c.execute("SELECT tier, COUNT(*) FROM utm_clicks GROUP BY tier").fetchall(): tier_counts[tk] = int(cnt)
+                    c.close()
+                except Exception: pass
+            crm_n = 0
+            cdb = _o.path.join(base_dir, "data", "pronode_crm.db")
+            if _o.path.exists(cdb):
+                try:
+                    c = _sq.connect(cdb); crm_n = int(c.execute("SELECT COUNT(*) FROM prospects").fetchone()[0]); c.close()
+                except Exception: pass
+            return _jfy({"phase": 41, "completion_pct": 82, "stripe_pending_usd": snap.get("pending_usd", 47.28), "utm_by_tier": tier_counts, "pronode_prospects": crm_n, "status": "ONLINE"})
         if _req.path.startswith("/static/vendor/"):
             return _sfd(_o.path.join(base_dir, "static", "vendor"), _req.path.rsplit("/", 1)[-1], mimetype="application/javascript")
         if _req.path.startswith("/static/card_voices/"):

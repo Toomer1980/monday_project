@@ -119,3 +119,8 @@ data/verified_deck_manifest.json
 reports/Deep_QA_Audit.md
 logs/cinema_shorts_work/
 logs/real_reading_work/
+data/orders_ledger.db
+data/nurture_crm.db
+data/living_shorts_rendered.json
+backups/dr_snapshots/
+deliverables/proposals/*.pdf
